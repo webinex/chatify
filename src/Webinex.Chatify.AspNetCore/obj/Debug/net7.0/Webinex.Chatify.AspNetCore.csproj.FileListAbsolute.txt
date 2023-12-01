@@ -1,0 +1,15 @@
+D:\dev\repos\webinex\chatify\src\Webinex.Chatify.AspNetCore\bin\Debug\net7.0\Webinex.Chatify.AspNetCore.deps.json
+D:\dev\repos\webinex\chatify\src\Webinex.Chatify.AspNetCore\bin\Debug\net7.0\Webinex.Chatify.AspNetCore.dll
+D:\dev\repos\webinex\chatify\src\Webinex.Chatify.AspNetCore\bin\Debug\net7.0\Webinex.Chatify.AspNetCore.pdb
+D:\dev\repos\webinex\chatify\src\Webinex.Chatify.AspNetCore\obj\Debug\net7.0\Webinex.Chatify.AspNetCore.csproj.AssemblyReference.cache
+D:\dev\repos\webinex\chatify\src\Webinex.Chatify.AspNetCore\obj\Debug\net7.0\Webinex.Chatify.AspNetCore.GeneratedMSBuildEditorConfig.editorconfig
+D:\dev\repos\webinex\chatify\src\Webinex.Chatify.AspNetCore\obj\Debug\net7.0\Webinex.Chatify.AspNetCore.AssemblyInfoInputs.cache
+D:\dev\repos\webinex\chatify\src\Webinex.Chatify.AspNetCore\obj\Debug\net7.0\Webinex.Chatify.AspNetCore.AssemblyInfo.cs
+D:\dev\repos\webinex\chatify\src\Webinex.Chatify.AspNetCore\obj\Debug\net7.0\Webinex.Chatify.AspNetCore.csproj.CoreCompileInputs.cache
+D:\dev\repos\webinex\chatify\src\Webinex.Chatify.AspNetCore\obj\Debug\net7.0\Webinex.Chatify.AspNetCore.dll
+D:\dev\repos\webinex\chatify\src\Webinex.Chatify.AspNetCore\obj\Debug\net7.0\refint\Webinex.Chatify.AspNetCore.dll
+D:\dev\repos\webinex\chatify\src\Webinex.Chatify.AspNetCore\obj\Debug\net7.0\Webinex.Chatify.AspNetCore.pdb
+D:\dev\repos\webinex\chatify\src\Webinex.Chatify.AspNetCore\obj\Debug\net7.0\ref\Webinex.Chatify.AspNetCore.dll
+D:\dev\repos\webinex\chatify\src\Webinex.Chatify.AspNetCore\bin\Debug\net7.0\Webinex.Chatify.dll
+D:\dev\repos\webinex\chatify\src\Webinex.Chatify.AspNetCore\bin\Debug\net7.0\Webinex.Chatify.pdb
+D:\dev\repos\webinex\chatify\src\Webinex.Chatify.AspNetCore\obj\Debug\net7.0\Webinex.Chatify.AspNetCore.csproj.CopyComplete
