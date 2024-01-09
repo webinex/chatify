@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(MSBuildThisFileDirectory)/Package.props"/>
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Webinex.Chatify.Abstractions\Webinex.Chatify.Abstractions.csproj" />
+    <ProjectReference Include="..\Webinex.Chatify.Abstractions.Events\Webinex.Chatify.Abstractions.Events.csproj" />
+    <ProjectReference Include="..\Webinex.Chatify\Webinex.Chatify.csproj" />
+    <ProjectReference Include="..\Webinex.Chatify.AspNetCore\Webinex.Chatify.AspNetCore.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,9 @@
+.parcel-cache
+.vscode
+example
+package.add.json
+rollup.config.mjs
+eslintrc.json
+.prettierrc.yml
+yarn-error.log
+yarn.lock

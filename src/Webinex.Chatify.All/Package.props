@@ -1,0 +1,15 @@
+﻿<Project>
+    <PropertyGroup>
+        <Title>Webinex Chatify</Title>
+        <PackageVersion>1.0.0-rc1</PackageVersion>
+        <Authors>Webinex Dev</Authors>
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <Description>Easy to use in-system messaging</Description>
+        <Copyright>Webinex Dev</Copyright>
+        <PackageProjectUrl>https://github.com/webinex/chatify</PackageProjectUrl>
+        <License>https://github.com/webinex/chatify/LICENSE</License>
+        <RepositoryUrl>https://github.com/webinex/chatify</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+</Project>

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="$(MSBuildThisFileDirectory)/../Webinex.Chatify.All/Package.props"/>
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Webinex.Asky" Version="1.2.1"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Webinex.Chatify.Abstractions.csproj.DotSettings" />
+    </ItemGroup>
+
+</Project>

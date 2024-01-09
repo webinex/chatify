@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Webinex.Chatify.Example", "Webinex.Chatify.Example\Webinex.Chatify.Example.csproj", "{F732A7CC-D680-4CB4-A321-5138AA26096C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Webinex.Chatify.AspNetCore", "Webinex.Chatify.AspNetCore\Webinex.Chatify.AspNetCore.csproj", "{049B59F0-694D-4F88-984E-250CF0611093}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Webinex.Chatify", "Webinex.Chatify\Webinex.Chatify.csproj", "{8B928138-F8D0-463E-9CC1-CF42C655A3A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Webinex.Chatify.All", "Webinex.Chatify.All\Webinex.Chatify.All.csproj", "{F0E90985-1C46-4648-B4A2-1CA9A7EC0A29}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Webinex.Chatify.Abstractions", "Webinex.Chatify.Abstractions\Webinex.Chatify.Abstractions.csproj", "{10DA16E6-E075-4728-ADDA-305FCD6229D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Webinex.Chatify.Abstractions.Events", "Webinex.Chatify.Abstractions.Events\Webinex.Chatify.Abstractions.Events.csproj", "{BD7500F5-3B7D-4E51-926E-10175587B56C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F732A7CC-D680-4CB4-A321-5138AA26096C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F732A7CC-D680-4CB4-A321-5138AA26096C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F732A7CC-D680-4CB4-A321-5138AA26096C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F732A7CC-D680-4CB4-A321-5138AA26096C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{049B59F0-694D-4F88-984E-250CF0611093}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{049B59F0-694D-4F88-984E-250CF0611093}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{049B59F0-694D-4F88-984E-250CF0611093}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{049B59F0-694D-4F88-984E-250CF0611093}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B928138-F8D0-463E-9CC1-CF42C655A3A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B928138-F8D0-463E-9CC1-CF42C655A3A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B928138-F8D0-463E-9CC1-CF42C655A3A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B928138-F8D0-463E-9CC1-CF42C655A3A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0E90985-1C46-4648-B4A2-1CA9A7EC0A29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0E90985-1C46-4648-B4A2-1CA9A7EC0A29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0E90985-1C46-4648-B4A2-1CA9A7EC0A29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0E90985-1C46-4648-B4A2-1CA9A7EC0A29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10DA16E6-E075-4728-ADDA-305FCD6229D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10DA16E6-E075-4728-ADDA-305FCD6229D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10DA16E6-E075-4728-ADDA-305FCD6229D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10DA16E6-E075-4728-ADDA-305FCD6229D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD7500F5-3B7D-4E51-926E-10175587B56C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD7500F5-3B7D-4E51-926E-10175587B56C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD7500F5-3B7D-4E51-926E-10175587B56C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD7500F5-3B7D-4E51-926E-10175587B56C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

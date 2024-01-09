@@ -1,0 +1,54 @@
+html {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh;
+  font-family: 'Roboto';
+  font-size: 15px;
+}
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.example {
+  padding: 2rem;
+  background-color: #eee;
+}
+
+.wxchtf-chatify {
+  height: calc(100vh - 4rem - 70px);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.user-select-box {
+  height: calc(100vh - 4rem);
+  display: flex;
+  flex-flow: column wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-select-box .user-select {
+  width: 350px;
+}
+
+.user-info {
+  height: 50px;
+  line-height: 50px;
+  margin-bottom: 20px;
+}
+
+.user-info .name {
+  display: inline-block;
+  margin-left: 15px;
+  font-weight: 600;
+}
+
+.--debug .wxchtf-debug {
+  height: calc(100vh - 4rem - 70px);
+  overflow: auto;
+}
