@@ -33,7 +33,7 @@ public class AccountController : ControllerBase
     [HttpGet("account/{id}")]
     public async Task<AccountDto> AccountAsync(string id)
     {
-        var account = await _chatify.AccountById(id, tryCache: true);
+        var account = await _chatify.AccountByIdAsync(id, tryCache: true);
         return new AccountDto(account);
     }
 }

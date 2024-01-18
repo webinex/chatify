@@ -1,3 +1,5 @@
+import { FC } from 'react';
+import { customize } from '../util';
 import { Localizer, useLocalizer } from './localizer';
 
 export interface SystemMessageProps {
@@ -17,7 +19,7 @@ export function formatSystemMessage(localizer: Localizer, text: string): React.R
   return text;
 }
 
-export function SystemMessage(props: SystemMessageProps) {
+export const SystemMessage = customize<FC<SystemMessageProps>, string>('SystemMessage', (props) => {
   const { text, sentAt } = props;
   const localizer = useLocalizer();
 
@@ -27,4 +29,4 @@ export function SystemMessage(props: SystemMessageProps) {
       <div className="wxchtf-timestamp">{localizer.timestamp(sentAt)}</div>
     </div>
   );
-}
+});

@@ -9,7 +9,10 @@ namespace Webinex.Chatify.Services;
 internal interface IAccountService
 {
     Task<IReadOnlyCollection<Account>> GetAllAsync(AccountContext? onBehalfOf = null);
-    Task<IReadOnlyDictionary<string, Account>> ByIdAsync(IEnumerable<string> ids, bool tryCache = false);
+
+    Task<IReadOnlyDictionary<string, Account>> ByIdAsync(IEnumerable<string> ids, bool tryCache = false,
+        bool required = true);
+
     Task<Account[]> AddAsync(IEnumerable<AddAccountArgs> commands);
     Task<Account[]> UpdateAsync(IEnumerable<UpdateAccountArgs> commands);
 }
@@ -39,21 +42,26 @@ internal class AccountService : IAccountService
 
     public async Task<IReadOnlyDictionary<string, Account>> ByIdAsync(
         IEnumerable<string> ids,
-        bool tryCache = false)
+        bool tryCache = false,
+        bool required = true)
     {
         if (!tryCache)
-            return (await _dbContext.Accounts.FindManyRequiredNoTrackingAsync(ids)).ToDictionary(x => x.Id,
-                x => x.ToAbstraction());
+        {
+            return (await _dbContext.Accounts.FindManyNoTrackingAsync(ids, required))
+                .ToDictionary(x => x.Id,
+                    x => x.ToAbstraction());
+        }
 
-        var result = await GetTryCacheAsync(ids);
+        var result = await GetTryCacheAsync(ids, required);
         return result.ToDictionary(x => x.Key, x => x.Value.ToAbstraction()).AsReadOnly();
     }
 
-    private async Task<IReadOnlyDictionary<string, AccountRow>> GetTryCacheAsync(IEnumerable<string> ids)
+    private async Task<IReadOnlyDictionary<string, AccountRow>> GetTryCacheAsync(IEnumerable<string> ids,
+        bool required = true)
     {
         return await _cache.GetOrCreateAsync(ids, async notFoundIds =>
         {
-            var accounts = await _dbContext.Accounts.FindManyRequiredNoTrackingAsync(notFoundIds);
+            var accounts = await _dbContext.Accounts.FindManyNoTrackingAsync(notFoundIds, required);
             return accounts.ToDictionary(x => x.Id);
         });
     }

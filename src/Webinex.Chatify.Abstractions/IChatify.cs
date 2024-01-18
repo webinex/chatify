@@ -1,4 +1,6 @@
-﻿namespace Webinex.Chatify.Abstractions;
+﻿using Webinex.Asky;
+
+namespace Webinex.Chatify.Abstractions;
 
 public interface IChatify
 {
@@ -7,10 +9,19 @@ public interface IChatify
     Task AddMembersAsync(IEnumerable<AddMemberArgs> commands);
     Task RemoveMembersAsync(IEnumerable<RemoveMemberArgs> commands);
     Task<Chat[]> QueryAsync(ChatQuery query);
+
+    Task<IReadOnlyCollection<Chat>> GetAllChatsAsync(
+        FilterRule? filterRule = null,
+        SortRule? sortRule = null,
+        PagingRule? pagingRule = null);
+
     Task<Message[]> QueryAsync(MessageQuery query);
-    Task<IReadOnlyCollection<Chat>> ChatByIdAsync(IEnumerable<Guid> chatIds, AccountContext? onBehalfOf = null);
+    Task<IReadOnlyCollection<Chat>> ChatByIdAsync(IEnumerable<Guid> chatIds, AccountContext? onBehalfOf = null, bool required = true);
     Task<IReadOnlyDictionary<Guid, IReadOnlyCollection<Member>>> MembersAsync(IEnumerable<Guid> chatIds);
-    Task<IReadOnlyDictionary<string, Account>> AccountByIdAsync(IEnumerable<string> ids, bool tryCache = false);
+
+    Task<IReadOnlyDictionary<string, Account>> AccountByIdAsync(IEnumerable<string> ids, bool tryCache = false,
+        bool required = true);
+
     Task<IReadOnlyCollection<Account>> AccountsAsync(AccountContext? onBehalfOf = null);
     Task ReadAsync(ReadArgs args);
     Task<Account[]> AddAccountsAsync(IEnumerable<AddAccountArgs> commands);
@@ -42,10 +53,16 @@ public static class ChatifyExtensions
         return result.First();
     }
 
-    public static async Task<Account> AccountById(this IChatify chatify, string id, bool tryCache = false)
+    public static async Task<Account?> AccountByIdAsync(this IChatify chatify, string id, bool tryCache, bool required)
     {
         chatify = chatify ?? throw new ArgumentNullException(nameof(chatify));
-        var result = await chatify.AccountByIdAsync(new[] { id }, tryCache);
-        return result.Values.First();
+        var result = await chatify.AccountByIdAsync(new[] { id }, tryCache, required);
+        return required ? result.Values.First() : result.Values.FirstOrDefault();
+    }
+
+    public static async Task<Account> AccountByIdAsync(this IChatify chatify, string id, bool tryCache = false)
+    {
+        var result = await AccountByIdAsync(chatify, id, tryCache, required: true);
+        return result!;
     }
 }

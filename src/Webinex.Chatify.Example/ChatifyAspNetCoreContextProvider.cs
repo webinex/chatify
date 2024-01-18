@@ -18,7 +18,7 @@ public class ChatifyAspNetCoreContextProvider : IChatifyAspNetCoreContextProvide
     public async Task<AccountContext> GetAsync()
     {
         var id = _httpContextAccessor.HttpContext!.User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
-        var account = await _chatify.AccountById(id, tryCache: true);
+        var account = await _chatify.AccountByIdAsync(id, tryCache: true);
         return new AccountContext(id, account.WorkspaceId);
     }
 }

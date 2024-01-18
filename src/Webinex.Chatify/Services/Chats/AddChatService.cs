@@ -33,7 +33,10 @@ internal class AddChatService : IAddChatService
 
     private ChatRow NewChat(AddChatArgs arg)
     {
-        var members = arg.Members.Concat(new[] { arg.OnBehalfOf.Id }).Distinct().ToArray();
+        var members = arg.Members.Distinct().ToArray();
+        if (!arg.OnBehalfOf.IsSystem())
+            members = members.Concat(new[] { arg.OnBehalfOf.Id }).Distinct().ToArray();
+        
         return ChatRow.New(
             _eventService,
             arg.OnBehalfOf,

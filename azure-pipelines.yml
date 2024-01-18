@@ -71,16 +71,16 @@ steps:
           errorActionPreference: stop
           failOnStderr: false
 
-  - ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
-      - script: |
-          git config --global user.name "${GH_NAME}"
-          git config --global user.email "${GH_EMAIL}"
-          echo "machine github.com login ${GH_NAME} password ${GH_TOKEN}" > ~/.netrc
-          yarn install
-          GIT_USER="${GH_NAME}" yarn deploy
-        displayName: "[DOCS]: Build & Publish"
-        env:
-          GH_NAME: "webinex"
-          GH_EMAIL: "webinex.dev@gmail.com"
-          GH_TOKEN: $(GITHUB_PAT)
-        workingDirectory: "docs"
+  # - ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+  #     - script: |
+  #         git config --global user.name "${GH_NAME}"
+  #         git config --global user.email "${GH_EMAIL}"
+  #         echo "machine github.com login ${GH_NAME} password ${GH_TOKEN}" > ~/.netrc
+  #         yarn install
+  #         GIT_USER="${GH_NAME}" yarn deploy
+  #       displayName: "[DOCS]: Build & Publish"
+  #       env:
+  #         GH_NAME: "webinex"
+  #         GH_EMAIL: "webinex.dev@gmail.com"
+  #         GH_TOKEN: $(GITHUB_PAT)
+  #       workingDirectory: "docs"

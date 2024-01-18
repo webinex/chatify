@@ -8,9 +8,10 @@ internal static class DbSetExtensions
 {
     private static readonly ConcurrentDictionary<Type, object> KeySelectorCache = new();
 
-    public static async Task<TEntity[]> FindManyRequiredNoTrackingAsync<TEntity, TKey>(
+    public static async Task<TEntity[]> FindManyNoTrackingAsync<TEntity, TKey>(
         this DbSet<TEntity> dbSet,
-        IEnumerable<TKey> keys)
+        IEnumerable<TKey> keys,
+        bool required = true)
         where TEntity : class
     {
         keys = keys.Distinct().ToArray();
@@ -26,13 +27,12 @@ internal static class DbSetExtensions
         var db = await dbSet.Where(CreateContainsExpression(expression, notFoundLocalKeys)).AsNoTracking().ToArrayAsync();
         var result = foundLocal.Concat(db).ToArray();
 
-        if (result.Length != keys.Count())
-        {
-            var notFoundKeys = keys.Except(result.Select(selector)).ToArray();
-            throw new InvalidOperationException($"Not all entities found: {string.Join(", ", notFoundKeys)}");
-        }
+        if (!required || result.Length == keys.Count()) 
+            return result;
+        
+        var notFoundKeys = keys.Except(result.Select(selector)).ToArray();
+        throw new InvalidOperationException($"Not all entities found: {string.Join(", ", notFoundKeys)}");
 
-        return result;
     }
 
     private static Expression<Func<TEntity, bool>> CreateContainsExpression<TEntity, TKey>(
@@ -68,7 +68,7 @@ internal static class DbSetExtensions
 
         if (primaryKey.Properties.Count != 1)
             throw new InvalidOperationException(
-                $"{nameof(FindManyRequiredNoTrackingAsync)} doesn't support composite primary keys. Entity type: {typeof(TEntity)}");
+                $"{nameof(FindManyNoTrackingAsync)} doesn't support composite primary keys. Entity type: {typeof(TEntity)}");
 
         var keyProperty = primaryKey.Properties[0];
         if (keyProperty.PropertyInfo!.PropertyType != typeof(TKey))

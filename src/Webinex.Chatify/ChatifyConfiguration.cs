@@ -37,7 +37,8 @@ internal class ChatifyConfiguration : IChatifyConfiguration
             .AddScoped<IEventSubscriber<IEnumerable<NewChatMessageCreatedEvent>>, NewChatMessageCreatedSubscriber>()
             .AddScoped<IEventSubscriber<IEnumerable<MessageSentEvent>>, MessageSentSubscriber>()
             .AddSingleton<IAskyFieldMap<ChatActivityRow>, ChatActivityRowFieldMap>()
-            .AddSingleton<IAskyFieldMap<DeliveryRow>, DeliveryRowFieldMap>();
+            .AddSingleton<IAskyFieldMap<DeliveryRow>, DeliveryRowFieldMap>()
+            .AddSingleton<IAskyFieldMap<ChatRow>, ChatRowFieldMap>();
 
         services
             .AddScoped<IAuthorizationPolicy, AuthorizationPolicy>()

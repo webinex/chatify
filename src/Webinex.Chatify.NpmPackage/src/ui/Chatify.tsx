@@ -35,6 +35,7 @@ import {
   MessageText,
 } from './Message';
 import { Icon } from './Icon';
+import { SystemMessage } from './SystemMessage';
 
 export interface ChatifyCustomizeValue {
   Avatar?: typeof Avatar.Component | null;
@@ -50,6 +51,7 @@ export interface ChatifyCustomizeValue {
   ChatListItemLastMessage?: typeof ChatListItemLastMessage.Component | null;
   ChatListItemLastMessageAuthor?: typeof ChatListItemLastMessageAuthor.Component | null;
   ChatListItemLastMessageContent?: typeof ChatListItemLastMessageContent.Component | null;
+  SystemMessage?: typeof SystemMessage.Component | null;
   SendingMessage?: typeof SendingMessage.Component | null;
   SendingMessageBody?: typeof SendingMessageContent.Component | null;
   SendingMessageInfoBox?: typeof SendingMessageInfoBox.Component | null;
@@ -57,7 +59,7 @@ export interface ChatifyCustomizeValue {
   MessageBox?: typeof MessageBox.Component | null;
   MessageReadObserver?: typeof MessageReadObserver.Component | null;
   MessageRow?: typeof MessageRow.Component | null;
-  MessageBody?: typeof MessageContent.Component | null;
+  MessageContent?: typeof MessageContent.Component | null;
   MessageInfoBox?: typeof MessageInfoBox.Component | null;
   MessageText?: typeof MessageText.Component | null;
   MessageAuthor?: typeof MessageAuthor.Component | null;

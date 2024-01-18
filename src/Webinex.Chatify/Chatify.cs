@@ -1,4 +1,5 @@
-﻿using Webinex.Chatify.Abstractions;
+﻿using Webinex.Asky;
+using Webinex.Chatify.Abstractions;
 using Webinex.Chatify.Services;
 using Webinex.Chatify.Services.Chats;
 using Webinex.Chatify.Services.Messages;
@@ -64,6 +65,14 @@ internal class Chatify : IChatify
         return await _chatService.QueryAsync(query);
     }
 
+    public Task<IReadOnlyCollection<Chat>> GetAllChatsAsync(
+        FilterRule? filterRule = null,
+        SortRule? sortRule = null,
+        PagingRule? pagingRule = null)
+    {
+        return _chatService.GetAllAsync(filterRule, sortRule, pagingRule);
+    }
+
     public async Task<Message[]> QueryAsync(MessageQuery query)
     {
         return await _messageService.QueryAsync(query);
@@ -71,14 +80,15 @@ internal class Chatify : IChatify
 
     public async Task<IReadOnlyCollection<Chat>> ChatByIdAsync(
         IEnumerable<Guid> chatIds,
-        AccountContext? onBehalfOf = null)
+        AccountContext? onBehalfOf = null,
+        bool required = true)
     {
         chatIds = chatIds.Distinct().ToArray();
 
         if (onBehalfOf != null)
             await _authorizationPolicy.AuthorizeGetChatAsync(onBehalfOf, chatIds);
-        
-        return await _chatService.ByIdAsync(chatIds);
+
+        return await _chatService.ByIdAsync(chatIds, required);
     }
 
     public async Task<IReadOnlyDictionary<Guid, IReadOnlyCollection<Member>>> MembersAsync(IEnumerable<Guid> chatIds)
@@ -88,9 +98,10 @@ internal class Chatify : IChatify
 
     public Task<IReadOnlyDictionary<string, Account>> AccountByIdAsync(
         IEnumerable<string> ids,
-        bool tryCache = false)
+        bool tryCache = false,
+        bool required = true)
     {
-        return _accountService.ByIdAsync(ids, tryCache);
+        return _accountService.ByIdAsync(ids, tryCache, required);
     }
 
     public Task<IReadOnlyCollection<Account>> AccountsAsync(AccountContext? onBehalfOf = null)

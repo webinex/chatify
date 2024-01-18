@@ -46,7 +46,6 @@ internal class NewChatMessageCreatedSubscriber : IEventSubscriber<IEnumerable<Ne
     private async Task AddChatActivitiesAsync(NewChatMessageCreatedEvent[] events)
     {
         var activities = events
-            .Where(x => x.AuthorId != AccountId.SYSTEM)
             .SelectMany(
                 x => x.Chat.Members,
                 (x, recipient) =>

@@ -47,7 +47,7 @@ internal class EntityMemoryCache<TValue> : IEntityCache<TValue>
         {
             _memoryCache.Remove(Key(id));
         }
-        
+
         return Task.CompletedTask;
     }
 
