@@ -17,7 +17,6 @@ export interface Message {
   files: File[];
   sentAt: string;
   sentBy: Account;
-  read: boolean;
   requestId?: string;
 }
 
@@ -31,7 +30,9 @@ export interface ChatListItem {
   id: string;
   name: string;
   message: Message;
-  unreadCount: number;
+  totalUnreadCount: number;
+  active: boolean;
+  lastReadMessageId: string | null;
 }
 
 export interface SendMessageRequest {
@@ -54,12 +55,13 @@ export interface AddChatRequest {
 }
 
 export interface ReadRequest {
-  ids: string[];
+  id: string;
 }
 
 export interface ReadEvent {
-  messageId: string;
   chatId: string;
+  newLastReadMessageId: string;
+  readCount: number;
 }
 
 export interface RemoveMemberRequest {
@@ -72,4 +74,9 @@ export interface AddMemberRequest {
   chatId: string;
   accountId: string;
   withHistory: boolean;
+}
+
+export interface UpdateChatNameRequest {
+  id: string;
+  name: string;
 }

@@ -1,217 +1,232 @@
-import type { MutationState, QueryState, State } from './state';
-import { Account, ChatListItem, Message, ReadEvent } from './models';
-import { MessageState } from './useMessages';
-
-function updateQuery<TData>(
-  state: State,
-  key: string,
-  mutation: (queryState: QueryState<TData> | undefined) => QueryState<TData> | undefined,
-) {
-  state = {
-    ...state,
-    query: {
-      ...state.query,
-    },
-  };
-
-  const result = mutation(state.query[key]);
-  if (result) {
-    state.query[key] = result;
-  }
-  return state;
-}
-
-function updateMutation(
-  state: State,
-  key: string,
-  mutation: (mutationState: MutationState | undefined) => MutationState | undefined,
-) {
-  state = {
-    ...state,
-    mutation: {
-      ...state.mutation,
-    },
-  };
-
-  const result = mutation(state.mutation[key]);
-  if (result) {
-    state.mutation[key] = result;
-  }
-  return state;
-}
+import type { State } from './state';
+import { Account, Chat, ChatListItem, Message, ReadEvent, File } from './models';
 
 export const ACTIONS = {
-  query_fetch: (state: State, { key }: { key: string }): State => {
-    return updateQuery(state, key, (x) => ({ ...x, isFetching: true, uninitialized: false }));
+  update: (state: State, { mutation }: { mutation: (state: State) => State }) => {
+    mutation(state);
   },
 
-  query_resolve: (state: State, { key, data }: { key: string; data: any[] }): State => {
-    return updateQuery(state, key, (x) => ({ ...x!, isFetching: false, error: undefined, data }));
+  messages_fetch: (state: State, { chatId }: { chatId: string }) => {
+    state.query.messages[chatId] = {
+      ...state.query.messages[chatId],
+      uninitialized: false,
+      isFetching: true,
+    };
   },
 
-  query_reject: (state: State, { key, error }: { key: string; error: any }): State => {
-    return updateQuery(state, key, (x) => ({ ...x!, isFetching: false, error }));
+  messages_fulfilled: (
+    state: State,
+    { chatId, messages, hasMore }: { chatId: string; messages: Message[]; hasMore: boolean },
+  ) => {
+    const qState = state.query.messages[chatId];
+
+    qState.error = undefined;
+    qState.isFetching = false;
+    qState.data = messages.map((x) => ({ type: 'message', ...x }));
+
+    if (hasMore) {
+      qState.data!.push({ type: 'next' });
+    }
   },
 
-  mutation_fetch: (state: State, { key }: { key: string }): State => {
-    return updateMutation(state, key, (x) => ({ ...x, isFetching: true }));
+  messages_rejected: (state: State, { chatId, error }: { chatId: string; error: any }) => {
+    const qState = state.query.messages[chatId];
+    qState.error = error;
+    qState.isFetching = false;
   },
 
-  mutation_resolve: (state: State, { key }: { key: string }): State => {
-    return updateMutation(state, key, (x) => ({ ...x, isFetching: false, error: undefined }));
+  fetchNext_fetch: (state: State, { chatId }: { chatId: string }) => {
+    state.mutation.fetchNext = { isFetching: true };
   },
 
-  mutation_reject: (state: State, { key, error }: { key: string; error: any }): State => {
-    return updateMutation(state, key, (x) => ({ ...x, isFetching: false, error }));
+  fetchNext_fulfilled: (
+    state: State,
+    { chatId, messages, hasMore }: { chatId: string; messages: Message[]; hasMore: boolean },
+  ) => {
+    state.mutation.fetchNext = { isFetching: false, error: undefined };
+    state.query.messages[chatId].data = state.query.messages[chatId].data!.filter((x) => x.type !== 'next');
+    state.query.messages[chatId].data!.push(...messages.map((x) => ({ type: 'message' as const, ...x })));
+
+    if (hasMore) state.query.messages[chatId].data!.push({ type: 'next' });
   },
 
-  update: (state: State, { mutation }: { mutation: (state: State) => State }): State => {
-    return mutation(state);
+  fetchNext_rejected: (state: State, { chatId, error }: { chatId: string; error: any }) => {
+    state.mutation.fetchNext = { isFetching: false, error };
   },
 
-  chat_open: (state: State, { chatId }: { chatId: string }): State => {
-    return { ...state, ui: { ...state.ui, view: 'chat', chatId } };
+  chatList_fetch: (state: State) => {
+    state.query.chatList.isFetching = true;
+    state.query.chatList.uninitialized = false;
   },
 
-  new_chat_open: (state: State): State => {
-    return { ...state, ui: { ...state.ui, view: 'new-chat', chatId: undefined } };
+  chatList_fulfilled: (state: State, { chats }: { chats: ChatListItem[] }) => {
+    chats = chats.sort((a, b) => -a.message.id.substring(47).localeCompare(b.message.id.substring(47)));
+
+    state.query.chatList.isFetching = false;
+    state.query.chatList.error = undefined;
+    state.query.chatList.data = chats;
+
+    if (state.ui.chatId === undefined && chats.length > 0) {
+      state.ui.view = 'chat';
+      state.ui.chatId = chats[0].id;
+    }
   },
 
-  chat_settings_open: (state: State, { chatId }: { chatId: string }): State => {
-    return { ...state, ui: { ...state.ui, view: 'chat-settings', chatId } };
+  chatList_rejected: (state: State, { error }: { error: any }) => {
+    state.query.chatList.isFetching = false;
+    state.query.chatList.error = error;
+  },
+
+  removeMember_fetch: (state: State) => {
+    state.mutation.removeMember = { isFetching: true };
+  },
+
+  removeMember_fulfilled: (state: State) => {
+    state.mutation.removeMember = { isFetching: false, error: undefined };
+  },
+
+  removeMember_rejected: (state: State, { error }: { error: any }) => {
+    state.mutation.removeMember = { isFetching: false, error };
+  },
+
+  addMember_fetch: (state: State) => {
+    state.mutation.addMember = { isFetching: true };
+  },
+
+  addMember_fulfilled: (state: State) => {
+    state.mutation.addMember = { isFetching: false, error: undefined };
+  },
+
+  addMember_rejected: (state: State, { error }: { error: any }) => {
+    state.mutation.addMember = { isFetching: false, error };
+  },
+
+  updateChatName_fetch: (state: State) => {
+    state.mutation.updateChatName = { isFetching: true };
+  },
+
+  updateChatName_fulfilled: (state: State) => {
+    state.mutation.updateChatName = { isFetching: false, error: undefined };
+  },
+
+  updateChatName_rejected: (state: State, { error }: { error: any }) => {
+    state.mutation.updateChatName = { isFetching: false, error };
+  },
+
+  addChat_fetch: (state: State) => {
+    state.mutation.addChat = { isFetching: true };
+  },
+
+  addChat_fulfilled: (state: State) => {
+    state.mutation.addChat = { isFetching: false, error: undefined };
+  },
+
+  addChat_rejected: (state: State, { error }: { error: any }) => {
+    state.mutation.addChat = { isFetching: false, error };
+  },
+
+  accounts_fetch: (state: State) => {
+    state.query.accounts = { isFetching: true, uninitialized: false };
+  },
+
+  accounts_fulfilled: (state: State, { accounts }: { accounts: Account[] }) => {
+    state.query.accounts.data = accounts;
+    state.query.accounts.isFetching = false;
+    state.query.accounts.error = undefined;
+  },
+
+  accounts_rejected: (state: State, { error }: { error: any }) => {
+    state.query.accounts.isFetching = false;
+    state.query.accounts.error = error;
+  },
+
+  chat_open: (state: State, { chatId }: { chatId: string }) => {
+    state.ui.chatId = chatId;
+    state.ui.view = 'chat';
+  },
+
+  new_chat_open: (state: State) => {
+    state.ui.chatId = undefined;
+    state.ui.view = 'new-chat';
+  },
+
+  toggle_members_view: (state: State) => {
+    state.ui.showMembers = !state.ui.showMembers;
   },
 
   message_received: (
     state: State,
-    { message, requestId }: { message: Message; requestId: string },
-  ): State => {
-    if (state.query['messages.' + message.chatId]?.data !== undefined) {
-      state = {
-        ...state,
-        query: {
-          ...state.query,
-          ['messages.' + message.chatId]: {
-            ...state.query['messages.' + message.chatId],
-            data: [{ type: 'message', ...message }, ...state.query['messages.' + message.chatId].data].filter(
-              (x: MessageState) => x.type !== 'sending' || x.requestId !== requestId,
-            ),
-          },
-        },
-      };
+    { message, requestId, me }: { message: Message; requestId: string; me: string },
+  ) => {
+    const messagesState = state.query.messages[message.chatId];
+
+    if (messagesState?.data) {
+      messagesState.data.unshift({ type: 'message', ...message });
+      messagesState.data = messagesState.data.filter(
+        (x) => x.type !== 'sending' || x.requestId !== requestId,
+      );
     }
 
-    if (state.query['chat-list'].data !== undefined) {
-      state = {
-        ...state,
-        query: {
-          ...state.query,
-          'chat-list': {
-            ...state.query['chat-list'],
-            data: state.query['chat-list'].data.map((x: ChatListItem) =>
-              x.id === message.chatId
-                ? { ...x, message, unreadCount: message.read ? x.unreadCount : x.unreadCount + 1 }
-                : x,
-            ),
-          },
-        },
-      };
+    const chatListItemState = state.query.chatList?.data?.find((x) => x.id === message.chatId);
+
+    if (chatListItemState) {
+      chatListItemState.message = message;
     }
 
-    return state;
-  },
-
-  chat_created: (state: State, { chat }: { chat: ChatListItem; requestId?: string }): State => {
-    if (state.query['chat-list']?.data === undefined) {
-      return state;
+    if (chatListItemState && message.sentBy.id !== me) {
+      chatListItemState.totalUnreadCount++;
     }
 
-    return {
-      ...state,
-      query: {
-        ...state.query,
-        'chat-list': {
-          ...state.query['chat-list'],
-          data: [chat, ...state.query['chat-list'].data!],
-        },
-      },
-    };
+    if (chatListItemState && message.sentBy.id === me) {
+      chatListItemState.lastReadMessageId = message.id;
+      chatListItemState.totalUnreadCount = 0;
+    }
   },
 
-  read: (state: State, { id, timestamp }: { id: string; timestamp: number }): State => {
-    return {
-      ...state,
-      read: {
-        ...state.read,
-        queued: [...state.read.queued, id],
-        timestamp,
-      },
-    };
+  chat_created: (state: State, { chat }: { chat: ChatListItem; requestId?: string }) => {
+    state.query.chatList?.data?.unshift(chat);
   },
 
-  read_send: (state: State, { ids }: { ids: string[] }): State => {
-    return {
-      ...state,
-      read: {
-        ...state.read,
-        queued: state.read.queued.filter((x) => !ids.includes(x)),
-        sent: [...state.read.sent, ...ids],
-      },
-    };
+  read: (state: State, { id, timestamp }: { id: string; timestamp: number }) => {
+    const queuedSameChat = state.queue.read.queued.filter((x) => x.substring(0, 36) === id.substring(0, 36));
+
+    if (queuedSameChat.some((x) => x.localeCompare(id) >= 0)) {
+      return;
+    }
+
+    state.queue.read.queued.filter((x) => queuedSameChat.includes(x));
+    state.queue.read.queued.push(id);
+    state.queue.read.timestamp = timestamp;
   },
 
-  read_reject: (state: State, { ids, timestamp }: { ids: string[]; timestamp: number }): State => {
-    return {
-      ...state,
-      read: {
-        ...state.read,
-        queued: [...state.read.queued, ...ids],
-        sent: state.read.sent.filter((x) => !ids.includes(x)),
-        timestamp,
-      },
-    };
+  read_send: (state: State, { id }: { id: string }) => {
+    state.queue.read.queued = state.queue.read.queued.filter((x) => x !== id);
+    state.queue.read.processing.push(id);
   },
 
-  read_received: (state: State, { events }: { events: ReadEvent[] }): State => {
-    const ids = events.map((x) => x.messageId);
+  read_reject: (state: State, { id, timestamp }: { id: string; timestamp: number }) => {
+    state.queue.read.queued.push(id);
+    state.queue.read.processing = state.queue.read.processing.filter((x) => x !== id);
+    state.queue.read.timestamp = timestamp;
+  },
 
-    state = {
-      ...state,
-      query: {
-        ...state.query,
-      },
-      read: {
-        ...state.read,
-        sent: state.read.sent.filter((x) => !ids.includes(x)),
-      },
-    };
+  read_received: (state: State, { events }: { events: ReadEvent[] }) => {
+    state.queue.read.processing = state.queue.read.processing.filter((item) => {
+      const event = events.find((x) => x.chatId === item.substring(0, 36));
+      return !event || event.newLastReadMessageId.localeCompare(item) >= 0;
+    });
 
-    Object.keys(state.query)
-      .filter((x) => x.startsWith('messages.'))
-      .forEach((key) => {
-        state.query[key] = { ...state.query[key] };
-        const queryState: QueryState<MessageState[]> = state.query[key];
+    for (const event of events) {
+      state.queue.read.processing = state.queue.read.processing.filter(
+        (x) => x.substring(0, 36) !== event.chatId || x.localeCompare(event.newLastReadMessageId) > 0,
+      );
+      const chatListItem = state.query.chatList.data?.find((x) => x.id === event.chatId);
 
-        queryState.data = queryState.data?.map((x) => {
-          if (x.type === 'message' && ids.includes(x.id)) {
-            return { ...x, read: true };
-          }
-
-          return x;
-        });
-      });
-
-    state.query['chat-list'] = { ...state.query['chat-list'] };
-    const chatListState: QueryState<ChatListItem[]> = state.query['chat-list'];
-    chatListState.data = chatListState.data?.map((x) =>
-      ids.includes(x.message.id) ? { ...x, message: { ...x.message, read: true } } : x,
-    );
-
-    chatListState.data = chatListState.data?.map((chat) => ({
-      ...chat,
-      unreadCount: chat.unreadCount - events.filter((x) => x.chatId === chat.id).length,
-    }));
-
-    return state;
+      if (chatListItem) {
+        chatListItem.lastReadMessageId = event.newLastReadMessageId;
+        chatListItem.totalUnreadCount = chatListItem.totalUnreadCount - event.readCount;
+      }
+    }
   },
 
   member_added: (
@@ -222,49 +237,42 @@ export const ACTIONS = {
       account,
       me,
       message,
-    }: { chatId: string; chatName: string; account: Account; me: string; message: Message },
-  ): State => {
-    state = {
-      ...state,
-      query: {
-        ...state.query,
-      },
-    };
+      withHistory,
+    }: {
+      chatId: string;
+      chatName: string;
+      account: Account;
+      me: string;
+      message: Message;
+      withHistory: boolean;
+    },
+  ) => {
+    const { chats, messages, chatList } = state.query;
+    chats[chatId]?.data?.members.push(account);
+    const chatListItem = chatList?.data?.find((x) => x.id === chatId);
 
-    if (state.query['chat.' + chatId]?.data !== undefined) {
-      state.query['chat.' + chatId] = {
-        ...state.query['chat.' + chatId],
-        data: { ...state.query['chat.' + chatId].data },
-      };
-      state.query['chat.' + chatId].data.members = [...state.query['chat.' + chatId].data.members, account];
+    if (account.id !== me && chatListItem != null) {
+      chatListItem.message = message;
+      chatListItem.totalUnreadCount++;
     }
 
-    if (state.query['messages.' + chatId]?.data !== undefined) {
-      state.query['messages.' + chatId] = {
-        ...state.query['messages.' + chatId],
-        data: [{ type: 'message', ...message }, ...state.query['messages.' + chatId].data],
-      };
-    }
+    messages[chatId]?.data?.unshift({ type: 'message', ...message });
 
-    if (account.id !== me && state.query['chat-list'].data !== undefined) {
-      state.query['chat-list'] = { ...state.query['chat-list'] };
-      state.query['chat-list'].data = state.query['chat-list'].data.map((x: ChatListItem) =>
-        x.id === chatId ? { ...x, message: { ...message } } : x,
-      );
-    }
-
-    if (account.id === me && state.query['chat-list'].data !== undefined) {
-      const listItem: ChatListItem = {
+    if (account.id === me && chatList.data !== undefined && !chatListItem) {
+      chatList.data.unshift({
         id: chatId,
         name: chatName,
-        message: { ...message },
-        unreadCount: 0,
-      };
+        message,
+        totalUnreadCount: 1,
+        active: true,
+        lastReadMessageId: null,
+      });
+    }
 
-      state.query['chat-list'] = {
-        ...state.query['chat-list'],
-        data: [...state.query['chat-list'].data, listItem],
-      };
+    if (account.id === me && chatListItem) {
+      chatListItem.active = true;
+      chatListItem.message = message;
+      chatListItem.totalUnreadCount++;
     }
 
     return state;
@@ -277,37 +285,115 @@ export const ACTIONS = {
       accountId,
       deleteHistory,
       me,
-    }: { chatId: string; accountId: string; deleteHistory: boolean; me: string },
-  ): State => {
-    state = {
-      ...state,
-      query: {
-        ...state.query,
-      },
-    };
+      message,
+    }: { chatId: string; accountId: string; deleteHistory: boolean; me: string; message: Message },
+  ) => {
+    const { chats, chatList } = state.query;
+    const chat = chats[chatId];
 
-    if (state.query['chat.' + chatId]?.data !== undefined) {
-      state.query['chat.' + chatId] = {
-        ...state.query['chat.' + chatId],
-        data: { ...state.query['chat.' + chatId].data },
-      };
-      state.query['chat.' + chatId].data.members = state.query['chat.' + chatId].data.members.filter(
-        (x: Account) => x.id !== accountId,
-      );
+    if (chat?.data) {
+      chat.data.members = chat.data.members.filter((x) => x.id !== accountId);
     }
 
-    if (accountId === me && deleteHistory && state.query['chat-list']?.data) {
-      state.query['chat-list'] = { ...state.query['chat-list'] };
-      state.query['chat-list'].data = state.query['chat-list'].data.filter(
-        (x: ChatListItem) => x.id !== chatId,
-      );
+    if (accountId === me && state.query.chats[chatId].data) {
+      delete state.query.chats[chatId];
     }
 
-    if (accountId === me && deleteHistory && state.query['chat-list']?.data && state.ui.chatId === chatId) {
-      state.ui = { ...state.ui, chatId: state.query['chat-list']?.data.at(0)?.id };
+    if (accountId === me && deleteHistory && chatList?.data) {
+      chatList.data = chatList.data.filter((x) => x.id !== chatId);
+
+      if (state.ui.chatId === chatId) {
+        state.ui.chatId = chatList.data.at(0)?.id;
+      }
     }
 
-    return state;
+    if (accountId === me && !deleteHistory && chatList?.data) {
+      const listItem = chatList.data.find((x) => x.id === chatId)!;
+      listItem.active = false;
+    }
+
+    if ((accountId !== me || !deleteHistory) && state.query.messages[chatId].data) {
+      state.query.messages[chatId].data!.unshift({ ...message, type: 'message' });
+    }
+
+    if ((accountId !== me || !deleteHistory) && state.query.chatList.data) {
+      const listItem = state.query.chatList.data.find((x) => x.id === chatId)!;
+      listItem.message = message;
+      listItem.totalUnreadCount++;
+    }
+
+    if (accountId === me && deleteHistory && state.query.messages[chatId].data) {
+      delete state.query.messages[chatId];
+    }
+  },
+
+  chat_fetch: (state: State, { chatId }: { chatId: string }) => {
+    state.query.chats[chatId] = { isFetching: true, uninitialized: false, data: undefined, error: undefined };
+  },
+
+  chat_fulfilled: (state: State, { chat }: { chat: Chat }) => {
+    const chatState = state.query.chats[chat.id];
+    chatState.isFetching = false;
+    chatState.error = undefined;
+    chatState.data = chat;
+  },
+
+  chat_rejected: (state: State, { chatId, error }: { chatId: string; error: any }) => {
+    const chatState = state.query.chats[chatId];
+    chatState.isFetching = false;
+    chatState.error = error;
+  },
+
+  send_fetch: (
+    state: State,
+    {
+      chatId,
+      text,
+      files,
+      requestId,
+    }: {
+      chatId: string;
+      text: string;
+      files: File[];
+      requestId: string;
+    },
+  ) => {
+    state.mutation.send = { isFetching: true, error: undefined };
+    state.query.messages[chatId].data?.push({ type: 'sending', text, files, requestId });
+  },
+
+  send_fulfilled: (state: State, { chatId, requestId }: { chatId: string; requestId: string }) => {
+    state.mutation.send = { isFetching: false, error: undefined };
+  },
+
+  send_rejected: (
+    state: State,
+    { chatId, requestId, error }: { chatId: string; requestId: string; error: any },
+  ) => {
+    state.mutation.send = { isFetching: false, error };
+    state.query.messages[chatId].data = state.query.messages[chatId].data?.filter(
+      (x) => x.type !== 'sending' || x.requestId !== requestId,
+    );
+  },
+
+  chatNameChanged_received: (
+    state: State,
+    { chatId, newName, message }: { chatId: string; newName: string; message: Message },
+  ) => {
+    if (state.query.chatList.data) {
+      const chatListItem = state.query.chatList.data.find((x) => x.id === chatId);
+      chatListItem!.name = newName;
+      chatListItem!.message = message;
+      chatListItem!.totalUnreadCount++;
+    }
+
+    if (state.query.chats[chatId].data) {
+      state.query.chats[chatId].data!.name = newName;
+    }
+
+    if (state.query.messages[chatId].data) {
+      state.query.messages[chatId].data!.unshift({ type: 'message', ...message });
+    }
   },
 };
 

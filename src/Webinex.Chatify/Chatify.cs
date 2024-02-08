@@ -2,6 +2,7 @@
 using Webinex.Chatify.Abstractions;
 using Webinex.Chatify.Services;
 using Webinex.Chatify.Services.Chats;
+using Webinex.Chatify.Services.Members;
 using Webinex.Chatify.Services.Messages;
 
 namespace Webinex.Chatify;
@@ -28,9 +29,15 @@ internal class Chatify : IChatify
         _authorizationPolicy = authorizationPolicy;
     }
 
-    public async Task<IReadOnlyCollection<Chat>> AddChatsAsync(IEnumerable<AddChatArgs> commands)
+    public async Task<Chat> AddChatAsync(AddChatArgs args)
     {
-        return await _chatService.AddAsync(commands);
+        return await _chatService.AddAsync(args);
+    }
+
+    public async Task UpdateChatNameAsync(UpdateChatNameArgs args)
+    {
+        await _authorizationPolicy.AuthorizeUpdateChatNameAsync(new[] { args });
+        await _chatService.UpdateNameAsync(args);
     }
 
     public async Task<Message[]> SendMessagesAsync(IEnumerable<SendMessageArgs> commands)
@@ -91,9 +98,14 @@ internal class Chatify : IChatify
         return await _chatService.ByIdAsync(chatIds, required);
     }
 
-    public async Task<IReadOnlyDictionary<Guid, IReadOnlyCollection<Member>>> MembersAsync(IEnumerable<Guid> chatIds)
+    public async Task<IReadOnlyDictionary<Guid, IReadOnlyCollection<Member>>> MembersAsync(IEnumerable<Guid> chatIds, bool? active = null)
     {
-        return await _memberService.ByChatsAsync(chatIds);
+        return await _memberService.ByChatsAsync(chatIds, active);
+    }
+
+    public Task<IReadOnlyDictionary<Guid, string[]>> ActiveMemberIdByChatIdAsync(IEnumerable<Guid> chatIds)
+    {
+        return _memberService.ActiveIdByChatIdAsync(chatIds);
     }
 
     public Task<IReadOnlyDictionary<string, Account>> AccountByIdAsync(
@@ -111,7 +123,7 @@ internal class Chatify : IChatify
 
     public async Task ReadAsync(ReadArgs args)
     {
-        if (!args.MessageIds.Any())
+        if (!args.Id.Any())
             return;
 
         await _messageService.ReadAsync(args);

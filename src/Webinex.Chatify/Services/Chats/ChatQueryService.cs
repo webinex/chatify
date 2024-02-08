@@ -39,13 +39,10 @@ internal class ChatQueryService : IChatQueryService
             queryable = queryable.SortBy(_fieldMap, query.SortRule);
 
         if (query.Props.HasLastMessage())
-            queryable = queryable.Include(x => x.Delivery!).ThenInclude(x => x.Message!);
+            queryable = queryable.Include(x => x.LastMessage);
 
         if (query.Props.ToLastMessageProps().HasFlag(Message.Props.Author))
-            queryable = queryable.Include(x => x.Delivery!).ThenInclude(x => x.Message!).ThenInclude(x => x.Author);
-
-        if (query.Props.ToLastMessageProps().HasFlag(Message.Props.Read))
-            queryable = queryable.Include(x => x.Delivery!);
+            queryable = queryable.Include(x => x.LastMessage!).ThenInclude(x => x.Author);
 
         var activityRows = await queryable.ToArrayAsync();
 
@@ -62,12 +59,26 @@ internal class ChatQueryService : IChatQueryService
     {
         var chatIds = activityRows.Select(x => x.ChatId).Distinct().ToArray();
 
-        var result = await _dbContext.Deliveries
-            .Where(x => chatIds.Contains(x.ChatId) && !x.Read && x.ToId == query.OnBehalfOf.Id)
-            .GroupBy(x => new { x.ChatId, x.ToId })
-            .Select(x => new { x.Key.ChatId, Count = x.Count() })
-            .ToArrayAsync();
+        var queryable = from member in _dbContext.Members
+            join activity in _dbContext.ChatActivities on new { member.ChatId, member.AccountId } equals
+                new { activity.ChatId, activity.AccountId }
+            where member.AccountId == query.OnBehalfOf.Id && chatIds.Contains(member.ChatId) && (member.LastMessageIndex == null || activity.LastReadMessageIndex == null || member.LastMessageIndex > activity.LastReadMessageIndex)
+            select new
+            {
+                member.ChatId,
+                member.FirstMessageIndex,
+                member.LastMessageIndex,
+            };
 
-        return chatIds.ToDictionary(x => x, x => result.FirstOrDefault(g => g.ChatId == x)?.Count ?? 0);
+        var joinResult = await queryable.ToArrayAsync();
+        
+        return activityRows.ToDictionary(x => x.ChatId, a =>
+        {
+            var members = joinResult.Where(m => m.ChatId == a.ChatId);
+            return members.Sum(x =>
+                x.LastMessageIndex.HasValue
+                    ? x.LastMessageIndex - (a.LastReadMessageIndex ?? -1)
+                    : a.LastMessageIndex - (a.LastReadMessageIndex ?? -1)) ?? 0;
+        });
     }
 }

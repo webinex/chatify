@@ -1,68 +1,113 @@
 import { CSSProperties, FC } from 'react';
 import { useReadMonitor } from '../core';
-import { Aside } from './Aside';
-import { Main } from './Main';
 import { Localizer, LocalizerContext, defaultLocalizer } from './localizer';
 import { Avatar } from './Avatar';
-import { CustomizeProvider } from '../util';
-import { ChatHeaderMembers } from './ChatHeaderMembers';
-import { ChatSettingsButton } from './ChatHeaderSettingsButton';
-import { Header } from './Header';
+import { CustomizeProvider } from './customize';
+import { ChatHeaderMembers } from './ChatPanel/ChatHeaderMembers';
+import { ChatMembersButton } from './ChatPanel/ChatMembersButton';
 import { AddChatButton } from './AddChatButton';
-import { Footer } from './Footer';
 import { ChatName } from './ChatName';
+
+import { Aside, Main, Body, Footer, Header } from './Layout';
+
 import {
   ChatListItemBox,
-  ChatListItemLastMessage,
-  ChatListItemLastMessageAuthor,
   ChatListItemLastMessageContent,
-  ChatListItemName,
+  ChatListItemLastMessageAuthor,
+  ChatListItemLastMessage,
   ChatListItemUnreadCount,
-} from './ChatListItem';
+  ChatListItemName,
+} from './ChatList';
+
 import {
-  SendingMessage,
+  SendingMessageBox,
   SendingMessageContent,
   SendingMessageInfoBox,
   SendingMessageText,
 } from './SendingMessage';
+
 import {
-  MessageAuthor,
-  MessageContent,
   MessageBox,
-  MessageInfoBox,
-  MessageReadObserver,
   MessageRow,
+  MessageContent,
   MessageText,
+  MessageAuthor,
+  MessageInfoBox,
 } from './Message';
+
+import { MessageReadObserver } from './MessageReadObserver';
 import { Icon } from './Icon';
-import { SystemMessage } from './SystemMessage';
+import { SystemMessageRow } from './SystemMessage/SystemMessageRow';
+import { ChatList } from './ChatList';
+import { ChatBody, ChatHeader, ChatHeaderName, ChatPanel } from './ChatPanel';
+import { InputBox, InputFilesBox, InputSubmitButtonBox, InputTextBox } from './InputBox';
+import { SystemMessageBox } from './SystemMessage';
+import {
+  CreateChatForm,
+  CreateChatMemberInput,
+  CreateChatNameInput,
+  CreateChatPanel,
+} from './CreateChatPanel';
 
 export interface ChatifyCustomizeValue {
-  Avatar?: typeof Avatar.Component | null;
-  Header?: typeof Header.Component | null;
-  Footer?: typeof Footer.Component | null;
-  AddChatButton?: typeof AddChatButton.Component | null;
-  ChatHeaderMembers?: typeof ChatHeaderMembers.Component | null;
-  ChatSettingsButton?: typeof ChatSettingsButton.Component | null;
-  ChatName?: typeof ChatName.Component | null;
+  // ./ChatList
+  ChatList?: typeof ChatList.Component | null;
   ChatListItemBox?: typeof ChatListItemBox.Component | null;
   ChatListItemName?: typeof ChatListItemName.Component | null;
   ChatListItemUnreadCount?: typeof ChatListItemUnreadCount.Component | null;
   ChatListItemLastMessage?: typeof ChatListItemLastMessage.Component | null;
   ChatListItemLastMessageAuthor?: typeof ChatListItemLastMessageAuthor.Component | null;
   ChatListItemLastMessageContent?: typeof ChatListItemLastMessageContent.Component | null;
-  SystemMessage?: typeof SystemMessage.Component | null;
-  SendingMessage?: typeof SendingMessage.Component | null;
-  SendingMessageBody?: typeof SendingMessageContent.Component | null;
-  SendingMessageInfoBox?: typeof SendingMessageInfoBox.Component | null;
-  SendingMessageText?: typeof SendingMessageText.Component | null;
+
+  // ./Layout
+  Header?: typeof Header.Component | null;
+  Footer?: typeof Footer.Component | null;
+  Body?: typeof Body.Component | null;
+  Main?: typeof Main.Component | null;
+  Aside?: typeof Aside.Component | null;
+
+  // ./Message
+  MessageAuthor?: typeof MessageAuthor.Component | null;
   MessageBox?: typeof MessageBox.Component | null;
-  MessageReadObserver?: typeof MessageReadObserver.Component | null;
-  MessageRow?: typeof MessageRow.Component | null;
   MessageContent?: typeof MessageContent.Component | null;
   MessageInfoBox?: typeof MessageInfoBox.Component | null;
+  MessageRow?: typeof MessageRow.Component | null;
   MessageText?: typeof MessageText.Component | null;
-  MessageAuthor?: typeof MessageAuthor.Component | null;
+
+  // ./SendingMessage
+  SendingMessageBox?: typeof SendingMessageBox.Component | null;
+  SendingMessageContent?: typeof SendingMessageContent.Component | null;
+  SendingMessageInfoBox?: typeof SendingMessageInfoBox.Component | null;
+  SendingMessageText?: typeof SendingMessageText.Component | null;
+
+  // ./ChatPanel
+  ChatBody?: typeof ChatBody.Component | null;
+  ChatHeader?: typeof ChatHeader.Component | null;
+  ChatHeaderMembers?: typeof ChatHeaderMembers.Component | null;
+  ChatHeaderName?: typeof ChatHeaderName.Component | null;
+  ChatPanel?: typeof ChatPanel.Component | null;
+  ChatMembersButton?: typeof ChatMembersButton.Component | null;
+
+  // ./InputBox
+  InputBox?: typeof InputBox.Component | null;
+  InputFilesBox?: typeof InputFilesBox.Component | null;
+  InputSubmitButtonBox?: typeof InputSubmitButtonBox.Component | null;
+  InputTextBox?: typeof InputTextBox.Component | null;
+
+  // ./SystemMessage
+  SystemMessageBox?: typeof SystemMessageBox.Component | null;
+  SystemMessageRow?: typeof SystemMessageRow.Component | null;
+
+  // ./CreateChatPanel
+  CreateChatForm?: typeof CreateChatForm.Component | null;
+  CreateChatMemberInput?: typeof CreateChatMemberInput.Component | null;
+  CreateChatNameInput?: typeof CreateChatNameInput.Component | null;
+  CreateChatPanel?: typeof CreateChatPanel.Component | null;
+
+  MessageReadObserver?: typeof MessageReadObserver.Component | null;
+  Avatar?: typeof Avatar.Component | null;
+  AddChatButton?: typeof AddChatButton.Component | null;
+  ChatName?: typeof ChatName.Component | null;
   Icon?: typeof Icon.Component | null;
 }
 
@@ -80,10 +125,7 @@ function Content(props: Pick<ChatifyProps, 'className' | 'style'>) {
   return (
     <div className={className + ' wxchtf-chatify'} style={style}>
       <Header />
-      <div className="wxchtf-body">
-        <Aside />
-        <Main />
-      </div>
+      <Body />
       <Footer />
     </div>
   );

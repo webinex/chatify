@@ -4,7 +4,7 @@ import { useDispatch, useSelect } from './reducer';
 
 export function useReadMonitor() {
   const client = useClient();
-  const [queued, timestamp] = useSelect((x) => [x.read.queued, x.read.timestamp], []);
+  const [queued, timestamp] = useSelect((x) => [x.queue.read.queued, x.queue.read.timestamp], []);
   const dispatch = useDispatch();
   const timer = useRef<NodeJS.Timeout | null>(null);
 
@@ -18,12 +18,13 @@ export function useReadMonitor() {
     }
 
     timer.current = setTimeout(() => {
-      dispatch({ type: 'read_send', data: { ids: queued } });
-      client
-        .read({ ids: queued })
-        .catch(() =>
-          dispatch({ type: 'read_reject', data: { ids: queued, timestamp: new Date().getTime() } }),
-        );
+      for (const id of queued) {
+        dispatch({ type: 'read_send', data: { id } });
+
+        client
+          .read({ id })
+          .catch(() => dispatch({ type: 'read_reject', data: { id, timestamp: new Date().getTime() } }));
+      }
     }, 100);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -2,15 +2,15 @@
 
 public class ReadArgs
 {
-    public IReadOnlyCollection<string> MessageIds { get; }
+    public string Id { get; }
     public AccountContext OnBehalfOf { get; }
 
-    public ReadArgs(IReadOnlyCollection<string> ids, AccountContext onBehalfOf)
+    public ReadArgs(string messageId, AccountContext onBehalfOf)
     {
         if (onBehalfOf.IsSystem())
             throw new ArgumentException("System account is not allowed to read messages", nameof(onBehalfOf));
         
-        MessageIds = ids?.Distinct().ToArray() ?? throw new ArgumentNullException(nameof(ids));
+        Id = messageId ?? throw new ArgumentNullException(nameof(messageId));
         OnBehalfOf = onBehalfOf ?? throw new ArgumentNullException(nameof(onBehalfOf));
     }
 }

@@ -1,7 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Data;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Webinex.Chatify.Abstractions;
+using Webinex.Chatify.Abstractions.Events;
 using Webinex.Chatify.Common;
 using Webinex.Chatify.DataAccess;
+using Webinex.Chatify.Rows;
 
 namespace Webinex.Chatify.Services.Messages;
 
@@ -33,17 +37,37 @@ internal class MessageService : IMessageService
 
     public async Task ReadAsync(ReadArgs args)
     {
-        var deliveries =
-            await _dbContext.Deliveries.Where(x => x.ToId == args.OnBehalfOf.Id && args.MessageIds.Contains(x.MessageId))
-                .ToArrayAsync();
+        var messageId = MessageId.Parse(args.Id);
 
-        foreach (var delivery in deliveries)
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);
+
+        var parameters = new List<SqlParameter>
         {
-            delivery.MarkRead(_eventService);
-        }
+            new("chatId", messageId.ChatId),
+            new("accountId", args.OnBehalfOf.Id),
+            new("lastReadMessageId", messageId.ToString()),
+            new("lastReadMessageIndex", messageId.Index),
+        };
+        
+        var readCount = (await _dbContext.Database.SqlQueryRaw<int>(
+            """
+                declare @previousLastReadMessageId char(65);
+            
+                update chatify.ChatActivities with (rowlock, updlock, holdlock)
+                set
+                    LastReadMessageId = case when LastReadMessageId < @lastReadMessageId or LastReadMessageId is null then @lastReadMessageId else LastReadMessageId end,
+                    LastReadMessageIndex = case when LastReadMessageIndex < @lastReadMessageIndex or LastReadMessageIndex is null then @lastReadMessageIndex else LastReadMessageIndex end,
+                    @previousLastReadMessageId = LastReadMessageId
+                where ChatId = @chatId and AccountId = @accountId
+                
+                select count(*) from chatify.Messages message
+                inner join chatify.Members member on message.ChatId = member.ChatId and member.AccountId = @accountId and member.FirstMessageId <= message.Id and (member.LastMessageId is null or member.LastMessageId >= message.Id)
+                where message.ChatId = @chatId and message.Id <= @lastReadMessageId and (@previousLastReadMessageId is null or message.Id > @previousLastReadMessageId)
+            """, parameters.ToArray()).ToArrayAsync()).First();
 
+        await transaction.CommitAsync();
+        _eventService.Push(new ReadEvent(messageId.ChatId, args.OnBehalfOf.Id, messageId.ToString(), readCount));
         await _eventService.FlushAsync();
-        await _dbContext.SaveChangesAsync();
     }
 
     public async Task<Message[]> QueryAsync(MessageQuery query)

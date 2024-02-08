@@ -14,31 +14,30 @@ internal interface IMessageQueryService
 internal class MessageQueryService : IMessageQueryService
 {
     private readonly ChatifyDbContext _dbContext;
-    private readonly IAskyFieldMap<DeliveryRow> _deliveryRowFieldMap;
+    private readonly IAskyFieldMap<MessageRow> _messageRowFieldMap;
 
     public MessageQueryService(
         ChatifyDbContext dbContext,
-        IAskyFieldMap<DeliveryRow> deliveryRowFieldMap)
+        IAskyFieldMap<MessageRow> messageRowFieldMap)
     {
         _dbContext = dbContext;
-        _deliveryRowFieldMap = deliveryRowFieldMap;
+        _messageRowFieldMap = messageRowFieldMap;
     }
 
     public async Task<Message[]> QueryAsync(MessageQuery query)
     {
-        var queryable = _dbContext.Deliveries.AsQueryable()
-            .Where(x => x.ToId == query.OnBehalfOf.Id)
-            .Include(x => x.Message)
-            .AsNoTrackingWithIdentityResolution();
+        var queryable = _dbContext.Messages
+                .Where(MessageRow.In(_dbContext.Members.AsQueryable().Where(x => x.AccountId == query.OnBehalfOf.Id)))
+                .AsNoTracking();
 
         if (query.Props.HasFlag(Message.Props.Author))
-            queryable = queryable.Include(x => x.Message!.Author);
+            queryable = queryable.Include(x => x.Author);
 
         if (query.FilterRule != null)
-            queryable = queryable.Where(_deliveryRowFieldMap, query.FilterRule);
+            queryable = queryable.Where(_messageRowFieldMap, query.FilterRule);
 
         if (query.SortRule?.Any() == true)
-            queryable = queryable.SortBy(_deliveryRowFieldMap, query.SortRule);
+            queryable = queryable.SortBy(_messageRowFieldMap, query.SortRule);
 
         if (query.PagingRule != null)
             queryable = queryable.PageBy(query.PagingRule);
@@ -48,15 +47,21 @@ internal class MessageQueryService : IMessageQueryService
             : await ToMessagesAsync(query, queryable);
     }
 
-    private async Task<Message[]> ToDeliveryMessagesAsync(MessageQuery query, IQueryable<DeliveryRow> queryable)
+    private async Task<Message[]> ToDeliveryMessagesAsync(MessageQuery query, IQueryable<MessageRow> queryable)
     {
-        var result = await queryable.ToArrayAsync();
-        return result.Select(x => MessageMapper.Map(x.Message!, x, query.Props)).ToArray();
+        var result = await queryable.Join(_dbContext.ChatActivities,
+            x => new { x.ChatId, AccountId = query.OnBehalfOf.Id }, a => new { a.ChatId, a.AccountId },
+            (message, activity) => new { Message = message, activity.LastReadMessageIndex }).ToArrayAsync();
+
+        return result.Select(x => MessageMapper.Map(
+            x.Message,
+            read: x.LastReadMessageIndex != null && x.Message.Index < x.LastReadMessageIndex,
+            query.Props)).ToArray();
     }
 
-    private async Task<Message[]> ToMessagesAsync(MessageQuery query, IQueryable<DeliveryRow> queryable)
+    private async Task<Message[]> ToMessagesAsync(MessageQuery query, IQueryable<MessageRow> queryable)
     {
-        var result = await queryable.Select(x => x.Message!).ToArrayAsync();
+        var result = await queryable.ToArrayAsync();
         return result.Select(x => MessageMapper.Map(x, null, query.Props)).ToArray();
     }
 }

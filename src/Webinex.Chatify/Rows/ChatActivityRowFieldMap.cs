@@ -11,7 +11,6 @@ internal class ChatActivityRowFieldMap : IAskyFieldMap<ChatActivityRow>
         "name" => x => x.Chat!.Name,
         "createdAt" => x => x.Chat!.CreatedAt,
         "createdById" => x => x.Chat!.CreatedById,
-        "read" => x => x.Delivery!.Read,
         _ => null,
     };
 }

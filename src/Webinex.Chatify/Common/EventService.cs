@@ -10,6 +10,17 @@ internal interface IEventService
     Task FlushAsync();
 }
 
+internal static class EventServiceExtensions
+{
+    public static void PushRange<T>(this IEventService eventService, IEnumerable<T> events) where T : class
+    {
+        foreach (var @event in events)
+        {
+            eventService.Push(@event);
+        }
+    }
+}
+
 internal class EventService : IEventService
 {
     private readonly List<object> _events = new();

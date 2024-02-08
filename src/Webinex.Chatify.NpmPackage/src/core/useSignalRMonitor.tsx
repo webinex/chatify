@@ -12,7 +12,7 @@ export function useSignalRMonitor(me: string, client: ChatifyClient) {
     client.connect().then(() => {
       unsubscribes.push(
         client.subscribe('chatify://new-message', ([message, requestId]: [Message, string]) => {
-          dispatch({ type: 'message_received', data: { message, requestId } });
+          dispatch({ type: 'message_received', data: { message, requestId, me } });
         }),
       );
       unsubscribes.push(
@@ -28,16 +28,30 @@ export function useSignalRMonitor(me: string, client: ChatifyClient) {
       unsubscribes.push(
         client.subscribe(
           'chatify://member-added',
-          ([chatId, chatName, account, message]: [string, string, Account, Message]) => {
-            dispatch({ type: 'member_added', data: { chatId, chatName, account, me, message } });
+          ([chatId, chatName, account, message, withHistory]: [
+            string,
+            string,
+            Account,
+            Message,
+            boolean,
+          ]) => {
+            dispatch({ type: 'member_added', data: { chatId, chatName, account, me, message, withHistory } });
           },
         ),
       );
       unsubscribes.push(
         client.subscribe(
           'chatify://member-removed',
-          ([chatId, accountId, deleteHistory]: [string, string, boolean]) => {
-            dispatch({ type: 'member_removed', data: { chatId, accountId, deleteHistory, me } });
+          ([chatId, accountId, deleteHistory, message]: [string, string, boolean, Message]) => {
+            dispatch({ type: 'member_removed', data: { chatId, accountId, deleteHistory, me, message } });
+          },
+        ),
+      );
+      unsubscribes.push(
+        client.subscribe(
+          'chatify://chat-name-changed',
+          ([chatId, newName, message]: [string, string, Message]) => {
+            dispatch({ type: 'chatNameChanged_received', data: { chatId, newName, message } });
           },
         ),
       );

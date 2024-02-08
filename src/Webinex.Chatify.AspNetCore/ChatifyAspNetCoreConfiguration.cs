@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
-using Webinex.Chatify.Abstractions;
 using Webinex.Chatify.Abstractions.Events;
 
 namespace Webinex.Chatify.AspNetCore;
@@ -39,11 +38,12 @@ internal class ChatifyAspNetCoreConfiguration : IChatifyAspNetCoreConfiguration
     {
         MvcBuilder.Services.AddSignalR();
         MvcBuilder.Services
-            .AddScoped<IEventSubscriber<IEnumerable<MessageSentDeliveryCreatedEvent>>, ChatifySignalREventSubscriber<THub>>()
-            .AddScoped<IEventSubscriber<IEnumerable<NewChatMessageDeliveryCreatedEvent>>, ChatifySignalREventSubscriber<THub>>()
+            .AddScoped<IEventSubscriber<IEnumerable<MessageSentEvent>>, ChatifySignalREventSubscriber<THub>>()
+            .AddScoped<IEventSubscriber<IEnumerable<NewChatMessageCreatedEvent>>, ChatifySignalREventSubscriber<THub>>()
             .AddScoped<IEventSubscriber<IEnumerable<ReadEvent>>, ChatifySignalREventSubscriber<THub>>()
             .AddScoped<IEventSubscriber<IEnumerable<MemberAddedEvent>>, ChatifySignalREventSubscriber<THub>>()
             .AddScoped<IEventSubscriber<IEnumerable<MemberRemovedEvent>>, ChatifySignalREventSubscriber<THub>>()
+            .AddScoped<IEventSubscriber<IEnumerable<ChatNameChangedEvent>>, ChatifySignalREventSubscriber<THub>>()
             .AddSingleton<IChatifyHubConnections, ChatifyHubConnections>();
 
         return this;

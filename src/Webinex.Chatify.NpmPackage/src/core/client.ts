@@ -10,6 +10,7 @@ import {
   ReadRequest,
   RemoveMemberRequest,
   SendMessageRequest,
+  UpdateChatNameRequest,
 } from './models';
 
 export interface ChatifySignalRConfig {
@@ -34,6 +35,7 @@ const METHODS = [
   'chatify://read',
   'chatify://member-added',
   'chatify://member-removed',
+  'chatify://chat-name-changed',
 ] as const;
 
 export class ChatifyClient {
@@ -129,6 +131,10 @@ export class ChatifyClient {
 
   public removeMember = async (request: RemoveMemberRequest) => {
     await this.axios.delete(`chat/${request.chatId}/member`, { data: request });
+  };
+
+  public updateChatName = async (request: UpdateChatNameRequest) => {
+    await this.axios.put(`chat/${request.id}/name`, request);
   };
 
   public addMember = async (request: AddMemberRequest) => {

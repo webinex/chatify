@@ -38,6 +38,12 @@ public class ChatifyController : ControllerBase
         return new CodedActionResult(await _chatifyAspNetCoreService.AddChatMemberAsync(chatId, request));
     }
 
+    [HttpPut("chat/{chatId:guid}/name")]
+    public async Task<IActionResult> UpdateChatNameAsync(Guid chatId, [FromBody] UpdateChatNameRequest request)
+    {
+        return new CodedActionResult(await _chatifyAspNetCoreService.UpdateChatNameAsync(chatId, request));
+    }
+
     [HttpDelete("chat/{chatId:guid}/member")]
     public async Task<IActionResult> DeleteChatMemberAsync(Guid chatId, [FromBody] RemoveChatMemberRequestDto request)
     {

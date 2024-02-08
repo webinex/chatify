@@ -24,15 +24,12 @@ const config = [
         format: 'esm',
         sourcemap: true,
       },
-      {
-        file: packageJson.main,
-        format: 'cjs',
-        sourcemap: true,
-      },
     ],
     plugins: [
       eslint(),
-      peerDepsExternal(),
+      peerDepsExternal({
+        includeDependencies: true,
+      }),
       resolve(),
       commonjs(),
       typescript({ tsconfig: './tsconfig.json' }),
@@ -51,8 +48,11 @@ const config = [
     plugins: [dts()],
   },
   {
-    input: 'src/ui/styles/index.scss',
+    input: 'src/styles/index.scss',
     output: { file: 'dist/css/chatify.css' },
+    watch: {
+      include: 'src/styles/**/*',
+    },
     onwarn: (warning, handler) => {
       if (warning.code !== 'FILE_NAME_CONFLICT' && warning.code !== 'EMPTY_BUNDLE') {
         handler(warning);

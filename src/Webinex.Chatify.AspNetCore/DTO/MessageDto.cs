@@ -11,7 +11,6 @@ public class MessageDto
     public DateTimeOffset SentAt { get; }
     public IReadOnlyCollection<File> Files { get; }
     public AccountDto SentBy { get; }
-    public bool Read { get; }
 
     public MessageDto(
         string id,
@@ -19,8 +18,7 @@ public class MessageDto
         string text,
         DateTimeOffset sentAt,
         IEnumerable<File> files,
-        AccountDto sentBy,
-        bool read)
+        AccountDto sentBy)
     {
         Id = id;
         ChatId = chatId;
@@ -28,7 +26,6 @@ public class MessageDto
         SentAt = sentAt;
         Files = files.ToArray();
         SentBy = sentBy;
-        Read = read;
     }
 
     public MessageDto(Message message)
@@ -39,6 +36,5 @@ public class MessageDto
         SentAt = message.SentAt;
         Files = message.Body.Files;
         SentBy = new AccountDto(message.Author.Value!);
-        Read = message.Read.Value;
     }
 }
