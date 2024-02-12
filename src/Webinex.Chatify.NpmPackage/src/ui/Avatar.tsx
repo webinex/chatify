@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { Account } from '../core';
 import { Avatar as AntdAvatar } from 'antd';
-import { customize } from '../util';
+import { customize } from './customize';
 
 export interface AvatarProps {
   account: Account;

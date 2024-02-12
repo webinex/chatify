@@ -5,8 +5,9 @@ public class AddMemberArgs
     public Guid ChatId { get; }
     public string AccountId { get; }
     public AccountContext OnBehalfOf { get; }
+    public bool WithHistory { get; }
 
-    public AddMemberArgs(Guid chatId, string accountId, AccountContext onBehalfOf)
+    public AddMemberArgs(Guid chatId, string accountId, AccountContext onBehalfOf, bool withHistory)
     {
         if (accountId == AccountContext.System.Id)
             throw new ArgumentException("System account cannot be added to chat", nameof(accountId));
@@ -14,5 +15,6 @@ public class AddMemberArgs
         ChatId = chatId;
         AccountId = accountId ?? throw new ArgumentNullException(nameof(accountId));
         OnBehalfOf = onBehalfOf ?? throw new ArgumentNullException(nameof(onBehalfOf));
+        WithHistory = withHistory;
     }
 }

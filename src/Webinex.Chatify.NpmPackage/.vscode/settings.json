@@ -5,5 +5,4 @@
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.rulers": [110],
-  "liveServer.settings.root": "/dist/demo"
 }

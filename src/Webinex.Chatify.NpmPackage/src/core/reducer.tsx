@@ -2,9 +2,10 @@ import React, { PropsWithChildren, useCallback, useContext, useEffect, useRef, u
 import { ACTIONS, Action } from './action';
 import { INITIAL_STATE, State } from './state';
 import { shallowEqual } from 'shallow-equal';
+import { produce } from 'immer';
 
 function reducer(state: State, action: Action) {
-  const result = ACTIONS[action.type](state, action.data as any);
+  const result = produce(state, (draft) => ACTIONS[action.type](draft, action.data as any));
   console.debug('[Chatify]: ', action, result);
   return result;
 }

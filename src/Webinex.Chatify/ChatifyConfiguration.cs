@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Webinex.Asky;
 using Webinex.Chatify.Abstractions;
-using Webinex.Chatify.Abstractions.Events;
 using Webinex.Chatify.Common;
 using Webinex.Chatify.DataAccess;
 using Webinex.Chatify.Rows;
@@ -10,9 +9,8 @@ using Webinex.Chatify.Services;
 using Webinex.Chatify.Services.Caches;
 using Webinex.Chatify.Services.Caches.Common;
 using Webinex.Chatify.Services.Chats;
+using Webinex.Chatify.Services.Members;
 using Webinex.Chatify.Services.Messages;
-using Webinex.Chatify.Services.Subscribers;
-using Webinex.Chatify.Services.Tasks;
 
 namespace Webinex.Chatify;
 
@@ -33,12 +31,9 @@ internal class ChatifyConfiguration : IChatifyConfiguration
             .AddMemoryCache()
             .AddScoped<IEventService, EventService>()
             .AddScoped<IChatify, Chatify>()
-            .AddScoped<IEventSubscriber<IEnumerable<ChatCreatedEvent>>, ChatCreatedSubscriber>()
-            .AddScoped<IEventSubscriber<IEnumerable<NewChatMessageCreatedEvent>>, NewChatMessageCreatedSubscriber>()
-            .AddScoped<IEventSubscriber<IEnumerable<MessageSentEvent>>, MessageSentSubscriber>()
             .AddSingleton<IAskyFieldMap<ChatActivityRow>, ChatActivityRowFieldMap>()
-            .AddSingleton<IAskyFieldMap<DeliveryRow>, DeliveryRowFieldMap>()
-            .AddSingleton<IAskyFieldMap<ChatRow>, ChatRowFieldMap>();
+            .AddSingleton<IAskyFieldMap<ChatRow>, ChatRowFieldMap>()
+            .AddSingleton<IAskyFieldMap<MessageRow>, MessageRowFieldMap>();
 
         services
             .AddScoped<IAuthorizationPolicy, AuthorizationPolicy>()
@@ -49,15 +44,10 @@ internal class ChatifyConfiguration : IChatifyConfiguration
             .AddScoped<IChatService, ChatService>()
             .AddScoped<IChatQueryService, ChatQueryService>()
             .AddScoped<IAddChatService, AddChatService>()
-            .AddScoped<IMemberService, MemberService>();
-
-
-        services
-            .AddSingleton<ChatifyQueue>()
-            .AddHostedService(x => x.GetRequiredService<ChatifyQueue>())
-            .AddSingleton<IChatifyQueue>(x => x.GetRequiredService<ChatifyQueue>())
-            .AddScoped<IJob<AddMemberTask>, AddMemberJob>()
-            .AddScoped<IJob<RemoveMemberTask>, RemoveMemberJob>();
+            .AddScoped<IMemberService, MemberService>()
+            .AddScoped<IGetMemberService, GetMemberService>()
+            .AddScoped<IAddMemberService, AddMemberService>()
+            .AddScoped<IRemoveMemberService, RemoveMemberService>();
 
         services
             .AddSingleton<IEntityCache<AccountRow>, EntityMemoryCache<AccountRow>>()

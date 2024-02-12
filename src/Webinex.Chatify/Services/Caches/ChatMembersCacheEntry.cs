@@ -3,12 +3,12 @@
 internal class ChatMembersCacheEntry : ICloneable
 {
     public Guid ChatId { get; protected init; }
-    public IEnumerable<string> MemberIds { get; protected init; } = null!;
+    public IEnumerable<string> Active { get; protected init; } = null!;
 
-    public ChatMembersCacheEntry(Guid chatId, IEnumerable<string> memberIds)
+    public ChatMembersCacheEntry(Guid chatId, IEnumerable<string> active)
     {
         ChatId = chatId;
-        MemberIds = memberIds.Distinct().ToArray();
+        Active = active.Distinct().ToArray();
     }
 
     protected ChatMembersCacheEntry()
@@ -20,7 +20,7 @@ internal class ChatMembersCacheEntry : ICloneable
         return new ChatMembersCacheEntry
         {
             ChatId = ChatId,
-            MemberIds = MemberIds.ToArray(),
+            Active = Active.ToArray(),
         };
     }
 }

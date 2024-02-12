@@ -1,7 +1,4 @@
-﻿using System.Text.Json;
-using Webinex.Chatify.Abstractions;
-using Webinex.Chatify.Abstractions.Events;
-using Webinex.Chatify.Common;
+﻿using System.Linq.Expressions;
 using File = Webinex.Chatify.Abstractions.File;
 
 namespace Webinex.Chatify.Rows;
@@ -13,6 +10,7 @@ internal class MessageRow
     public string Text { get; protected init; } = null!;
     public string AuthorId { get; protected init; } = null!;
     public DateTimeOffset SentAt { get; protected init; }
+    public int Index { get; protected init; }
     public IReadOnlyCollection<File> Files { get; protected init; } = null!;
     public virtual AccountRow Author { get; protected init; } = null!;
 
@@ -36,63 +34,19 @@ internal class MessageRow
     {
     }
 
-    internal static MessageRow NewSent(
-        IEventService eventService,
-        Guid chatId,
-        string authorId,
-        MessageBody body,
-        string? requestId = null)
+    public static string FormatSqlInsert(
+        (string IdRef, string ChatIdRef, string TextRef, string AuthorIdRef, string SentAtRef, string IndexRef, string? FilesRef) args)
     {
-        var message = new MessageRow(
-            MessageId.New().ToString(),
-            chatId,
-            authorId,
-            DateTimeOffset.UtcNow,
-            body.Text,
-            body.Files.ToArray());
-
-        eventService.Push(new MessageSentEvent(
-            message.Id,
-            message.ChatId,
-            body,
-            authorId,
-            message.SentAt,
-            requestId));
-
-        return message;
+        return $"""
+                insert into chatify.Messages(Id, ChatId, Text, AuthorId, SentAt, [Index], Files)
+                values ({args.IdRef}, {args.ChatIdRef}, {args.TextRef}, {args.AuthorIdRef}, {args.SentAtRef}, {args.IndexRef}, {args.FilesRef ?? "'[]'"})
+                """;
     }
 
-    internal static MessageRow NewChatCreated(
-        IEventService eventService,
-        Guid chatId,
-        string chatName,
-        IEnumerable<string> chatMembers,
-        string authorId,
-        MessageBody body,
-        string? requestId = null)
+    public static Expression<Func<MessageRow, bool>> In(IQueryable<MemberRow> members)
     {
-        var message = new MessageRow(
-            MessageId.New().ToString(),
-            chatId,
-            authorId,
-            DateTimeOffset.UtcNow,
-            body.Text,
-            body.Files.ToArray());
-
-        eventService.Push(new NewChatMessageCreatedEvent(
-            message.Id,
-            new NewChatMessageCreatedEvent.ChatValue(chatId, chatName, chatMembers.ToArray()),
-            body,
-            authorId,
-            message.SentAt,
-            requestId));
-
-        return message;
-    }
-
-    internal static MessageRow NewMemberAddedByJob(Guid chatId, string addedById, string memberId)
-    {
-        return new MessageRow(MessageId.New().ToString(), chatId, AccountContext.System.Id, DateTimeOffset.UtcNow,
-            $"chatify://member-added::{JsonSerializer.Serialize(new { addedById, memberId })}", Array.Empty<File>());
+        return message => members.Any(member =>
+            member.FirstMessageId.CompareTo(message.Id) <= 0 &&
+            (member.LastMessageId == null || member.LastMessageId.CompareTo(message.Id) >= 0));
     }
 }

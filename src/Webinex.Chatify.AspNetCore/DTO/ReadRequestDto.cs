@@ -2,10 +2,10 @@
 
 public class ReadRequestDto
 {
-    public ReadRequestDto(IReadOnlyCollection<string> ids)
+    public ReadRequestDto(string id)
     {
-        Ids = ids;
+        Id = id;
     }
 
-    public IReadOnlyCollection<string> Ids { get; }
+    public string Id { get; }
 }

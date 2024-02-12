@@ -4,7 +4,8 @@ namespace Webinex.Chatify.Abstractions;
 
 public interface IChatify
 {
-    Task<IReadOnlyCollection<Chat>> AddChatsAsync(IEnumerable<AddChatArgs> commands);
+    Task<Chat> AddChatAsync(AddChatArgs args);
+    Task UpdateChatNameAsync(UpdateChatNameArgs args);
     Task<Message[]> SendMessagesAsync(IEnumerable<SendMessageArgs> commands);
     Task AddMembersAsync(IEnumerable<AddMemberArgs> commands);
     Task RemoveMembersAsync(IEnumerable<RemoveMemberArgs> commands);
@@ -17,7 +18,8 @@ public interface IChatify
 
     Task<Message[]> QueryAsync(MessageQuery query);
     Task<IReadOnlyCollection<Chat>> ChatByIdAsync(IEnumerable<Guid> chatIds, AccountContext? onBehalfOf = null, bool required = true);
-    Task<IReadOnlyDictionary<Guid, IReadOnlyCollection<Member>>> MembersAsync(IEnumerable<Guid> chatIds);
+    Task<IReadOnlyDictionary<Guid, IReadOnlyCollection<Member>>> MembersAsync(IEnumerable<Guid> chatIds, bool? active = null);
+    Task<IReadOnlyDictionary<Guid, string[]>> ActiveMemberIdByChatIdAsync(IEnumerable<Guid> chatIds);
 
     Task<IReadOnlyDictionary<string, Account>> AccountByIdAsync(IEnumerable<string> ids, bool tryCache = false,
         bool required = true);
@@ -30,19 +32,10 @@ public interface IChatify
 
 public static class ChatifyExtensions
 {
-    public static async Task<Chat> AddChatAsync(this IChatify chatify, AddChatArgs args)
+    public static async Task<IReadOnlyCollection<Member>> MembersAsync(this IChatify chatify, Guid chatId, bool? active = null)
     {
         chatify = chatify ?? throw new ArgumentNullException(nameof(chatify));
-        args = args ?? throw new ArgumentNullException(nameof(args));
-
-        var result = await chatify.AddChatsAsync(new[] { args });
-        return result.First();
-    }
-
-    public static async Task<IReadOnlyCollection<Member>> MembersAsync(this IChatify chatify, Guid chatId)
-    {
-        chatify = chatify ?? throw new ArgumentNullException(nameof(chatify));
-        var result = await chatify.MembersAsync(new[] { chatId });
+        var result = await chatify.MembersAsync(new[] { chatId }, active);
         return result.Values.First();
     }
 

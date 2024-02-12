@@ -1,0 +1,79 @@
+@import './variables.scss';
+@import './mixins.scss';
+@import './keyframes.scss';
+@import './aside.scss';
+@import './settings.scss';
+@import './chat.scss';
+
+.wxchtf-chatify {
+  border: $border;
+  display: flex;
+  flex-flow: column nowrap;
+  background: $background;
+  border-radius: $radius;
+
+  .wxchtf-header {
+    min-height: 2rem;
+    border-bottom: $border;
+  }
+
+  .wxchtf-body {
+    flex: 1 0;
+    display: flex;
+    flex-flow: row nowrap;
+  }
+
+  .wxchtf-footer {
+    min-height: 2rem;
+    border-top: $border;
+  }
+}
+
+.wxchtf-main {
+  flex: auto;
+  display: flex;
+  flex-flow: column nowrap;
+
+  .wxchtf-create-chat {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+
+    form {
+      padding: 2rem;
+      max-width: 700px;
+      width: 100%;
+
+      .wxchtf-create-chat-member-input-list {
+        max-height: 15rem;
+        overflow-y: auto;
+
+        .ant-list-item {
+          padding-inline: 0.5rem;
+
+          &.--selected {
+            background-color: #e6f4ff;
+          }
+
+          .ant-checkbox-wrapper {
+            width: 100%;
+
+            & > span:last-child {
+              flex: 1;
+
+              .ant-list-item-meta {
+                align-items: center;
+
+                .ant-list-item-meta-content h4 {
+                  margin-bottom: 0;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

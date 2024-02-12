@@ -15,6 +15,14 @@ internal class ChatRow
     {
     }
 
+    public ChatRow(Guid id, string name, DateTimeOffset createdAt, string createdById)
+    {
+        Id = id;
+        Name = name;
+        CreatedAt = createdAt;
+        CreatedById = createdById;
+    }
+
     public void UpdateName(string name)
     {
         name = name ?? throw new ArgumentNullException(nameof(name));

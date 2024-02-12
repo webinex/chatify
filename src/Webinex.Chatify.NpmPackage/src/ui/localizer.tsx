@@ -6,6 +6,8 @@ export interface Localizer {
   system: {
     chatCreated: () => string;
     memberAdded: () => string;
+    memberRemoved: () => string;
+    chatNameChanged: (newName: string) => string;
   };
   message: {
     read: () => React.ReactNode;
@@ -28,6 +30,10 @@ export interface Localizer {
 
   input: {
     placeholder: () => string;
+  };
+
+  settings: {
+    members: () => string;
   };
 }
 
@@ -60,9 +66,15 @@ export const defaultLocalizer: Localizer = {
   system: {
     chatCreated: () => 'Chat created',
     memberAdded: () => 'New member added',
+    memberRemoved: () => 'Member removed',
+    chatNameChanged: (newName: string) => `Chat name changed to '${newName}'`,
   },
 
   input: {
     placeholder: () => 'Start typing (Ctrl/⌘Cmd + Enter to send) ...',
+  },
+
+  settings: {
+    members: () => 'Members',
   },
 };

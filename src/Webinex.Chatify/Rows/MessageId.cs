@@ -4,24 +4,20 @@ namespace Webinex.Chatify.Rows;
 
 internal class MessageId : Equatable
 {
-    public DateTimeOffset SentAt { get; protected init; }
-    public string Uniq { get; protected init; } = null!;
+    public Guid ChatId { get; protected init; }
+    public int Index { get; protected init; }
+    public DateTimeOffset CreatedAt { get; protected init; }
 
-    public MessageId(DateTimeOffset sentAt, string uniq)
+    public MessageId(Guid chatId, int index, DateTimeOffset createdAt)
     {
-        SentAt = sentAt.ToUniversalTime();
-        Uniq = uniq;
-    }
-
-    public MessageId(DateTimeOffset sentAt)
-    {
-        SentAt = sentAt.ToUniversalTime();
-        Uniq = Guid.NewGuid().ToString();
+        ChatId = chatId;
+        CreatedAt = createdAt.ToUniversalTime();
+        Index = index;
     }
     
-    public static MessageId New()
+    public static MessageId New(Guid chatId, int index)
     {
-        return new MessageId(DateTimeOffset.UtcNow);
+        return new MessageId(chatId, index, DateTimeOffset.UtcNow);
     }
 
     protected MessageId()
@@ -30,18 +26,27 @@ internal class MessageId : Equatable
 
     public override string ToString()
     {
-        return SentAt.ToString("s") + "::" + Uniq;
+        var chatIdPart = ChatId.ToString().ToUpperInvariant();
+        var indexPart = Index.ToString().PadLeft(9, '0');
+        var createdAtPart = CreatedAt.UtcTicks.ToString().PadLeft(18, '0');
+        return $"{chatIdPart}-{indexPart}-{createdAtPart}";
     }
 
     public static MessageId Parse(string value)
     {
-        var split = value.Split("::");
-        return new MessageId(DateTimeOffset.Parse(split[0]), split[1]);
+        var chatIdPart = value.Substring(0, 36);
+        var indexPart = value.Substring(36 + 1, 9);
+        var createdAtPart = value.Substring(36 + 1 + 9 + 1, 18);
+        return new MessageId(
+            new Guid(chatIdPart),
+            int.Parse(indexPart),
+            new DateTimeOffset(long.Parse(createdAtPart), TimeSpan.Zero));
     }
 
     protected override IEnumerable<object?> GetEqualityComponents()
     {
-        yield return SentAt;
-        yield return Uniq;
+        yield return ChatId;
+        yield return Index;
+        yield return CreatedAt;
     }
 }

@@ -6,14 +6,19 @@ public class Chat
     public string Name { get; }
     public DateTimeOffset CreatedAt { get; }
     public string CreatedById { get; }
+    public Optional<string?> LastReadMessageId { get; }
+    public Optional<bool> Active { get; }
     public Optional<Message> LastMessage { get; }
     public Optional<int> TotalUnreadCount { get; }
+
 
     public Chat(
         Guid id,
         string name,
         DateTimeOffset createdAt,
         string createdById,
+        Optional<string?> lastReadMessageId,
+        Optional<bool> active,
         Optional<Message> lastMessage,
         Optional<int> totalUnreadCount)
     {
@@ -21,6 +26,8 @@ public class Chat
         Name = name;
         CreatedAt = createdAt;
         CreatedById = createdById;
+        LastReadMessageId = lastReadMessageId;
+        Active = active;
         LastMessage = lastMessage;
         TotalUnreadCount = totalUnreadCount;
     }

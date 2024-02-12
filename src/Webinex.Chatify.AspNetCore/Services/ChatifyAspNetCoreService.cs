@@ -11,6 +11,7 @@ public interface IChatifyAspNetCoreService
     Task<CodedResult<Guid>> AddChatAsync(AddChatRequestDto request);
     Task<CodedResult> AddChatMemberAsync(Guid chatId, AddMemberRequestDto request);
     Task<CodedResult> DeleteChatMemberAsync(Guid chatId, RemoveChatMemberRequestDto request);
+    Task<CodedResult> UpdateChatNameAsync(Guid chatId, UpdateChatNameRequest request);
     Task<CodedResult> ReadAsync(ReadRequestDto request);
     Task<CodedResult<AccountDto[]>> GetAccountsAsync();
     Task<CodedResult<MessageDto[]>> GetMessagesAsync(Guid chatId, PagingRule? pagingRule);
@@ -45,7 +46,7 @@ internal class ChatifyAspNetCoreService : IChatifyAspNetCoreService
     {
         var context = await _contextProvider.GetAsync();
         var chat = await _chatify.ChatAsync(id, onBehalfOf: context);
-        var members = await _chatify.MembersAsync(id);
+        var members = await _chatify.MembersAsync(id, active: true);
         var accounts = await _chatify.AccountByIdAsync(ids: members.Select(x => x.AccountId), tryCache: true);
         var accountDtos = accounts.Values.Select(x => new AccountDto(x)).ToArray();
         var response = new ChatDto(chat.Id, chat.Name, accountDtos);
@@ -54,10 +55,13 @@ internal class ChatifyAspNetCoreService : IChatifyAspNetCoreService
 
     public async Task<CodedResult<Guid>> AddChatAsync(AddChatRequestDto request)
     {
+        var context = await _contextProvider.GetAsync();
+        var members = request.Members.Concat(new[] { context.Id }).Distinct().ToArray();
+        
         var chat = await _chatify.AddChatAsync(
             new AddChatArgs(
                 request.Name,
-                request.Members,
+                members,
                 request.Message,
                 await _contextProvider.GetAsync(),
                 request.RequestId));
@@ -70,7 +74,7 @@ internal class ChatifyAspNetCoreService : IChatifyAspNetCoreService
     {
         var context = await _contextProvider.GetAsync();
         await _chatify.AddMembersAsync(new[]
-            { new AddMemberArgs(chatId, request.AccountId, context) });
+            { new AddMemberArgs(chatId, request.AccountId, context, request.WithHistory) });
         return CodedResults.Success();
     }
 
@@ -78,14 +82,21 @@ internal class ChatifyAspNetCoreService : IChatifyAspNetCoreService
     {
         var context = await _contextProvider.GetAsync();
         await _chatify.RemoveMembersAsync(new[]
-            { new RemoveMemberArgs(chatId, request.AccountId, context) });
+            { new RemoveMemberArgs(chatId, request.AccountId, context, request.DeleteHistory) });
+        return CodedResults.Success();
+    }
+
+    public async Task<CodedResult> UpdateChatNameAsync(Guid chatId, UpdateChatNameRequest request)
+    {
+        var context = await _contextProvider.GetAsync();
+        await _chatify.UpdateChatNameAsync(new UpdateChatNameArgs(chatId, request.Name, context));
         return CodedResults.Success();
     }
 
     public async Task<CodedResult> ReadAsync(ReadRequestDto request)
     {
         var context = await _contextProvider.GetAsync();
-        var args = new ReadArgs(request.Ids, context);
+        var args = new ReadArgs(request.Id, context);
         await _chatify.ReadAsync(args);
         return CodedResults.Success();
     }
@@ -112,7 +123,7 @@ internal class ChatifyAspNetCoreService : IChatifyAspNetCoreService
             pagingRule: pagingRule,
             filterRule: filterRule,
             sortRule: [sortRule],
-            props: Message.Props.Author | Message.Props.Read);
+            props: Message.Props.Author);
 
         var result = await _chatify.QueryAsync(query);
         var mapped = result.Select(x => new MessageDto(x)).ToArray();

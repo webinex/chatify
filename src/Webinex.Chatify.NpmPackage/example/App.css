@@ -52,3 +52,7 @@ body {
   height: calc(100vh - 4rem - 70px);
   overflow: auto;
 }
+
+.unread {
+  margin-left: 2rem;
+}

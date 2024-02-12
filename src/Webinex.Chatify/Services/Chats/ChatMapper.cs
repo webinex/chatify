@@ -16,14 +16,17 @@ internal class ChatMapper
         var totalUnreadCountRequested = props.HasFlag(Chat.Props.TotalUnreadCount);
         var lastMessageRequested = props.HasLastMessage();
 
-        if (lastMessageRequested && activity?.Delivery?.Message == null)
+        if (lastMessageRequested && activity?.LastMessage == null)
             throw new InvalidOperationException("LastMessage is requested but not loaded");
 
         if (totalUnreadCountRequested && totalUnreadCountByChatId == null)
             throw new InvalidOperationException("TotalUnreadCount is requested but not provided");
 
         var lastMessage = props.HasLastMessage()
-            ? Optional.Value(MessageMapper.Map(activity!.Delivery!.Message!, activity.Delivery, props.ToLastMessageProps()))
+            ? Optional.Value(MessageMapper.Map(
+                message: activity!.LastMessage,
+                read: activity.LastReadMessageId?.CompareTo(activity.LastMessageId) >= 0,
+                props: props.ToLastMessageProps()))
             : Optional.NoValue<Message>();
 
         var totalUnreadCountValue = totalUnreadCountRequested
@@ -35,7 +38,15 @@ internal class ChatMapper
             name: chat.Name,
             createdAt: chat.CreatedAt,
             createdById: chat.CreatedById,
-            lastMessage: lastMessage,
-            totalUnreadCount: totalUnreadCountValue);
+            lastReadMessageId: activity != null
+                ? Optional.Value<string?>(activity.LastReadMessageId)
+                : Optional.NoValue<string?>(),
+            active: activity != null
+                ? Optional.Value(activity.Active)
+                : Optional.NoValue<bool>(),
+            lastMessage:
+            lastMessage,
+            totalUnreadCount:
+            totalUnreadCountValue);
     }
 }

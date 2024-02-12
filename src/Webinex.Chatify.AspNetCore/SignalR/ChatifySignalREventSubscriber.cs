@@ -6,11 +6,12 @@ namespace Webinex.Chatify.AspNetCore;
 
 [EventSubscriberPriority(-500)]
 internal class ChatifySignalREventSubscriber<THub>
-    : IEventSubscriber<IEnumerable<NewChatMessageDeliveryCreatedEvent>>,
-        IEventSubscriber<IEnumerable<MessageSentDeliveryCreatedEvent>>,
+    : IEventSubscriber<IEnumerable<NewChatMessageCreatedEvent>>,
+        IEventSubscriber<IEnumerable<MessageSentEvent>>,
         IEventSubscriber<IEnumerable<ReadEvent>>,
         IEventSubscriber<IEnumerable<MemberAddedEvent>>,
-        IEventSubscriber<IEnumerable<MemberRemovedEvent>> where THub : ChatifyHub
+        IEventSubscriber<IEnumerable<MemberRemovedEvent>>,
+        IEventSubscriber<IEnumerable<ChatNameChangedEvent>> where THub : ChatifyHub
 {
     private readonly IHubContext<THub> _hub;
     private readonly IChatifyHubConnections _connections;
@@ -23,61 +24,81 @@ internal class ChatifySignalREventSubscriber<THub>
         _chatify = chatify;
     }
 
-    public async Task InvokeAsync(IEnumerable<NewChatMessageDeliveryCreatedEvent> events)
+    public async Task InvokeAsync(IEnumerable<NewChatMessageCreatedEvent> events)
     {
         events = events.ToArray();
-        events = events.Where(x => _connections.Connected(x.ToId)).ToArray();
-        var accountById = await _chatify.AccountByIdAsync(events.Select(x => x.FromId));
+        events = events.Where(x => x.Chat.Members.Any(_connections.Connected)).ToArray();
+        var accountById = await _chatify.AccountByIdAsync(events.SelectMany(x => x.Chat.Members));
 
         foreach (var x in events)
         {
             var message = new MessageDto(
-                x.MessageId,
+                x.Id,
                 x.Chat.Id,
                 x.Body.Text,
                 x.SentAt,
                 x.Body.Files,
-                new AccountDto(accountById[x.FromId]),
-                x.Read);
+                sentBy: x.AuthorId == AccountContext.System.Id
+                    ? AccountDto.System()
+                    : new AccountDto(accountById[x.AuthorId]));
 
             var chatListItem = new ChatListItemDto(
                 x.Chat.Id,
                 x.Chat.Name,
                 message,
-                unreadCount: message.Read ? 0 : 1);
+                totalUnreadCount: 1,
+                active: true,
+                lastReadMessageId: null);
 
-            await _hub.Clients.User(x.ToId).SendCoreAsync(
-                "chatify://chat-created",
-                [chatListItem, x.RequestId]);
+            foreach (var member in x.Chat.Members)
+            {
+                await _hub.Clients.User(member).SendCoreAsync(
+                    "chatify://chat-created",
+                    [chatListItem, x.RequestId]);
+            }
         }
     }
 
-    public async Task InvokeAsync(IEnumerable<MessageSentDeliveryCreatedEvent> events)
+    public async Task InvokeAsync(IEnumerable<MessageSentEvent> events)
     {
         events = events.ToArray();
-        events = events.Where(x => _connections.Connected(x.ToId)).ToArray();
-        var accountById = await _chatify.AccountByIdAsync(events.Select(x => x.FromId));
+        var chatMembersByChatId = await _chatify.ActiveMemberIdByChatIdAsync(events.Select(x => x.ChatId));
+        var accountById = await _chatify.AccountByIdAsync(events.SelectMany(x => chatMembersByChatId[x.ChatId]));
 
-        foreach (var x in events)
+        foreach (var sentEvent in events)
         {
-            var message = new MessageDto(x.MessageId, x.ChatId, x.Body.Text, x.SentAt, x.Body.Files,
-                new AccountDto(accountById[x.FromId]), x.Read);
+            foreach (var recipient in chatMembersByChatId[sentEvent.ChatId])
+            {
+                var message = new MessageDto(sentEvent.Id, sentEvent.ChatId, sentEvent.Body.Text, sentEvent.SentAt,
+                    sentEvent.Body.Files,
+                    sentBy: sentEvent.AuthorId == AccountContext.System.Id
+                        ? AccountDto.System()
+                        : new AccountDto(accountById[sentEvent.AuthorId]));
 
-            await _hub.Clients.User(x.ToId).SendCoreAsync(
-                "chatify://new-message",
-                [message, x.RequestId]);
+                await _hub.Clients.User(recipient).SendCoreAsync(
+                    "chatify://new-message",
+                    [message, sentEvent.RequestId]);
+            }
         }
     }
 
     public async Task InvokeAsync(IEnumerable<ReadEvent> events)
     {
-        var grouped = events.Where(x => _connections.Connected(x.ToId)).GroupBy(x => x.ToId).ToArray();
+        events = events.Where(x => _connections.Connected(x.AccountId)).ToArray();
+        var grouped = events.Where(x => _connections.Connected(x.AccountId)).GroupBy(x => x.AccountId).ToArray();
 
         foreach (var x in grouped)
         {
+            var signals = x.Select(e => new
+            {
+                e.NewLastReadMessageId,
+                e.ChatId,
+                e.ReadCount,
+            }).ToArray();
+
             await _hub.Clients.User(x.Key).SendCoreAsync(
                 "chatify://read",
-                [x.Select(e => new { e.MessageId, e.ChatId }).ToArray()]);
+                [signals]);
         }
     }
 
@@ -85,7 +106,7 @@ internal class ChatifySignalREventSubscriber<THub>
     {
         events = events.ToArray();
         var accountById = await _chatify.AccountByIdAsync(ids: events.Select(x => x.AccountId).Distinct());
-        var members = await _chatify.MembersAsync(events.Select(x => x.ChatId).Distinct());
+        var members = await _chatify.MembersAsync(events.Select(x => x.ChatId).Distinct(), active: true);
         var chats = await _chatify.ChatByIdAsync(chatIds: events.Select(x => x.ChatId));
         var chatById = chats.ToDictionary(x => x.Id);
 
@@ -99,11 +120,11 @@ internal class ChatifySignalREventSubscriber<THub>
                     continue;
 
                 var message = new MessageDto(x.Message.Id, x.Message.ChatId, x.Message.Body.Text, x.Message.SentAt,
-                    x.Message.Body.Files, AccountDto.System(), true);
-                
+                    x.Message.Body.Files, AccountDto.System());
+
                 await _hub.Clients.User(member).SendCoreAsync(
                     "chatify://member-added",
-                    [x.ChatId, chatById[x.ChatId].Name, new AccountDto(accountById[x.AccountId]), message]);
+                    [x.ChatId, chatById[x.ChatId].Name, new AccountDto(accountById[x.AccountId]), message, x.WithHistory]);
             }
         }
     }
@@ -111,20 +132,48 @@ internal class ChatifySignalREventSubscriber<THub>
     public async Task InvokeAsync(IEnumerable<MemberRemovedEvent> events)
     {
         events = events.ToArray();
-        var members = await _chatify.MembersAsync(events.Select(x => x.ChatId).Distinct());
+        var members = await _chatify.MembersAsync(events.Select(x => x.ChatId).Distinct(), active: true);
 
         foreach (var x in events)
         {
             var chatMembers = members[x.ChatId].Select(m => m.AccountId).Concat(new[] { x.AccountId }).Distinct();
+
 
             foreach (var member in chatMembers)
             {
                 if (!_connections.Connected(member))
                     continue;
 
+                var message = new MessageDto(x.Message.Id, x.Message.ChatId, x.Message.Body.Text, x.Message.SentAt,
+                    x.Message.Body.Files, AccountDto.System());
+
                 await _hub.Clients.User(member).SendCoreAsync(
                     "chatify://member-removed",
-                    [x.ChatId, x.AccountId, x.DeleteHistory]);
+                    [x.ChatId, x.AccountId, x.DeleteHistory, message]);
+            }
+        }
+    }
+
+    public async Task InvokeAsync(IEnumerable<ChatNameChangedEvent> events)
+    {
+        events = events.ToArray();
+        var members = await _chatify.MembersAsync(events.Select(x => x.ChatId).Distinct(), active: true);
+
+        foreach (var x in events)
+        {
+            var chatMembers = members[x.ChatId].Select(m => m.AccountId).Distinct().ToArray();
+
+            foreach (var member in chatMembers)
+            {
+                if (!_connections.Connected(member))
+                    continue;
+
+                var message = new MessageDto(x.Message.Id, x.Message.ChatId, x.Message.Body.Text, x.Message.SentAt,
+                    x.Message.Body.Files, AccountDto.System());
+
+                await _hub.Clients.User(member).SendCoreAsync(
+                    "chatify://chat-name-changed",
+                    [x.ChatId, x.NewName, message]);
             }
         }
     }

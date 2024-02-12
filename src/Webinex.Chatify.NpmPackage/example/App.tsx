@@ -1,15 +1,7 @@
 import * as React from 'react';
 import './App.css';
 import '../dist/css/chatify.css';
-import {
-  Chatify,
-  ChatifyClient,
-  ChatifyContext,
-  ChatifyCustomizeValue,
-  Avatar as ChatifyAvatar,
-  useChatList,
-  ChatListItemBox,
-} from '../src';
+import { Chatify, ChatifyClient, ChatifyContext, ChatifyCustomizeValue, useGetChatListQuery } from '../src';
 import axios from 'axios';
 import { Avatar, Button, Select } from 'antd';
 import { Account } from '../src/core/models';
@@ -71,6 +63,18 @@ const chatifyClient = new ChatifyClient({
 
 const customize: ChatifyCustomizeValue = {};
 
+function useCount() {
+  const { data: chats } = useGetChatListQuery();
+  let count = 0;
+  chats?.forEach((x) => (count += x.totalUnreadCount));
+  return chats ? count : undefined;
+}
+
+function Counter() {
+  const count = useCount();
+  return <>Unread: {count}</>;
+}
+
 function Content() {
   const [account, setAccount] = React.useState<Account | null>(null);
 
@@ -81,26 +85,33 @@ function Content() {
   }, []);
 
   return (
-    <div className="example">
-      <div className="user-info">
-        {account && (
-          <>
-            <Avatar src={account.avatar} className="avatar" /> <span className="name"> {account.name}</span>
-          </>
-        )}
-        <Button
-          type="link"
-          onClick={() => {
-            localStorage.removeItem('chatify://me');
-            window.location.href = window.location.href;
-          }}
-        >
-          Logout
-        </Button>
-      </div>
-      <ChatifyContext value={{ client: chatifyClient, me: ME }}>
+    <ChatifyContext value={{ client: chatifyClient, me: ME }}>
+      <div className="example">
+        <div className="user-info">
+          {account && (
+            <>
+              <Avatar src={account.avatar} className="avatar" />{' '}
+              <span className="name">
+                {' '}
+                {account.name} (ID: {account.id})
+              </span>
+              <span className="unread">
+                <Counter />
+              </span>
+            </>
+          )}
+          <Button
+            type="link"
+            onClick={() => {
+              localStorage.removeItem('chatify://me');
+              window.location.href = window.location.href;
+            }}
+          >
+            Logout
+          </Button>
+        </div>
         <Chatify customize={customize} />
-      </ChatifyContext>
-    </div>
+      </div>
+    </ChatifyContext>
   );
 }
