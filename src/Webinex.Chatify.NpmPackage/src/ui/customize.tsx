@@ -1,23 +1,29 @@
-import React, { FC, PropsWithChildren, useContext } from 'react';
+import React, { FC, useContext } from 'react';
 
 export type Customizable<TComponent extends React.ComponentType<any>> = TComponent & {
   Component: TComponent;
+  key: string;
 };
 
-const CustomizeContext = React.createContext<CustomizeProviderValue>(null!);
+export const CustomizeContext = React.createContext<Record<string, any>>(null!);
 
-export interface CustomizeProviderValue {
-  [key: string]: React.ComponentType<any> | null;
-}
-
-export function CustomizeProvider(props: PropsWithChildren<{ value: CustomizeProviderValue }>) {
-  const { children, value } = props;
-  return <CustomizeContext.Provider value={value}>{children}</CustomizeContext.Provider>;
+export function useCustomizeContext<TValue>() {
+  return useContext(CustomizeContext) as TValue;
 }
 
 function useCustom<TComponent extends React.ComponentType>(key: string): TComponent | undefined | null {
   const value = useContext(CustomizeContext);
-  return value[key] as TComponent | null | undefined;
+  return value ? (value[key] as TComponent | null | undefined) : undefined;
+}
+
+export function useCustomize<TCustom extends Customizable<React.ComponentType<any>>>(custom: TCustom) {
+  const Custom = useCustom<TCustom['Component']>(custom.key);
+
+  if (Custom == null) {
+    return null;
+  }
+
+  return Custom ?? custom.Component;
 }
 
 export function customize<TComponent extends React.ComponentType<any>>(

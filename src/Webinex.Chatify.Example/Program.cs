@@ -1,8 +1,10 @@
+using LinqToDB;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using Webinex.Chatify;
 using Webinex.Chatify.AspNetCore;
 using Webinex.Chatify.Example;
+using Webinex.Flippo;
+using Webinex.Flippo.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,14 +26,24 @@ builder.Services
     .Services
     .AddScoped<IChatifyAspNetCoreContextProvider, ChatifyAspNetCoreContextProvider>()
     .AddChatify(x => x
-        .UseDbContext(sql => sql
-            .UseSqlServer(builder.Configuration.GetConnectionString("Db"))));
+        .UseDataConnection(sql => sql.UseSqlServer(builder.Configuration.GetConnectionString("Db")!)));
 
 builder.Services
     .AddControllers()
     .AddChatifyAspNetCore(x => x
         .AddController()
-        .AddSignalR<ExampleHub>());
+        .AddSignalR<ExampleHub>())
+    .AddFlippoController();
+
+var filesDirectory = Path.Join(builder.Environment.ContentRootPath, ".files");
+if (!Directory.Exists(filesDirectory))
+{
+    Directory.CreateDirectory(filesDirectory);
+}
+
+builder.Services.AddFlippo(x =>
+    x.AddFileSystemBlob(filesDirectory).UseSasToken("a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+        TimeSpan.FromHours(1)));
 
 var app = builder.Build();
 
@@ -46,7 +58,7 @@ if (builder.Configuration.GetValue<bool>("WebAppHost"))
 
 await using (var databaseSqlScriptStream = typeof(Program).Assembly
                  .GetManifestResourceStream("Webinex.Chatify.Example.database.sql"))
-    
+
 await using (var databaseSeedScriptStream = typeof(Program).Assembly
                  .GetManifestResourceStream("Webinex.Chatify.Example.databaseSeed.sql"))
 await using (var sql = new SqlConnection(builder.Configuration.GetConnectionString("Db")))

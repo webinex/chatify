@@ -1,30 +1,30 @@
 ﻿using Webinex.Chatify.Abstractions;
-using Webinex.Chatify.Services.Members;
+using Webinex.Chatify.Services.Chats.Members;
 
 namespace Webinex.Chatify.Services;
 
 internal interface IAuthorizationPolicy
 {
-    Task AuthorizeSendAsync(SendMessageArgs[] args);
-    Task AuthorizeAddMemberAsync(AddMemberArgs[] args);
-    Task AuthorizeRemoveMemberAsync(RemoveMemberArgs[] args);
+    Task AuthorizeSendAsync(SendChatMessageArgs[] args);
+    Task AuthorizeAddChatMemberAsync(AddChatMemberArgs[] args);
+    Task AuthorizeRemoveChatMemberAsync(RemoveChatMemberArgs[] args);
     Task AuthorizeUpdateChatNameAsync(UpdateChatNameArgs[] args);
     Task AuthorizeGetChatAsync(AccountContext onBehalfOf, IEnumerable<Guid> chatIds);
 }
 
 internal class AuthorizationPolicy : IAuthorizationPolicy
 {
-    private readonly IMemberService _memberService;
+    private readonly IChatMemberService _chatMemberService;
 
-    public AuthorizationPolicy(IMemberService memberService)
+    public AuthorizationPolicy(IChatMemberService chatMemberService)
     {
-        _memberService = memberService;
+        _chatMemberService = chatMemberService;
     }
 
-    public async Task AuthorizeSendAsync(SendMessageArgs[] args)
+    public async Task AuthorizeSendAsync(SendChatMessageArgs[] args)
     {
         var chatIds = args.Select(x => x.ChatId).Distinct().ToArray();
-        var chatMembers = await _memberService.ActiveIdByChatIdAsync(chatIds);
+        var chatMembers = await _chatMemberService.ActiveIdByChatIdAsync(chatIds);
 
         var forbidden = args.Where(x =>
                 !x.OnBehalfOf.IsSystem() && !chatMembers[x.ChatId].Contains(x.OnBehalfOf.Id))
@@ -35,10 +35,10 @@ internal class AuthorizationPolicy : IAuthorizationPolicy
                 $"Attempt to send message by not a member of chat. {string.Join(", ", forbidden.Select(x => $"[{x.ChatId}, {x.OnBehalfOf.Id}]"))}");
     }
 
-    public async Task AuthorizeAddMemberAsync(AddMemberArgs[] args)
+    public async Task AuthorizeAddChatMemberAsync(AddChatMemberArgs[] args)
     {
         var chatIds = args.Where(x => !x.OnBehalfOf.IsSystem()).Select(x => x.ChatId).Distinct().ToArray();
-        var memberByChatId = await _memberService.ActiveIdByChatIdAsync(chatIds);
+        var memberByChatId = await _chatMemberService.ActiveIdByChatIdAsync(chatIds);
 
         var forbidden = args.Where(x => !x.OnBehalfOf.IsSystem() && !memberByChatId[x.ChatId].Contains(x.OnBehalfOf.Id))
             .ToArray();
@@ -48,10 +48,10 @@ internal class AuthorizationPolicy : IAuthorizationPolicy
                 $"Attempt to add member to chat by not a member of chat. {string.Join(", ", forbidden.Select(x => $"[{x.ChatId}, {x.OnBehalfOf.Id}]"))}");
     }
 
-    public async Task AuthorizeRemoveMemberAsync(RemoveMemberArgs[] args)
+    public async Task AuthorizeRemoveChatMemberAsync(RemoveChatMemberArgs[] args)
     {
         var chatIds = args.Where(x => !x.OnBehalfOf.IsSystem()).Select(x => x.ChatId).Distinct().ToArray();
-        var memberByChatId = await _memberService.ActiveIdByChatIdAsync(chatIds);
+        var memberByChatId = await _chatMemberService.ActiveIdByChatIdAsync(chatIds);
 
         var forbidden = args.Where(x => !x.OnBehalfOf.IsSystem() && !memberByChatId[x.ChatId].Contains(x.OnBehalfOf.Id))
             .ToArray();
@@ -64,7 +64,7 @@ internal class AuthorizationPolicy : IAuthorizationPolicy
     public async Task AuthorizeUpdateChatNameAsync(UpdateChatNameArgs[] args)
     {
         var chatIds = args.Where(x => !x.OnBehalfOf.IsSystem()).Select(x => x.Id).Distinct().ToArray();
-        var memberByChatId = await _memberService.ActiveIdByChatIdAsync(chatIds);
+        var memberByChatId = await _chatMemberService.ActiveIdByChatIdAsync(chatIds);
 
         var forbidden = args.Where(x => !x.OnBehalfOf.IsSystem() && !memberByChatId[x.Id].Contains(x.OnBehalfOf.Id))
             .ToArray();
@@ -80,7 +80,7 @@ internal class AuthorizationPolicy : IAuthorizationPolicy
             return;
         
         chatIds = chatIds.Distinct().ToArray();
-        var memberByChatId = await _memberService.ActiveIdByChatIdAsync(chatIds);
+        var memberByChatId = await _chatMemberService.ActiveIdByChatIdAsync(chatIds);
 
         var forbidden = chatIds.Where(id => !memberByChatId[id].Contains(onBehalfOf.Id))
             .ToArray();

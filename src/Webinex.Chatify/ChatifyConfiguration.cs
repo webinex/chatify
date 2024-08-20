@@ -1,24 +1,25 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LinqToDB;
 using Microsoft.Extensions.DependencyInjection;
 using Webinex.Asky;
 using Webinex.Chatify.Abstractions;
 using Webinex.Chatify.Common;
 using Webinex.Chatify.DataAccess;
 using Webinex.Chatify.Rows;
+using Webinex.Chatify.Rows.Chats;
 using Webinex.Chatify.Services;
-using Webinex.Chatify.Services.Caches;
-using Webinex.Chatify.Services.Caches.Common;
 using Webinex.Chatify.Services.Chats;
-using Webinex.Chatify.Services.Members;
-using Webinex.Chatify.Services.Messages;
+using Webinex.Chatify.Services.Chats.Caches;
+using Webinex.Chatify.Services.Chats.Members;
+using Webinex.Chatify.Services.Chats.Messages;
+using Webinex.Chatify.Services.Common.Caches;
+using Webinex.Chatify.Services.Threads;
 
 namespace Webinex.Chatify;
 
 public interface IChatifyConfiguration
 {
     IServiceCollection Services { get; }
-
-    IChatifyConfiguration UseDbContext(Action<DbContextOptionsBuilder> configure);
+    IChatifyConfiguration UseDataConnection(Func<DataOptions, DataOptions> configure);
 }
 
 internal class ChatifyConfiguration : IChatifyConfiguration
@@ -29,25 +30,26 @@ internal class ChatifyConfiguration : IChatifyConfiguration
 
         services
             .AddMemoryCache()
+            .AddSingleton<IChatifyDataConnectionFactory, ChatifyDataConnectionFactory>()
             .AddScoped<IEventService, EventService>()
             .AddScoped<IChatify, Chatify>()
             .AddSingleton<IAskyFieldMap<ChatActivityRow>, ChatActivityRowFieldMap>()
             .AddSingleton<IAskyFieldMap<ChatRow>, ChatRowFieldMap>()
-            .AddSingleton<IAskyFieldMap<MessageRow>, MessageRowFieldMap>();
+            .AddSingleton<IAskyFieldMap<ChatMessageRow>, ChatMessageRowFieldMap>();
 
         services
             .AddScoped<IAuthorizationPolicy, AuthorizationPolicy>()
             .AddScoped<IAccountService, AccountService>()
-            .AddScoped<IMessageService, MessageService>()
+            .AddScoped<IChatMessageService, ChatMessageService>()
             .AddScoped<ISendMessageService, SendMessageService>()
-            .AddScoped<IMessageQueryService, MessageQueryService>()
+            .AddScoped<IChatMessageQueryService, ChatMessageQueryService>()
             .AddScoped<IChatService, ChatService>()
             .AddScoped<IChatQueryService, ChatQueryService>()
             .AddScoped<IAddChatService, AddChatService>()
-            .AddScoped<IMemberService, MemberService>()
-            .AddScoped<IGetMemberService, GetMemberService>()
-            .AddScoped<IAddMemberService, AddMemberService>()
-            .AddScoped<IRemoveMemberService, RemoveMemberService>();
+            .AddScoped<IChatMemberService, ChatMemberService>()
+            .AddScoped<IGetChatMemberService, GetChatMemberService>()
+            .AddScoped<IAddChatMemberService, AddChatMemberService>()
+            .AddScoped<IRemoveChatMemberService, RemoveChatMemberService>();
 
         services
             .AddSingleton<IEntityCache<AccountRow>, EntityMemoryCache<AccountRow>>()
@@ -55,13 +57,21 @@ internal class ChatifyConfiguration : IChatifyConfiguration
             .AddSingleton<IEntityCache<ChatMembersCacheEntry>, EntityMemoryCache<ChatMembersCacheEntry>>()
             .AddSingleton(new EntityMemoryCacheSettings<ChatMembersCacheEntry>(x => x.ChatId.ToString(),
                 TimeSpan.FromMinutes(15), "chat::members"));
+
+        services
+            .AddScoped<IThreadService, ThreadService>()
+            .AddSingleton<IAskyFieldMap<ThreadQueryView>, ThreadQueryViewFieldMap>();
     }
 
     public IServiceCollection Services { get; }
 
-    public IChatifyConfiguration UseDbContext(Action<DbContextOptionsBuilder> configure)
+    public IChatifyConfiguration UseDataConnection(Func<DataOptions, DataOptions> configure)
     {
-        Services.AddDbContext<ChatifyDbContext>(configure);
+        var options = new DataOptions()
+            .UseMappingSchema(ChatifyDataConnection.Schema());
+        options = configure(options);
+        var chatifyOptions = new DataOptions<ChatifyDataConnection>(options);
+        Services.AddSingleton(chatifyOptions);
         return this;
     }
 

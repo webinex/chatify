@@ -7,6 +7,7 @@ namespace Webinex.Chatify.Common;
 internal interface IEventService
 {
     void Push<T>(T @event) where T : class;
+    Task PushAndFlushAsync<T>(T @event) where T : class;
     Task FlushAsync();
 }
 
@@ -24,11 +25,10 @@ internal static class EventServiceExtensions
 internal class EventService : IEventService
 {
     private readonly List<object> _events = new();
-    private readonly List<object> _history = new();
     private readonly object _lock = new();
     private readonly IServiceProvider _serviceProvider;
 
-    private static readonly MethodInfo INVOKE_METHOD =
+    private static readonly MethodInfo InvokeMethod =
         typeof(EventService).GetMethod(nameof(InvokeEventAsync), BindingFlags.Instance | BindingFlags.NonPublic)!;
 
     public EventService(IServiceProvider serviceProvider)
@@ -42,8 +42,13 @@ internal class EventService : IEventService
         lock (_lock)
         {
             _events.Add(@event);
-            _history.Add(@event);
         }
+    }
+
+    public async Task PushAndFlushAsync<T>(T @event) where T : class
+    {
+        Push(@event);
+        await FlushAsync();
     }
 
     public async Task FlushAsync()
@@ -67,7 +72,7 @@ internal class EventService : IEventService
 
     private async Task InvokeAsync(object @event, object[] events)
     {
-        var method = INVOKE_METHOD.MakeGenericMethod(@event.GetType());
+        var method = InvokeMethod.MakeGenericMethod(@event.GetType());
         var task = (Task)method.Invoke(this, new[] { @event, events })!;
         await task;
     }

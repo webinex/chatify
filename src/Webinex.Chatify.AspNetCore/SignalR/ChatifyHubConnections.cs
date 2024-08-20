@@ -4,6 +4,7 @@ public interface IChatifyHubConnections
 {
     void Add(string userId, string connectionId);
     void Remove(string userId, string connectionId);
+    IReadOnlyCollection<string> Get(string userId);
     bool Connected(string id);
 }
 
@@ -43,6 +44,18 @@ internal class ChatifyHubConnections : IChatifyHubConnections
 
             _connections[userId].Remove(connectionId);
         }
+    }
+
+    public IReadOnlyCollection<string> Get(string userId)
+    {
+        // Synchronization is not required for read operations
+        // ReSharper disable once InconsistentlySynchronizedField
+        if (_connections.TryGetValue(userId, out var connections))
+        {
+            return connections;
+        }
+
+        return Array.Empty<string>();
     }
 
     public bool Connected(string id)

@@ -5,4 +5,5 @@
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.rulers": [110],
+  "cSpell.words": ["chatify", "flippo", "SIGNALR"]
 }

@@ -2,31 +2,36 @@
 using Webinex.Chatify.Abstractions;
 using Webinex.Chatify.Services;
 using Webinex.Chatify.Services.Chats;
-using Webinex.Chatify.Services.Members;
-using Webinex.Chatify.Services.Messages;
+using Webinex.Chatify.Services.Chats.Members;
+using Webinex.Chatify.Services.Chats.Messages;
+using Webinex.Chatify.Services.Threads;
+using Thread = Webinex.Chatify.Abstractions.Thread;
 
 namespace Webinex.Chatify;
 
 internal class Chatify : IChatify
 {
     private readonly IAccountService _accountService;
-    private readonly IMessageService _messageService;
+    private readonly IChatMessageService _chatMessageService;
     private readonly IChatService _chatService;
-    private readonly IMemberService _memberService;
+    private readonly IChatMemberService _chatMemberService;
     private readonly IAuthorizationPolicy _authorizationPolicy;
+    private readonly IThreadService _threadService;
 
     public Chatify(
         IAccountService accountService,
-        IMessageService messageService,
+        IChatMessageService chatMessageService,
         IChatService chatService,
-        IMemberService memberService,
-        IAuthorizationPolicy authorizationPolicy)
+        IChatMemberService chatMemberService,
+        IAuthorizationPolicy authorizationPolicy,
+        IThreadService threadService)
     {
         _accountService = accountService;
-        _messageService = messageService;
+        _chatMessageService = chatMessageService;
         _chatService = chatService;
-        _memberService = memberService;
+        _chatMemberService = chatMemberService;
         _authorizationPolicy = authorizationPolicy;
+        _threadService = threadService;
     }
 
     public async Task<Chat> AddChatAsync(AddChatArgs args)
@@ -36,35 +41,35 @@ internal class Chatify : IChatify
 
     public async Task UpdateChatNameAsync(UpdateChatNameArgs args)
     {
-        await _authorizationPolicy.AuthorizeUpdateChatNameAsync(new[] { args });
+        await _authorizationPolicy.AuthorizeUpdateChatNameAsync([args]);
         await _chatService.UpdateNameAsync(args);
     }
 
-    public async Task<Message[]> SendMessagesAsync(IEnumerable<SendMessageArgs> commands)
+    public async Task<ChatMessage[]> SendMessagesAsync(IEnumerable<SendChatMessageArgs> commands)
     {
         commands = commands.ToArray();
-        if (!commands.Any()) return Array.Empty<Message>();
+        if (!commands.Any()) return Array.Empty<ChatMessage>();
 
         await _authorizationPolicy.AuthorizeSendAsync(commands.ToArray());
-        return await _messageService.SendRangeAsync(commands);
+        return await _chatMessageService.SendRangeAsync(commands);
     }
 
-    public async Task AddMembersAsync(IEnumerable<AddMemberArgs> commands)
+    public async Task AddChatMembersAsync(IEnumerable<AddChatMemberArgs> commands)
     {
         commands = commands.ToArray();
         if (!commands.Any()) return;
 
-        await _authorizationPolicy.AuthorizeAddMemberAsync(commands.ToArray());
-        await _memberService.AddRangeAsync(commands);
+        await _authorizationPolicy.AuthorizeAddChatMemberAsync(commands.ToArray());
+        await _chatMemberService.AddRangeAsync(commands);
     }
 
-    public async Task RemoveMembersAsync(IEnumerable<RemoveMemberArgs> commands)
+    public async Task RemoveChatMembersAsync(IEnumerable<RemoveChatMemberArgs> commands)
     {
         commands = commands.ToArray();
         if (!commands.Any()) return;
 
-        await _authorizationPolicy.AuthorizeRemoveMemberAsync(commands.ToArray());
-        await _memberService.RemoveRangeAsync(commands);
+        await _authorizationPolicy.AuthorizeRemoveChatMemberAsync(commands.ToArray());
+        await _chatMemberService.RemoveRangeAsync(commands);
     }
 
     public async Task<Chat[]> QueryAsync(ChatQuery query)
@@ -80,9 +85,9 @@ internal class Chatify : IChatify
         return _chatService.GetAllAsync(filterRule, sortRule, pagingRule);
     }
 
-    public async Task<Message[]> QueryAsync(MessageQuery query)
+    public async Task<ChatMessage[]> QueryAsync(ChatMessageQuery query)
     {
-        return await _messageService.QueryAsync(query);
+        return await _chatMessageService.QueryAsync(query);
     }
 
     public async Task<IReadOnlyCollection<Chat>> ChatByIdAsync(
@@ -98,14 +103,14 @@ internal class Chatify : IChatify
         return await _chatService.ByIdAsync(chatIds, required);
     }
 
-    public async Task<IReadOnlyDictionary<Guid, IReadOnlyCollection<Member>>> MembersAsync(IEnumerable<Guid> chatIds, bool? active = null)
+    public async Task<IReadOnlyDictionary<Guid, IReadOnlyCollection<ChatMember>>> ChatMembersAsync(IEnumerable<Guid> chatIds, bool? active = null)
     {
-        return await _memberService.ByChatsAsync(chatIds, active);
+        return await _chatMemberService.ByChatsAsync(chatIds, active);
     }
 
-    public Task<IReadOnlyDictionary<Guid, string[]>> ActiveMemberIdByChatIdAsync(IEnumerable<Guid> chatIds)
+    public Task<IReadOnlyDictionary<Guid, string[]>> ActiveChatMemberIdByChatIdAsync(IEnumerable<Guid> chatIds)
     {
-        return _memberService.ActiveIdByChatIdAsync(chatIds);
+        return _chatMemberService.ActiveIdByChatIdAsync(chatIds);
     }
 
     public Task<IReadOnlyDictionary<string, Account>> AccountByIdAsync(
@@ -121,12 +126,12 @@ internal class Chatify : IChatify
         return _accountService.GetAllAsync(onBehalfOf);
     }
 
-    public async Task ReadAsync(ReadArgs args)
+    public async Task ReadAsync(ReadChatMessageArgs chatMessageArgs)
     {
-        if (!args.Id.Any())
+        if (!chatMessageArgs.Id.Any())
             return;
 
-        await _messageService.ReadAsync(args);
+        await _chatMessageService.ReadAsync(chatMessageArgs);
     }
 
     public async Task<Account[]> AddAccountsAsync(IEnumerable<AddAccountArgs> commands)
@@ -137,5 +142,75 @@ internal class Chatify : IChatify
     public async Task<Account[]> UpdateAccountsAsync(IEnumerable<UpdateAccountArgs> commands)
     {
         return await _accountService.UpdateAsync(commands);
+    }
+
+    public Task<Thread> AddThreadAsync(AddThreadArgs args)
+    {
+        return _threadService.AddThreadAsync(args);
+    }
+
+    public Task RemoveThreadAsync(string threadId)
+    {
+        return _threadService.RemoveThreadAsync(threadId);
+    }
+
+    public Task ArchiveThreadAsync(string threadId)
+    {
+        return _threadService.ArchiveThreadAsync(threadId);
+    }
+
+    public Task AddThreadWatcherAsync(string threadId, string accountId)
+    {
+        return _threadService.AddThreadWatcherAsync(threadId, accountId);
+    }
+
+    public Task RemoveThreadWatcherAsync(string threadId, string accountId)
+    {
+        return _threadService.RemoveThreadWatcherAsync(threadId, accountId);
+    }
+
+    public Task SetThreadWatchAsync(AccountContext onBehalfOf, string threadId, string accountId, bool watch)
+    {
+        return _threadService.SetThreadWatchAsync(onBehalfOf, threadId, accountId, watch);
+    }
+
+    public Task<ThreadMessage> SendThreadMessageAsync(SendThreadMessageArgs args)
+    {
+        return _threadService.SendThreadMessageAsync(args);
+    }
+
+    public Task<int> ReadThreadMessageAsync(ReadThreadMessageArgs args)
+    {
+        return _threadService.ReadThreadMessageAsync(args);
+    }
+
+    public Task<IReadOnlyDictionary<string, bool>> ThreadExistsAsync(IEnumerable<string> ids)
+    {
+        return _threadService.ThreadExistsAsync(ids);
+    }
+
+    public Task<Thread?> ThreadByIdAsync(AccountContext onBehalfOf, string id, Thread.Props props = Thread.Props.Default)
+    {
+        return _threadService.ThreadByIdAsync(onBehalfOf, id, props);
+    }
+
+    public Task<IReadOnlyDictionary<string, Thread?>> ThreadByIdAsync(IEnumerable<string> ids)
+    {
+        return _threadService.ThreadByIdAsync(ids);
+    }
+
+    public Task<IReadOnlyCollection<Thread>> QueryAsync(ThreadWatchQuery query)
+    {
+        return _threadService.QueryAsync(query);
+    }
+
+    public Task<IReadOnlyCollection<ThreadMessage>> QueryAsync(ThreadMessageQuery query)
+    {
+        return _threadService.QueryAsync(query);
+    }
+
+    public Task<IReadOnlyDictionary<string, IReadOnlyCollection<string>>> WatchersByThreadIdAsync(IEnumerable<string> threadIds)
+    {
+        return _threadService.WatchersByThreadIdAsync(threadIds);
     }
 }

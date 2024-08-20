@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LinqToDB;
 using Webinex.Asky;
 using Webinex.Chatify.Abstractions;
 using Webinex.Chatify.DataAccess;
 using Webinex.Chatify.Rows;
+using Webinex.Chatify.Rows.Chats;
 
 namespace Webinex.Chatify.Services.Chats;
 
@@ -13,24 +14,26 @@ internal interface IChatQueryService
 
 internal class ChatQueryService : IChatQueryService
 {
-    private readonly ChatifyDbContext _dbContext;
+    private readonly IChatifyDataConnectionFactory _dataConnectionFactory;
     private readonly IAskyFieldMap<ChatActivityRow> _fieldMap;
 
     public ChatQueryService(
-        ChatifyDbContext dbContext,
-        IAskyFieldMap<ChatActivityRow> fieldMap)
+        IAskyFieldMap<ChatActivityRow> fieldMap,
+        IChatifyDataConnectionFactory dataConnectionFactory)
     {
-        _dbContext = dbContext;
         _fieldMap = fieldMap;
+        _dataConnectionFactory = dataConnectionFactory;
     }
 
     public async Task<Chat[]> QueryAsync(ChatQuery query)
     {
-        var queryable = _dbContext.ChatActivities
+        await using var connection = _dataConnectionFactory.Create();
+
+        var queryable = connection.ChatActivityRows
             .AsQueryable()
-            .Where(x => x.AccountId == query.OnBehalfOf.Id)
-            .Include(x => x.Chat)
-            .AsNoTrackingWithIdentityResolution();
+            .Where(x => x.AccountId == query.OnBehalfOf.Id);
+
+        queryable = queryable.LoadWith(x => x.Chat);
 
         if (query.FilterRule != null)
             queryable = queryable.Where(_fieldMap, query.FilterRule);
@@ -39,10 +42,10 @@ internal class ChatQueryService : IChatQueryService
             queryable = queryable.SortBy(_fieldMap, query.SortRule);
 
         if (query.Props.HasLastMessage())
-            queryable = queryable.Include(x => x.LastMessage);
+            queryable = queryable.LoadWith(x => x.LastChatMessage);
 
-        if (query.Props.ToLastMessageProps().HasFlag(Message.Props.Author))
-            queryable = queryable.Include(x => x.LastMessage!).ThenInclude(x => x.Author);
+        if (query.Props.ToLastMessageProps().HasFlag(ChatMessage.Props.Author))
+            queryable = queryable.LoadWith(x => x.LastChatMessage).ThenLoad(x => x.Author);
 
         var activityRows = await queryable.ToArrayAsync();
 
@@ -57,28 +60,12 @@ internal class ChatQueryService : IChatQueryService
         ChatQuery query,
         ChatActivityRow[] activityRows)
     {
+        await using var connection = _dataConnectionFactory.Create();
         var chatIds = activityRows.Select(x => x.ChatId).Distinct().ToArray();
+        var memberships
+            = connection.MemberRows.Where(x => chatIds.Contains(x.ChatId) && x.AccountId == query.OnBehalfOf.Id);
 
-        var queryable = from member in _dbContext.Members
-            join activity in _dbContext.ChatActivities on new { member.ChatId, member.AccountId } equals
-                new { activity.ChatId, activity.AccountId }
-            where member.AccountId == query.OnBehalfOf.Id && chatIds.Contains(member.ChatId) && (member.LastMessageIndex == null || activity.LastReadMessageIndex == null || member.LastMessageIndex > activity.LastReadMessageIndex)
-            select new
-            {
-                member.ChatId,
-                member.FirstMessageIndex,
-                member.LastMessageIndex,
-            };
-
-        var joinResult = await queryable.ToArrayAsync();
-        
-        return activityRows.ToDictionary(x => x.ChatId, a =>
-        {
-            var members = joinResult.Where(m => m.ChatId == a.ChatId);
-            return members.Sum(x =>
-                x.LastMessageIndex.HasValue
-                    ? x.LastMessageIndex - (a.LastReadMessageIndex ?? -1)
-                    : a.LastMessageIndex - (a.LastReadMessageIndex ?? -1)) ?? 0;
-        });
+        return activityRows.ToDictionary(x => x.ChatId,
+            a => ChatUnreadCountUtil.Count(a, memberships.Where(x => x.ChatId == a.ChatId).ToArray()));
     }
 }

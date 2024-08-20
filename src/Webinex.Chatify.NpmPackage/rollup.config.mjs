@@ -9,10 +9,9 @@ import postcss from 'rollup-plugin-postcss';
 import eslint from '@rollup/plugin-eslint';
 import scss from 'rollup-plugin-scss';
 import { visualizer } from 'rollup-plugin-visualizer';
+import watchGlobs from 'rollup-plugin-watch-globs';
 
 const ANALYZE_BUNDLE = false;
-
-import packageJson from './package.json' assert { type: 'json' };
 
 /** @type {Array.<import('rollup').RollupOptions>} */
 const config = [
@@ -20,7 +19,7 @@ const config = [
     input: 'src/index.ts',
     output: [
       {
-        file: packageJson.module,
+        file: 'dist/esm/index.js',
         format: 'esm',
         sourcemap: true,
       },
@@ -31,8 +30,10 @@ const config = [
         includeDependencies: true,
       }),
       resolve(),
+      typescript({
+        tsconfig: 'tsconfig.json',
+      }),
       commonjs(),
-      typescript({ tsconfig: './tsconfig.json' }),
       postcss(),
       scss({
         failOnError: true,
@@ -44,24 +45,30 @@ const config = [
   },
   {
     input: './dist/esm/types/index.d.ts',
-    output: [{ file: 'dist/index.d.ts', format: 'esm' }],
-    plugins: [dts()],
+    output: [{ file: 'dist/index.d.ts', format: 'cjs' }],
+    plugins: [dts({})],
+    onwarn: (warning, handler) => {
+      if (warning.code !== 'CIRCULAR_DEPENDENCY') {
+        handler(warning);
+      } else {
+        console.warn(`(!) ${warning.message}`);
+      }
+    },
   },
   {
     input: 'src/styles/index.scss',
     output: { file: 'dist/css/chatify.css' },
-    watch: {
-      include: 'src/styles/**/*',
-    },
     onwarn: (warning, handler) => {
       if (warning.code !== 'FILE_NAME_CONFLICT' && warning.code !== 'EMPTY_BUNDLE') {
         handler(warning);
       }
     },
     plugins: [
+      watchGlobs(['src/styles/**/*.scss']),
       scss({
         failOnError: true,
         fileName: 'chatify.css',
+        include: 'src/styles/**/*',
       }),
     ],
   },

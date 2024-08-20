@@ -1,0 +1,147 @@
+@use './variables.scss' as vars;
+@use './mixins.scss' as mixins;
+
+@keyframes wxchtf-add-files-animate {
+  15% {
+    transform: scale(70%);
+  }
+
+  50% {
+    transform: scale(120%);
+  }
+}
+
+@mixin iconBtn {
+  flex: none;
+  display: flex;
+  padding: 0 1rem;
+  align-items: flex-end;
+
+  .ant-btn.ant-btn-icon-only .anticon {
+    font-size: 1.5rem;
+  }
+}
+
+.wxchtf-input-form {
+  flex: none;
+  max-height: 300px;
+  display: flex;
+  flex-flow: column nowrap;
+  margin: 12px 20px 20px 20px;
+
+  .wxchtf-input-box {
+    flex: none;
+    padding: 8px;
+    max-width: vars.$messageBoxWidth;
+    width: 100%;
+    margin: auto;
+    background: rgb(245, 245, 245);
+    border-radius: 40px;
+
+    .wxchtf-input-box-row {
+      display: flex;
+      flex-flow: row nowrap;
+    }
+
+    .wxchtf-add-files-box,
+    .wxchtf-submit-btn-box {
+      align-items: center;
+
+      button {
+        width: unset;
+      }
+
+      svg {
+        font-size: 18px;
+        color: rgba(14, 15, 23, 0.25);
+      }
+    }
+
+    .wxchtf-text-input-box {
+      flex: auto;
+      margin-left: 16px;
+      margin-right: 16px;
+
+      textarea {
+        resize: none;
+        border: none;
+        outline: none;
+        box-shadow: none;
+        background: transparent;
+        padding-inline: 0;
+        font-size: 13px;
+        line-height: 26px;
+
+        @include mixins.scrollbar();
+      }
+    }
+
+    .wxchtf-submit-btn-box {
+      @include iconBtn();
+      margin-left: 1rem;
+    }
+  }
+}
+
+.wxchtf-add-files-box {
+  @include iconBtn();
+  flex: none;
+
+  .wxchtf-add-files-added-btn {
+    margin-left: 0.5rem;
+    width: 1rem;
+
+    .ant-btn-icon {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: vars.$strokeColor;
+    }
+
+    &.active {
+      animation: wxchtf-add-files-animate 2s ease-out infinite;
+    }
+  }
+}
+
+.wxchtf-file-list-box {
+  margin-bottom: 1rem;
+
+  .wxchtf-file-list {
+    @include mixins.scrollbar($hide: true);
+
+    display: flex;
+    flex-flow: row wrap;
+    gap: 1rem;
+    padding: 0.5rem;
+    max-height: 100px;
+    overflow-y: auto;
+    overflow-x: visible;
+  }
+
+  .wxchtf-file {
+    display: inline-flex;
+    flex-flow: row nowrap;
+    background-color: white;
+    padding: 1rem;
+    border-radius: 20px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+
+    .wxchtf-file-info {
+      margin-right: 2rem;
+      min-width: 0;
+      max-width: 200px;
+    }
+
+    .wxchtf-file-name {
+      font-size: 0.9rem;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .wxchtf-file-size {
+      color: vars.$strokeColor;
+      font-size: 0.8rem;
+    }
+  }
+}

@@ -8,7 +8,7 @@ public class Chat
     public string CreatedById { get; }
     public Optional<string?> LastReadMessageId { get; }
     public Optional<bool> Active { get; }
-    public Optional<Message> LastMessage { get; }
+    public Optional<ChatMessage> LastMessage { get; }
     public Optional<int> TotalUnreadCount { get; }
 
 
@@ -19,7 +19,7 @@ public class Chat
         string createdById,
         Optional<string?> lastReadMessageId,
         Optional<bool> active,
-        Optional<Message> lastMessage,
+        Optional<ChatMessage> lastMessage,
         Optional<int> totalUnreadCount)
     {
         Id = id;
@@ -50,15 +50,15 @@ public static class ChatPropExtensions
         return props.HasFlag(Chat.Props.LastMessage);
     }
 
-    public static Message.Props ToLastMessageProps(this Chat.Props props)
+    public static ChatMessage.Props ToLastMessageProps(this Chat.Props props)
     {
-        Message.Props messageProps = 0;
+        ChatMessage.Props messageProps = 0;
 
         if (props.HasFlag(Chat.Props.LastMessageRead))
-            messageProps |= Message.Props.Read;
+            messageProps |= ChatMessage.Props.Read;
 
         if (props.HasFlag(Chat.Props.LastMessageAuthor))
-            messageProps |= Message.Props.Author;
+            messageProps |= ChatMessage.Props.Author;
 
         return messageProps;
     }

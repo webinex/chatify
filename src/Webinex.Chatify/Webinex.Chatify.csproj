@@ -8,8 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="linq2db" Version="5.4.1" />
+    <PackageReference Include="linq2db.SqlServer" Version="5.4.1" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
     <PackageReference Include="Webinex.Asky" Version="1.2.1"/>
     <PackageReference Include="Webinex.Coded" Version="1.0.0"/>
@@ -19,5 +21,4 @@
     <ProjectReference Include="..\Webinex.Chatify.Abstractions.Events\Webinex.Chatify.Abstractions.Events.csproj" />
     <ProjectReference Include="..\Webinex.Chatify.Abstractions\Webinex.Chatify.Abstractions.csproj" />
   </ItemGroup>
-
 </Project>

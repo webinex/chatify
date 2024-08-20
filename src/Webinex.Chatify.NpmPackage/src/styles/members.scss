@@ -1,0 +1,13 @@
+.wxchtf-chatify {
+  .wxchtf-chat-members-panel {
+    min-width: 300px;
+    box-shadow: -4px 0px 20px -5px #0cd9e214, -2px 1px 12px #006e720f;
+
+    .wxchtf-chat-members-list {
+      .wxchtf-chat-members-list-item {
+        padding-inline: 1rem;
+        border-block-end: none;
+      }
+    }
+  }
+}

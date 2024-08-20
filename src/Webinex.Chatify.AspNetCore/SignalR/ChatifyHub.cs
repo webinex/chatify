@@ -12,7 +12,7 @@ public abstract class ChatifyHub : Hub
         _connections = connections;
         _contextProviderService = contextProviderService;
     }
-    
+
     public override async Task OnConnectedAsync()
     {
         var context = await _contextProviderService.GetAsync();
@@ -25,4 +25,12 @@ public abstract class ChatifyHub : Hub
         _connections.Remove(Context.UserIdentifier!, Context.ConnectionId);
         return base.OnDisconnectedAsync(exception);
     }
+
+    [HubMethodName("ConnectToThread")]
+    public async Task ConnectToThreadAsync(string id)
+        => await Groups.AddToGroupAsync(Context.ConnectionId, HubGroupNames.Thread(id));
+
+    [HubMethodName("DisconnectFromThread")]
+    public async Task DisconnectFromThreadAsync(string id)
+        => await Groups.RemoveFromGroupAsync(Context.ConnectionId, HubGroupNames.Thread(id));
 }

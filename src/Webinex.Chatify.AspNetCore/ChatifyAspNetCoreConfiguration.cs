@@ -28,7 +28,12 @@ internal class ChatifyAspNetCoreConfiguration : IChatifyAspNetCoreConfiguration
     public IChatifyAspNetCoreConfiguration AddController()
     {
         var featureProvider =
-            new ControllerRegistrationFeatureProvider(typeof(ChatifyController));
+            new ControllerRegistrationFeatureProvider([
+                typeof(ChatifyAccountController),
+                typeof(ChatifyChatController),
+                typeof(ChatifyThreadController),
+            ]);
+
         MvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(featureProvider));
         MvcBuilder.Services.AddScoped<IChatifyAspNetCoreService, ChatifyAspNetCoreService>();
         return this;
@@ -38,12 +43,19 @@ internal class ChatifyAspNetCoreConfiguration : IChatifyAspNetCoreConfiguration
     {
         MvcBuilder.Services.AddSignalR();
         MvcBuilder.Services
-            .AddScoped<IEventSubscriber<IEnumerable<MessageSentEvent>>, ChatifySignalREventSubscriber<THub>>()
-            .AddScoped<IEventSubscriber<IEnumerable<NewChatMessageCreatedEvent>>, ChatifySignalREventSubscriber<THub>>()
-            .AddScoped<IEventSubscriber<IEnumerable<ReadEvent>>, ChatifySignalREventSubscriber<THub>>()
-            .AddScoped<IEventSubscriber<IEnumerable<MemberAddedEvent>>, ChatifySignalREventSubscriber<THub>>()
-            .AddScoped<IEventSubscriber<IEnumerable<MemberRemovedEvent>>, ChatifySignalREventSubscriber<THub>>()
-            .AddScoped<IEventSubscriber<IEnumerable<ChatNameChangedEvent>>, ChatifySignalREventSubscriber<THub>>()
+            .AddScoped<IEventSubscriber<IEnumerable<ChatMessageSentEvent>>, ChatifyChatSignalREventSubscriber<THub>>()
+            .AddScoped<IEventSubscriber<IEnumerable<NewChatMessageCreatedEvent>>, ChatifyChatSignalREventSubscriber<THub>>()
+            .AddScoped<IEventSubscriber<IEnumerable<ChatMessageReadEvent>>, ChatifyChatSignalREventSubscriber<THub>>()
+            .AddScoped<IEventSubscriber<IEnumerable<ChatMemberAddedEvent>>, ChatifyChatSignalREventSubscriber<THub>>()
+            .AddScoped<IEventSubscriber<IEnumerable<ChatMemberRemovedEvent>>, ChatifyChatSignalREventSubscriber<THub>>()
+            .AddScoped<IEventSubscriber<IEnumerable<ChatNameChangedEvent>>, ChatifyChatSignalREventSubscriber<THub>>()
+            
+            .AddScoped<IEventSubscriber<IEnumerable<ThreadCreatedEvent>>, ChatifyThreadSignalREventSubscriber<THub>>()
+            .AddScoped<IEventSubscriber<IEnumerable<ThreadMessageReadEvent>>, ChatifyThreadSignalREventSubscriber<THub>>()
+            .AddScoped<IEventSubscriber<IEnumerable<ThreadMessageSendEvent>>, ChatifyThreadSignalREventSubscriber<THub>>()
+            .AddScoped<IEventSubscriber<IEnumerable<ThreadWatchAddedEvent>>, ChatifyThreadSignalREventSubscriber<THub>>()
+            .AddScoped<IEventSubscriber<IEnumerable<ThreadWatchRemovedEvent>>, ChatifyThreadSignalREventSubscriber<THub>>()
+            
             .AddSingleton<IChatifyHubConnections, ChatifyHubConnections>();
 
         return this;
@@ -67,19 +79,21 @@ internal class ChatifyAspNetCoreConfiguration : IChatifyAspNetCoreConfiguration
 
     private class ControllerRegistrationFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
     {
-        private readonly Type _controllerType;
+        private readonly Type[] _controllerTypes;
 
-        public ControllerRegistrationFeatureProvider(Type controllerType)
+        public ControllerRegistrationFeatureProvider(Type[] controllerTypes)
         {
-            _controllerType = controllerType ?? throw new ArgumentNullException(nameof(controllerType));
+            _controllerTypes = controllerTypes ?? throw new ArgumentNullException(nameof(controllerTypes));
         }
 
         public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature)
         {
-            if (feature.Controllers.Contains(_controllerType.GetTypeInfo()))
-                return;
+            var notRegistered = _controllerTypes.Where(x => !feature.Controllers.Contains(x.GetTypeInfo())).ToArray();
 
-            feature.Controllers.Add(_controllerType.GetTypeInfo());
+            foreach (var type in notRegistered)
+            {
+                feature.Controllers.Add(type.GetTypeInfo());
+            }
         }
     }
 }

@@ -1,77 +1,80 @@
 pr:
   - master
+  - version/*
+
 trigger:
   branches:
     include:
       - master
+      - version/*
 
 pool:
-  vmImage: "ubuntu-latest"
+  vmImage: 'ubuntu-latest'
 
 steps:
   - task: UseDotNet@2
-    displayName: "[BE]: .NET SDK"
+    displayName: '[BE]: .NET SDK'
     inputs:
       workingDirectory: src
       useGlobalJson: true
 
   - task: DotNetCoreCLI@2
-    displayName: "[BE]: Restore packages"
+    displayName: '[BE]: Restore packages'
     inputs:
-      command: "restore"
-      projects: "src/Webinex.Chatify.sln"
+      command: 'restore'
+      projects: 'src/Webinex.Chatify.sln'
       verbosityRestore: normal
 
   - task: DotNetCoreCLI@2
-    displayName: "[BE]: Build"
+    displayName: '[BE]: Build'
     inputs:
-      command: "build"
-      arguments: "--no-restore"
-      projects: "src/Webinex.Chatify.sln"
+      command: 'build'
+      arguments: '--no-restore'
+      projects: 'src/Webinex.Chatify.sln'
 
   - task: DotNetCoreCLI@2
-    displayName: "[BE]: Test"
+    displayName: '[BE]: Test'
     inputs:
-      command: "test"
-      projects: "**/*.csproj"
-      arguments: "--no-build"
+      command: 'test'
+      projects: '**/*.csproj'
+      arguments: '--no-build'
 
   - task: NodeTool@0
-    displayName: "[FE]: NodeJS"
+    displayName: '[FE]: NodeJS'
     inputs:
-      versionSpec: "18.13.x"
+      versionSpec: '18.13.x'
 
   - script: yarn install --frozen-lockfile
-    displayName: "[FE]: Install packages"
-    workingDirectory: "src/Webinex.Chatify.NpmPackage"
+    displayName: '[FE]: Install packages'
+    workingDirectory: 'src/Webinex.Chatify.NpmPackage'
 
   - script: yarn lint
-    displayName: "[FE]: Lint"
-    workingDirectory: "src/Webinex.Chatify.NpmPackage"
+    displayName: '[FE]: Lint'
+    workingDirectory: 'src/Webinex.Chatify.NpmPackage'
 
   - script: yarn build
-    displayName: "[FE]: Build"
-    workingDirectory: "src/Webinex.Chatify.NpmPackage"
+    displayName: '[FE]: Build'
+    workingDirectory: 'src/Webinex.Chatify.NpmPackage'
 
-  - ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+  - ${{ if or(eq(variables['Build.SourceBranchName'], 'master'), startsWith(variables['Build.SourceBranch'], 'refs/heads/version/')) }}:
       - task: PowerShell@2
-        displayName: "[BE]: Build & Publish"
+        displayName: '[BE]: Build & Publish'
         inputs:
           filePath: scripts/Publish-NugetPackages.ps1
-          arguments: "-ApiKey $(NUGET_API_KEY)"
+          arguments: '-ApiKey $(NUGET_API_KEY)'
           errorActionPreference: stop
           failOnStderr: false
 
-  - ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+  - ${{ if or(eq(variables['Build.SourceBranchName'], 'master'), startsWith(variables['Build.SourceBranch'], 'refs/heads/version/')) }}:
       - task: PowerShell@2
-        displayName: "[FE]: Build & Publish"
+        displayName: '[FE]: Build & Publish'
         inputs:
           filePath: scripts/Publish-NpmPackages.ps1
-          arguments: "-AuthToken $(NPM_AUTH_TOKEN) -KeepNpmRc $true"
+          arguments: '-AuthToken $(NPM_AUTH_TOKEN) -KeepNpmRc $true'
           errorActionPreference: stop
           failOnStderr: false
 
-  # - ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+  # - ${{ if or(eq(variables['Build.SourceBranchName'], 'master'), startsWith(variables['Build.SourceBranch'], 'refs/heads/version/')) }}:
   #     - script: |
   #         git config --global user.name "${GH_NAME}"
   #         git config --global user.email "${GH_EMAIL}"

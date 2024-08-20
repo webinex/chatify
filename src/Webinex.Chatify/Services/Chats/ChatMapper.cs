@@ -1,10 +1,10 @@
 ﻿using Webinex.Chatify.Abstractions;
-using Webinex.Chatify.Rows;
-using Webinex.Chatify.Services.Messages;
+using Webinex.Chatify.Rows.Chats;
+using Webinex.Chatify.Services.Chats.Messages;
 
 namespace Webinex.Chatify.Services.Chats;
 
-internal class ChatMapper
+internal static class ChatMapper
 {
     public static Chat Map(
         ChatRow chat,
@@ -16,25 +16,25 @@ internal class ChatMapper
         var totalUnreadCountRequested = props.HasFlag(Chat.Props.TotalUnreadCount);
         var lastMessageRequested = props.HasLastMessage();
 
-        if (lastMessageRequested && activity?.LastMessage == null)
+        if (lastMessageRequested && activity?.LastChatMessage == null)
             throw new InvalidOperationException("LastMessage is requested but not loaded");
 
         if (totalUnreadCountRequested && totalUnreadCountByChatId == null)
             throw new InvalidOperationException("TotalUnreadCount is requested but not provided");
 
         var lastMessage = props.HasLastMessage()
-            ? Optional.Value(MessageMapper.Map(
-                message: activity!.LastMessage,
+            ? Optional.Value(ChatMessageMapper.Map(
+                chatMessage: activity!.LastChatMessage,
                 read: activity.LastReadMessageId?.CompareTo(activity.LastMessageId) >= 0,
                 props: props.ToLastMessageProps()))
-            : Optional.NoValue<Message>();
+            : Optional.NoValue<ChatMessage>();
 
         var totalUnreadCountValue = totalUnreadCountRequested
             ? Optional.Value(totalUnreadCountByChatId![chat.Id])
             : Optional.NoValue<int>();
 
         return new Chat(
-            id: chat!.Id,
+            id: chat.Id,
             name: chat.Name,
             createdAt: chat.CreatedAt,
             createdById: chat.CreatedById,

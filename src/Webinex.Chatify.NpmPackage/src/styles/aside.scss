@@ -1,67 +1,128 @@
+@use './variables.scss' as vars;
+@use './mixins.scss' as mixins;
+
 .wxchtf-aside {
   flex: none;
-  width: 300px;
-  border-right: $border;
   display: flex;
   flex-flow: column nowrap;
+  background: #ffffff;
+  border-top-left-radius: vars.$radius;
+  border-bottom-left-radius: vars.$radius;
+  padding-top: 15px;
+  width: 320px;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    position: absolute;
+    content: '';
+    left: 0;
+    bottom: 0;
+    width: calc(100% - 10px);
+    height: 20px;
+    z-index: 1;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #ffffff 100%);
+  }
 
   .wxchtf-chat-list.ant-menu {
     flex: 1 1 auto;
     height: 100px;
     overflow-y: auto;
+    border-inline-end: none;
+    padding-bottom: 2rem;
 
-    @include scrollbar();
+    @include mixins.scrollbar();
+
+    .ant-menu-item + .ant-menu-item {
+      margin-top: 8px;
+    }
 
     .ant-menu-item {
       padding: 0;
       height: unset;
       margin: 0;
-      width: 100%;
-      border-radius: 0;
+      margin-left: 8px;
+      width: calc(100% - 16px);
+      border-radius: 8px;
       line-height: 1.5;
-      border-top: $border;
 
-      &:first-child {
-        border-top: none;
-      }
+      &.ant-menu-item-selected {
+        background-color: #e4f7f7;
 
-      &.ant-menu-item-selected .wxchtf-chat-name {
-        font-weight: 600;
+        .wxchtf-chat-name {
+          font-weight: 600;
+          color: inherit;
+        }
       }
 
       .wxchtf-chat {
-        padding: 0.5rem 1rem;
+        padding-inline: 10px;
+        padding-block: 8.5px;
         position: relative;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
 
         &.--unread {
           .wxchtf-chat-last {
             font-weight: bold;
           }
+
+          .wxchtf-chat-name {
+            font-weight: bold;
+            max-width: 100%;
+          }
+        }
+
+        .wxchtf-chat-info {
+          min-width: 1;
         }
 
         .wxchtf-chat-name {
-          font-weight: bold;
           display: inline-block;
+          font-weight: 500;
+          color: rgba(0, 0, 0, 0.88);
+        }
+
+        .wxchtf-chat-avatar {
+          background-color: var(--background-color);
+          width: 42px;
+          height: 42px;
+          line-height: 40px;
+          text-align: center;
+          color: var(--color);
+          border-radius: 50%;
+          margin-right: 11px;
+          flex: none;
+
+          .anticon {
+            font-size: 20px;
+            line-height: 42px;
+            height: 42px;
+          }
         }
 
         .wxchtf-unread-count {
-          display: inline-block;
-          padding: 0.2rem;
-          min-width: 1rem;
-          height: 1.2rem;
-          line-height: 0.7rem;
-          margin-left: 0.5rem;
+          background-color: #ff4d4f;
           border-radius: 50%;
+          width: 16px;
+          height: 16px;
+          padding: 0;
+          font-size: 10px;
+          position: absolute;
+          top: 32px;
+          right: 13px;
+          color: white;
+          line-height: 16px;
+          font-weight: bold;
           text-align: center;
-          font-size: 0.7rem;
-          background: $unreadCountBackground;
         }
 
         .wxchtf-chat-last {
           $size: 25px;
+          color: #0e0f1799;
 
           font-style: italic;
-          opacity: 0.75;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
@@ -76,7 +137,7 @@
               border: none;
               margin-right: 5px;
 
-              @include avatarSize($size);
+              @include mixins.avatarSize($size);
             }
 
             &::after {
@@ -86,6 +147,13 @@
 
           .wxchtf-chat-last-message {
             display: inline;
+          }
+
+          .wxchtf-chat-last-sent-at {
+            position: absolute;
+            top: 7px;
+            right: 13px;
+            font-size: 0.8em;
           }
         }
       }
