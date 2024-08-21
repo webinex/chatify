@@ -4,7 +4,7 @@ import { customize, useCustomizeContext } from '../../customize';
 import { useFormatter } from '../../useFormatter';
 import { Icon } from '../../common';
 import { ConversationCustomizeValue } from '../Conversation';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 function open(url: string) {
   const w = window.open(url, '_blank');
@@ -15,17 +15,33 @@ export interface MessageFileProps {
   file: File;
 }
 
-export const MessageFile = customize('MessageFile', (props: MessageFileProps) => {
+function useOpen(props: MessageFileProps) {
   const { file } = props;
   const { flippo } = useCustomizeContext<ConversationCustomizeValue>();
-  const formatter = useFormatter();
+  const [isOpenFetching, setIsOpenFetching] = useState(false);
 
-  const onOpen = useCallback(() => flippo?.getSasUrl(file.ref).then(open), [flippo, file.ref]);
+  const onOpen = useCallback(
+    () =>
+      flippo &&
+      Promise.resolve(setIsOpenFetching(true))
+        .then(() => flippo!.getSasUrl(file.ref))
+        .then(open)
+        .finally(() => setIsOpenFetching(false)),
+    [flippo, file.ref],
+  );
+
+  return [onOpen, { isOpenFetching }] as const;
+}
+
+export const MessageFile = customize('MessageFile', (props: MessageFileProps) => {
+  const { file } = props;
+  const formatter = useFormatter();
+  const [onOpen, { isOpenFetching }] = useOpen(props);
 
   return (
     <div className="wxchtf-file">
       <div className="wxchtf-icon">
-        <Button onClick={onOpen} type="link" icon={<Icon type="open-file" />} />
+        <Button loading={isOpenFetching} onClick={onOpen} type="link" icon={<Icon type="open-file" />} />
       </div>
       <div className="wxchtf-file-info">
         <div className="wxchtf-name">{file.name}</div>

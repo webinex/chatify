@@ -11,6 +11,7 @@ import { InputBoxFileList } from './InputBoxFileList';
 function useFormState() {
   const { onSend } = useConversation();
   const [text, setText] = useState('');
+  const [sending, setSending] = useState(false);
   const { onUpload, files, loading, setFiles, showFileBox, onDeleteFile } = useFlippoInputFileBox();
 
   const onSubmit = useCallback(() => {
@@ -18,16 +19,17 @@ function useFormState() {
       return;
     }
 
-    setText('');
-    setFiles([]);
-    Promise.resolve(onSend({ text, files })).catch(() => {
-      setText(text);
-      setFiles(files);
-    });
+    setSending(true);
+    Promise.resolve(onSend({ text, files }))
+      .finally(() => setSending(false))
+      .then(() => {
+        setFiles([]);
+        setText('');
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text, onSend, files, setFiles, loading]);
 
-  return [onSubmit, { text, setText, files, onUpload, loading, showFileBox, onDeleteFile }] as const;
+  return [onSubmit, { text, setText, files, onUpload, loading, showFileBox, onDeleteFile, sending }] as const;
 }
 
 function useFlippoInputFileBox() {
@@ -64,26 +66,26 @@ function useFlippoInputFileBox() {
 }
 
 export const InputBox = customize('InputBox', () => {
-  const [onSend, { text, setText, files, loading, onUpload, showFileBox, onDeleteFile }] = useFormState();
+  const [onSend, { text, setText, files, loading, onUpload, showFileBox, onDeleteFile, sending }] =
+    useFormState();
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const [showFilesModal, setShowFilesModal] = useState(false);
   const [showFileList, setShowFileList] = useState(false);
   const toggleShowFileList = useCallback(() => setShowFileList((prev) => !prev), []);
 
   useLayoutEffect(() => inputRef.current?.focus(), []);
 
   useEffect(() => {
-    if (files.length === 0 && showFilesModal) {
-      setShowFilesModal(false);
+    if (files.length === 0 && showFileList) {
+      setShowFileList(false);
     }
-  }, [files, showFilesModal]);
+  }, [files, showFileList]);
 
   return (
     <div className="wxchtf-input-form">
       <div className="wxchtf-input-box">
         {showFileList && (
           <div className="wxchtf-file-list-box">
-            <InputBoxFileList files={files} onDelete={onDeleteFile} />
+            <InputBoxFileList files={files} onDelete={onDeleteFile} disabled={sending} />
           </div>
         )}
         <div className="wxchtf-input-box-row">
@@ -93,10 +95,17 @@ export const InputBox = customize('InputBox', () => {
               onUpload={onUpload}
               value={files}
               loading={loading}
+              disabled={sending}
             />
           )}
-          <InputTextBox value={text} onSend={onSend} onChange={setText} inputRef={inputRef} />
-          <InputSubmitButtonBox onSubmit={onSend} disabled={loading} />
+          <InputTextBox
+            value={text}
+            onSend={onSend}
+            onChange={setText}
+            disabled={sending}
+            inputRef={inputRef}
+          />
+          <InputSubmitButtonBox onSubmit={onSend} disabled={loading} loading={sending} />
         </div>
       </div>
     </div>

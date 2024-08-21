@@ -9,6 +9,7 @@ export interface TextInputBoxProps {
   value: string;
   onChange: (value: string) => void;
   onSend: (value: string) => void;
+  disabled?: boolean;
   inputRef?: RefObject<HTMLTextAreaElement>;
 }
 
@@ -19,7 +20,7 @@ const AUTO_SIZE: TextAreaProps['autoSize'] = { maxRows: 5, minRows: 1 };
 export const InputTextBox = customize(
   'InputTextBox',
   memo((props: TextInputBoxProps) => {
-    const { value, onChange, onSend, inputRef } = props;
+    const { value, onChange, onSend, disabled, inputRef } = props;
     const localizer = useLocalizer();
 
     const onInputChange = useCallback(
@@ -46,6 +47,7 @@ export const InputTextBox = customize(
           className="wxchtf-text-input-textarea"
           placeholder={localizer.input.placeholder()}
           onKeyDown={onKeyDown}
+          disabled={disabled}
         />
       </div>
     );

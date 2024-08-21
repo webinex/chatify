@@ -5,10 +5,11 @@ import { Icon } from '../../common/Icon';
 export interface InputSubmitButtonBoxProps {
   onSubmit: () => void;
   disabled?: boolean;
+  loading?: boolean;
 }
 
 export const InputSubmitButtonBox = customize('InputSubmitButtonBox', (props: InputSubmitButtonBoxProps) => {
-  const { onSubmit, disabled } = props;
+  const { onSubmit, disabled, loading } = props;
 
   return (
     <div className="wxchtf-submit-btn-box">
@@ -18,6 +19,7 @@ export const InputSubmitButtonBox = customize('InputSubmitButtonBox', (props: In
         icon={<Icon type="send" />}
         className="wxchtf-submit-btn"
         disabled={disabled}
+        loading={loading}
       />
     </div>
   );

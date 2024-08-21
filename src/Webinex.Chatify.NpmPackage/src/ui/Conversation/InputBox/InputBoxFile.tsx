@@ -7,11 +7,12 @@ import { customize } from '../../customize';
 
 export interface InputBoxFileProps {
   file: File;
+  disabled?: boolean;
   onDelete: (file: File) => void;
 }
 
 export const InputBoxFile = customize('InputBoxFile', (props: InputBoxFileProps) => {
-  const { file, onDelete } = props;
+  const { file, disabled, onDelete } = props;
   const formatter = useFormatter();
   const onDeleteClick = useCallback(() => onDelete(file), [file, onDelete]);
 
@@ -25,6 +26,7 @@ export const InputBoxFile = customize('InputBoxFile', (props: InputBoxFileProps)
       </div>
       <div className="wxchtf-file-actions">
         <Button
+          disabled={disabled}
           className="wxchtf-delete"
           type="link"
           icon={<Icon type="delete-file" />}
