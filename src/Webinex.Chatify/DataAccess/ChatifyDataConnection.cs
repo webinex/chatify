@@ -134,8 +134,9 @@ internal class ChatifyDataConnection : DataConnection
             .HasTableName("ChatMessages")
             .HasPrimaryKey(x => x.Id)
             .Property(x => x.Files)
-            .HasConversion(files => JsonSerializer.Serialize(files, JsonSerializerOptions.Default),
-                json => JsonSerializer.Deserialize<IReadOnlyCollection<File>>(json, JsonSerializerOptions.Default)!)
+            .HasConversion(files => files.Count > 0 ? JsonSerializer.Serialize(files, JsonSerializerOptions.Default) : null,
+                json => json == null ? Array.Empty<File>() : JsonSerializer.Deserialize<IReadOnlyCollection<File>>(json, JsonSerializerOptions.Default)!,
+                handlesNulls: true)
             .Association(x => x.Author, x => x.AuthorId, x => x.Id, canBeNull: false);
 
         model.Entity<ChatMetaRow>()
@@ -160,8 +161,9 @@ internal class ChatifyDataConnection : DataConnection
             .HasTableName("ThreadMessages")
             .HasPrimaryKey(x => x.Id)
             .Property(x => x.Files)
-            .HasConversion(files => JsonSerializer.Serialize(files, JsonSerializerOptions.Default),
-                json => JsonSerializer.Deserialize<IReadOnlyCollection<File>>(json, JsonSerializerOptions.Default)!);
+            .HasConversion(files => files.Count > 0 ? JsonSerializer.Serialize(files, JsonSerializerOptions.Default) : null,
+                json => json == null ? Array.Empty<File>() : JsonSerializer.Deserialize<IReadOnlyCollection<File>>(json, JsonSerializerOptions.Default)!,
+                handlesNulls: true);
         
         model.Entity<ThreadWatchRow>()
             .HasSchemaName("chatify")

@@ -6,8 +6,8 @@ import {
   Chat,
   ChatListItem,
   ChatMessage,
-  File,
   RemoveChatMemberRequest,
+  SendChatMessageRequest,
   SendThreadMessageRequest,
   Thread,
   ThreadMessage,
@@ -120,7 +120,6 @@ const __chatifyApi = __baseApi.injectEndpoints({
         const chatId = await __settings.client.addChat({
           name,
           members,
-          requestId: new Date().getTime().toString(),
         });
         return { data: chatId };
       },
@@ -373,18 +372,15 @@ const __chatifyApi = __baseApi.injectEndpoints({
       },
     }),
 
-    sendChatMessage: builder.mutation<void, { chatId: string; text: string; files: File[] }>({
+    sendChatMessage: builder.mutation<void, SendChatMessageRequest>({
       queryFn: async ({ chatId, text, files }) => {
-        const requestId = new Date().getTime().toString();
-
         await __settings.client.sendChatMessage({
           chatId,
           text,
           files,
-          requestId,
         });
 
-        return { data: null!, meta: { requestId } };
+        return { data: null! };
       },
     }),
 

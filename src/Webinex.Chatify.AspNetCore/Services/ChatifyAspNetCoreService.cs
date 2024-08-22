@@ -148,7 +148,7 @@ internal class ChatifyAspNetCoreService : IChatifyAspNetCoreService
         var context = await _contextProvider.GetAsync();
         var content = new MessageBody(request.Text, request.Files);
         await _chatify.SendMessagesAsync(new[]
-            { new SendChatMessageArgs(chatId, content, context, request.RequestId) });
+            { new SendChatMessageArgs(chatId, content, context) });
         return CodedResults.Success();
     }
 

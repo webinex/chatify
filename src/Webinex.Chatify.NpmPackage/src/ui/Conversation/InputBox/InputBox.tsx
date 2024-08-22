@@ -15,12 +15,14 @@ function useFormState() {
   const { onUpload, files, loading, setFiles, showFileBox, onDeleteFile } = useFlippoInputFileBox();
 
   const onSubmit = useCallback(() => {
-    if (text.length === 0 || loading) {
+    const textValue = text.trim().length === 0 ? null : text.trim();
+
+    if ((!textValue && files.length === 0) || loading) {
       return;
     }
 
     setSending(true);
-    Promise.resolve(onSend({ text, files }))
+    Promise.resolve(onSend({ text: textValue, files }))
       .finally(() => setSending(false))
       .then(() => {
         setFiles([]);
@@ -71,10 +73,17 @@ export const InputBox = customize('InputBox', () => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [showFileList, setShowFileList] = useState(false);
   const toggleShowFileList = useCallback(() => setShowFileList((prev) => !prev), []);
+  const prevFilesLength = useRef(files.length);
 
   useLayoutEffect(() => inputRef.current?.focus(), []);
 
   useEffect(() => {
+    if (prevFilesLength.current === 0 && files.length > 0 && !showFileList) {
+      setShowFileList(true);
+    }
+
+    prevFilesLength.current = files.length;
+
     if (files.length === 0 && showFileList) {
       setShowFileList(false);
     }

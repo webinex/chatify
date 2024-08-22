@@ -21,7 +21,7 @@ export const SystemMessageRow = customize('SystemMessageRow', (props: SystemMess
 
   return (
     <div ref={containerRef} className="wxchtf-system-message">
-      <div className="wxchtf-text">{formatSystemMessage(localizer, text)}</div>
+      <div className="wxchtf-text">{text && formatSystemMessage(localizer, text)}</div>
       <div className="wxchtf-timestamp">{localizer.timestamp(sentAt)}</div>
     </div>
   );

@@ -8,7 +8,7 @@ internal class ChatMessageRow
 {
     public string Id { get; protected init; } = null!;
     public Guid ChatId { get; protected init; }
-    public string Text { get; protected init; } = null!;
+    public string? Text { get; protected init; }
     public string AuthorId { get; protected init; } = null!;
     public DateTimeOffset SentAt { get; protected init; }
     public IReadOnlyCollection<File> Files { get; protected init; } = Array.Empty<File>();
@@ -19,14 +19,14 @@ internal class ChatMessageRow
         Guid chatId,
         string authorId,
         DateTimeOffset sentAt,
-        string text,
+        string? text,
         IReadOnlyCollection<File> files)
     {
         Id = id;
         ChatId = chatId;
         AuthorId = authorId;
         SentAt = sentAt;
-        Text = text ?? throw new ArgumentNullException(nameof(text));
+        Text = text;
         Files = files ?? throw new ArgumentNullException(nameof(files));
     }
 
@@ -79,7 +79,7 @@ internal class ChatMessageRow
         Guid chatId,
         int index,
         string authorId,
-        string text,
+        string? text,
         IEnumerable<File>? files = null)
     {
         var id = ChatMessageId.New(chatId, index);

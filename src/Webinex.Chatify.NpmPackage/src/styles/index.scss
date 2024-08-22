@@ -10,9 +10,11 @@
   background-color: darken($color: vars.$myMessageBackground, $amount: 3%);
 }
 
-.wxchtf-message .wxchtf-file-list {
+.wxchtf-message .wxchtf-message-text + .wxchtf-file-list {
   margin-top: 1rem;
+}
 
+.wxchtf-message .wxchtf-file-list {
   .wxchtf-file {
     display: flex;
     flex-flow: row nowrap;
@@ -21,6 +23,10 @@
     background-color: darken($color: vars.$messageBackground, $amount: 3%);
     border-radius: 15px;
     padding: 0.5rem;
+
+    .wxchtf-file-info {
+      min-width: 0;
+    }
 
     .wxchtf-size {
       color: vars.$strokeColor;

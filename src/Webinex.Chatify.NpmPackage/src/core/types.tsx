@@ -12,7 +12,7 @@ export interface Account {
 
 export interface MessageBase {
   id: string;
-  text: string;
+  text: string | null;
   files: File[];
   sentAt: string;
   sentBy: Account;
@@ -20,7 +20,6 @@ export interface MessageBase {
 
 export interface ChatMessage extends MessageBase {
   chatId: string;
-  requestId?: string;
 }
 
 export interface Chat {
@@ -42,18 +41,16 @@ export interface ChatListItem {
 
 export interface SendChatMessageRequest {
   chatId: string;
-  text: string;
+  text: string | null;
   files: File[];
-  requestId: string;
 }
 
 export interface MessageBody {
-  text: string;
+  text: string | null;
   files: File[];
 }
 
 export interface AddChatRequest {
-  requestId: string;
   name: string;
   message?: MessageBody;
   members: string[];

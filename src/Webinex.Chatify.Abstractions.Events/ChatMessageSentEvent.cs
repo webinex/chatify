@@ -5,5 +5,4 @@ public record ChatMessageSentEvent(
     Guid ChatId,
     MessageBody Body,
     string AuthorId,
-    DateTimeOffset SentAt,
-    string? RequestId);
+    DateTimeOffset SentAt);

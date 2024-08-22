@@ -13,7 +13,7 @@ export const ChatListItemLastMessageContent = customize<FC<ChatListItemBoxProps>
     return (
       <div className="wxchtf-chat-last-message">
         {message.sentBy.id === 'chatify::system'
-          ? formatSystemMessage(localizer, message.text)
+          ? message.text && formatSystemMessage(localizer, message.text)
           : message.text}
       </div>
     );

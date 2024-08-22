@@ -6,7 +6,7 @@ public class ThreadMessage
     public string ThreadId { get; }
     public string SentById { get; }
     public DateTimeOffset SentAt { get; }
-    public string Text { get; }
+    public string? Text { get; }
     public IReadOnlyCollection<File> Files { get; }
 
     public Optional<bool?> Read { get; }
@@ -18,7 +18,7 @@ public class ThreadMessage
         string threadId,
         string sentById,
         DateTimeOffset sentAt,
-        string text,
+        string? text,
         IEnumerable<File>? files,
         Optional<bool?> read,
         Optional<Account>? sentBy = null,
@@ -28,7 +28,7 @@ public class ThreadMessage
         ThreadId = threadId ?? throw new ArgumentNullException(nameof(threadId));
         SentById = sentById ?? throw new ArgumentNullException(nameof(sentById));
         SentAt = sentAt;
-        Text = text ?? throw new ArgumentNullException(nameof(text));
+        Text = text;
         Files = files != null ? files.ToArray() : Array.Empty<File>();
         Read = read;
         SentBy = sentBy ?? Optional.NoValue<Account>();

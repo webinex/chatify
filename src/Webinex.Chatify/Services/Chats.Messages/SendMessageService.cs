@@ -49,7 +49,7 @@ internal class SendMessageService : ISendMessageService
         await transaction.CommitAsync();
         
         _eventService.Push(new ChatMessageSentEvent(messageRow.Id, messageRow.ChatId, new MessageBody(messageRow.Text, messageRow.Files), messageRow.AuthorId,
-            messageRow.SentAt, args.RequestId));
+            messageRow.SentAt));
         await _eventService.FlushAsync();
         return ChatMessageMapper.Map(messageRow, null);
     }

@@ -44,7 +44,9 @@ export const MessageFile = customize('MessageFile', (props: MessageFileProps) =>
         <Button loading={isOpenFetching} onClick={onOpen} type="link" icon={<Icon type="open-file" />} />
       </div>
       <div className="wxchtf-file-info">
-        <div className="wxchtf-name">{file.name}</div>
+        <div className="wxchtf-name" title={file.name}>
+          {file.name}
+        </div>
         <div className="wxchtf-size">{formatter.size(file.bytes)}</div>
       </div>
     </div>

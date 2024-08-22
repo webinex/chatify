@@ -52,8 +52,8 @@ export const CHATIFY_SIGNALR_METHODS = [
 export type ChatifySignalRMethod = (typeof CHATIFY_SIGNALR_METHODS)[number];
 
 export type ChatifySignalRArgsByMethod = {
-  'chatify://chat-new-message': [message: ChatMessage, requestId: string];
-  'chatify://chat-created': [chat: ChatListItem, requestId: string];
+  'chatify://chat-new-message': [message: ChatMessage];
+  'chatify://chat-created': [chat: ChatListItem];
   'chatify://chat-message-read': [events: ReadChatMessageEvent[]];
   'chatify://chat-member-added': [
     chatId: string,

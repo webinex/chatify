@@ -9,7 +9,7 @@ public class ThreadMessageDto
     public string ThreadId { get; }
     public AccountDto SentBy { get; }
     public DateTimeOffset SentAt { get; }
-    public string Text { get; }
+    public string? Text { get; }
     public IReadOnlyCollection<File> Files { get; }
 
     public ThreadMessageDto(ThreadMessage message, AccountDto sentBy)
@@ -22,7 +22,7 @@ public class ThreadMessageDto
         Files = message.Files;
     }
 
-    public ThreadMessageDto(string id, string threadId, AccountDto sentBy, DateTimeOffset sentAt, string text, IReadOnlyCollection<File> files)
+    public ThreadMessageDto(string id, string threadId, AccountDto sentBy, DateTimeOffset sentAt, string? text, IReadOnlyCollection<File> files)
     {
         Id = id;
         ThreadId = threadId;

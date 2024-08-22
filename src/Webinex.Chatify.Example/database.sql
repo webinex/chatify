@@ -85,12 +85,12 @@ begin try
                     constraint PK_ChatMessages
                         primary key,
                 ChatId   uniqueidentifier not null,
-                Text     nvarchar(max)    not null,
+                Text     nvarchar(max)    null,
                 AuthorId varchar(250)     not null
                     constraint FK_ChatMessages_Accounts_AuthorId
                         references chatify.Accounts,
                 SentAt   datetimeoffset   not null,
-                Files    nvarchar(max)    not null
+                Files    nvarchar(max)    null
             )
 
             -- =============================
@@ -212,8 +212,8 @@ begin try
                     constraint FK_ThreadMessages_Accounts_SentById
                         references chatify.Accounts,
                 SentAt   datetimeoffset not null,
-                Text     nvarchar(max)  not null,
-                Files    nvarchar(max)  not null
+                Text     nvarchar(max)  null,
+                Files    nvarchar(max)  null
             )
 
             create index IX_ThreadMessages_SentById

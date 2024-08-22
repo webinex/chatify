@@ -13,7 +13,8 @@ export interface TextInputBoxProps {
   inputRef?: RefObject<HTMLTextAreaElement>;
 }
 
-const isSend = isHotkey('ctrl+enter');
+const isEnter = isHotkey('enter');
+const isCtrlEnter = isHotkey('ctrl+enter');
 
 const AUTO_SIZE: TextAreaProps['autoSize'] = { maxRows: 5, minRows: 1 };
 
@@ -30,11 +31,17 @@ export const InputTextBox = customize(
 
     const onKeyDown = useCallback(
       (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (isSend(e)) {
+        if (disabled) {
+          e.preventDefault();
+          return;
+        }
+
+        if (isEnter(e) || isCtrlEnter(e)) {
+          e.preventDefault();
           onSend(value);
         }
       },
-      [onSend, value],
+      [onSend, value, disabled],
     );
 
     return (
@@ -47,7 +54,6 @@ export const InputTextBox = customize(
           className="wxchtf-text-input-textarea"
           placeholder={localizer.input.placeholder()}
           onKeyDown={onKeyDown}
-          disabled={disabled}
         />
       </div>
     );

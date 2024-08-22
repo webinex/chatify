@@ -7,7 +7,7 @@ public class ChatMessageDto
 {
     public string Id { get; }
     public Guid ChatId { get; }
-    public string Text { get; }
+    public string? Text { get; }
     public DateTimeOffset SentAt { get; }
     public IReadOnlyCollection<File> Files { get; }
     public AccountDto SentBy { get; }
@@ -15,7 +15,7 @@ public class ChatMessageDto
     public ChatMessageDto(
         string id,
         Guid chatId,
-        string text,
+        string? text,
         DateTimeOffset sentAt,
         IEnumerable<File> files,
         AccountDto sentBy)

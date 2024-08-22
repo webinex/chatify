@@ -77,7 +77,7 @@ internal class ChatifyChatSignalREventSubscriber<THub>
 
                 await _hub.Clients.User(recipient).SendCoreAsync(
                     "chatify://chat-new-message",
-                    [message, sentEvent.RequestId]);
+                    [message]);
             }
         }
     }
