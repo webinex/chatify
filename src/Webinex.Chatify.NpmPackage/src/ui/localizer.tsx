@@ -78,7 +78,7 @@ export const defaultLocalizer: Localizer = {
   },
 
   input: {
-    placeholder: () => 'Start typing (Ctrl/⌘Cmd + Enter to send) ...',
+    placeholder: () => 'Start typing... (Press Enter to send, and Shift+Enter to start a new line)',
   },
 
   settings: {
