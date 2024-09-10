@@ -6,7 +6,6 @@ public record NewChatMessageCreatedEvent(
     MessageBody Body,
     string AuthorId,
     DateTimeOffset SentAt,
-    string? RequestId,
     string? ReadForId)
 {
     public record ChatValue(Guid Id, string Name, string[] Members);

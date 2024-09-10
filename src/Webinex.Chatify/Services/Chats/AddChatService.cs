@@ -51,7 +51,7 @@ internal class AddChatService : IAddChatService
         var chatValue = new NewChatMessageCreatedEvent.ChatValue(chatRow.Id, chatRow.Name, args.Members.ToArray());
         var messageBody = new MessageBody(messageRow.Text, messageRow.Files);
         _eventService.Push(new NewChatMessageCreatedEvent(messageRow.Id, chatValue, messageBody,
-            messageRow.AuthorId, messageRow.SentAt, args.RequestId, readForId));
+            messageRow.AuthorId, messageRow.SentAt, readForId));
         await _eventService.FlushAsync();
         return chatRow;
     }

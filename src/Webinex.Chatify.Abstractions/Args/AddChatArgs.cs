@@ -6,14 +6,12 @@ public class AddChatArgs
     public IReadOnlyCollection<string> Members { get; }
     public MessageBody? Message { get; }
     public AccountContext OnBehalfOf { get; }
-    public string? RequestId { get; }
 
     public AddChatArgs(
         string name,
         IReadOnlyCollection<string> members,
         MessageBody? message,
-        AccountContext onBehalfOf,
-        string? requestId)
+        AccountContext onBehalfOf)
     {
         if (!onBehalfOf.IsSystem() && !members.Contains(onBehalfOf.Id))
             throw new ArgumentException("When create chat not on behalf of system. User might be a member of the chat",
@@ -23,6 +21,5 @@ public class AddChatArgs
         Members = members ?? throw new ArgumentNullException(nameof(members));
         Message = message;
         OnBehalfOf = onBehalfOf ?? throw new ArgumentNullException(nameof(onBehalfOf));
-        RequestId = requestId;
     }
 }

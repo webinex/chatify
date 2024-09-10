@@ -54,7 +54,7 @@ internal class ChatifyChatSignalREventSubscriber<THub>
 
                 await _hub.Clients.User(member).SendCoreAsync(
                     "chatify://chat-created",
-                    [chatListItem, x.RequestId]);
+                    [chatListItem]);
             }
         }
     }

@@ -6,5 +6,4 @@ public record ChatCreatedEvent(
     AccountContext CreatedBy,
     DateTimeOffset CreatedAt,
     string[] Members,
-    MessageBody? Message,
-    string? RequestId);
+    MessageBody? Message);

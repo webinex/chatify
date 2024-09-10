@@ -76,8 +76,7 @@ internal class ChatifyAspNetCoreService : IChatifyAspNetCoreService
                 request.Name,
                 members,
                 request.Message,
-                await _contextProvider.GetAsync(),
-                request.RequestId));
+                await _contextProvider.GetAsync()));
 
         var response = chat.Id;
         return CodedResults.Success(response);
