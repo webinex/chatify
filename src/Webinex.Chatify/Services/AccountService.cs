@@ -103,8 +103,20 @@ internal class AccountService : IAccountService
             account.UpdateActive(command.Active);
         }
 
-        var dataTable = connection.CreateTempTable(accounts);
-        await dataTable.UpdateAsync(connection.AccountRows, e => e);
+        var dataTable = connection.CreateTempTable(
+            accounts,
+            setTable: x =>
+            {
+                x.HasPrimaryKey(a => a.Id);
+                x.Property(a => a.Id).IsNullable(false);
+            });
+
+        await connection.AccountRows
+            .Merge()
+            .Using(dataTable)
+            .OnTargetKey()
+            .UpdateWhenMatched()
+            .MergeAsync();
         await transaction.CommitAsync();
         return accounts.Select(x => x.ToAbstraction()).ToArray();
     }
