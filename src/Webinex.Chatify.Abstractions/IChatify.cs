@@ -31,6 +31,7 @@ public interface IChatify
     
     
     Task<Thread> AddThreadAsync(AddThreadArgs args);
+    Task UpdateThreadAsync(UpdateThreadArgs args);
     Task RemoveThreadAsync(string threadId);
     Task ArchiveThreadAsync(string threadId);
 

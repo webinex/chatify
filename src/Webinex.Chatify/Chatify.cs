@@ -149,6 +149,11 @@ internal class Chatify : IChatify
         return _threadService.AddThreadAsync(args);
     }
 
+    public Task UpdateThreadAsync(UpdateThreadArgs args)
+    {
+        return _threadService.UpdateThreadAsync(args);
+    }
+
     public Task RemoveThreadAsync(string threadId)
     {
         return _threadService.RemoveThreadAsync(threadId);
