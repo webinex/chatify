@@ -15,6 +15,7 @@ namespace Webinex.Chatify.Services.Threads;
 internal interface IThreadService
 {
     Task<Thread> AddThreadAsync(AddThreadArgs args);
+    Task UpdateThreadAsync(UpdateThreadArgs args);
     Task RemoveThreadAsync(string threadId);
     Task ArchiveThreadAsync(string threadId);
     Task SetThreadWatchAsync(AccountContext onBehalfOf, string threadId, string accountId, bool value);
@@ -71,6 +72,16 @@ internal class ThreadService : IThreadService
             threadWatcherRows.Select(x => x.AccountId)));
 
         return ThreadMapper.Map(threadRow);
+    }
+
+    public async Task UpdateThreadAsync(UpdateThreadArgs args)
+    {
+        await using var connection = _dataConnectionFactory.Create();
+        await connection.ThreadRows.Where(x => x.Id == args.Id)
+            .Set(x => x.Name, args.Name)
+            .UpdateAsync()
+            .AssertResult(1);
+        await _eventService.PushAndFlushAsync(new ThreadUpdatedEvent(args.Id, args.Name));
     }
 
     public async Task RemoveThreadAsync(string threadId)
