@@ -13,6 +13,7 @@ import { ThreadPage } from './pages/ThreadPage';
 import { WatchThreadListPage } from './pages/WatchThreadListPage';
 import { ChatPage } from './pages/ChatPage';
 import { CHATIFY_AXIOS } from './client';
+import { UpdateThreadPage } from './pages/UpdateThreadPage';
 
 function useReduxStore(me: string | null) {
   return React.useMemo(
@@ -79,6 +80,7 @@ export function App() {
               <Route path="/thread/watch" element={<WatchThreadListPage />} />
               <Route path="/thread/add" element={<CreateThreadPage me={me} />} />
               <Route path="/thread/:id" element={<ThreadPage />} />
+              <Route path="/thread/:id/update" element={<UpdateThreadPage me={me} />} />
               <Route index element={<Navigate to="/chat" />} />
             </Routes>
           </Layout>

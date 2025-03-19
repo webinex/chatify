@@ -11,7 +11,8 @@ internal class ChatifyThreadSignalREventSubscriber<THub>
         IEventSubscriber<IEnumerable<ThreadMessageReadEvent>>,
         IEventSubscriber<IEnumerable<ThreadMessageSendEvent>>,
         IEventSubscriber<IEnumerable<ThreadWatchAddedEvent>>,
-        IEventSubscriber<IEnumerable<ThreadWatchRemovedEvent>> where THub : ChatifyHub
+        IEventSubscriber<IEnumerable<ThreadWatchRemovedEvent>>,
+        IEventSubscriber<IEnumerable<ThreadUpdatedEvent>> where THub : ChatifyHub
 {
     private readonly IHubContext<THub> _hub;
     private readonly IChatifyHubConnections _connections;
@@ -128,6 +129,30 @@ internal class ChatifyThreadSignalREventSubscriber<THub>
         {
             await _hub.Clients.User(threadWatchRemovedEvent.AccountId)
                 .SendAsync("chatify://thread-watch-removed", threadWatchRemovedEvent.ThreadId);
+        }
+    }
+
+    public async Task InvokeAsync(IEnumerable<ThreadUpdatedEvent> events)
+    {
+        events = events.ToArray();
+        var watchersByThreadId = await _chatify.WatchersByThreadIdAsync(events.Select(x => x.Id));
+
+        foreach (var @event in events)
+        {
+            await _hub.Clients
+                .GroupExcept(
+                    HubGroupNames.Thread(@event.Id),
+                    watchersByThreadId[@event.Id].SelectMany(x => _connections.Get(x))).SendAsync(
+                    "chatify://thread-updated",
+                    @event.Id,
+                    @event.Name);
+
+            foreach (var watcher in watchersByThreadId[@event.Id])
+            {
+                if (!_connections.Connected(watcher)) continue;
+                await _hub.Clients.User(watcher)
+                    .SendAsync("chatify://thread-updated", @event.Id, @event.Name);
+            }
         }
     }
 }

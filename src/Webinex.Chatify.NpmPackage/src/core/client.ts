@@ -47,6 +47,7 @@ export const CHATIFY_SIGNALR_METHODS = [
   'chatify://thread-message-read',
   'chatify://thread-watch-added',
   'chatify://thread-watch-removed',
+  'chatify://thread-updated',
 ] as const;
 
 export type ChatifySignalRMethod = (typeof CHATIFY_SIGNALR_METHODS)[number];
@@ -77,6 +78,7 @@ export type ChatifySignalRArgsByMethod = {
   'chatify://thread-watch-added': [thread: ThreadListItem];
   'chatify://thread-watch-removed': [id: string];
   'chatify://thread-created': [thread: ThreadListItem, watch: boolean];
+  'chatify://thread-updated': [threadId: string, threadName: string];
 };
 
 export class ChatifyClient {
