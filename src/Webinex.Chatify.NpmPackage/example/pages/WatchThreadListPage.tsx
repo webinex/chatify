@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { Avatar, ThreadWatchListItem, calcThreadUnreadCount, chatifyApi } from '../../src';
 import { Button, Card, Col, Flex, Row, Tag, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { EyeInvisibleOutlined } from '@ant-design/icons';
+import { EditOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 
 function Item({ thread }: { thread: ThreadWatchListItem }) {
   const unreadCount = calcThreadUnreadCount(thread);
@@ -30,6 +30,14 @@ function Item({ thread }: { thread: ThreadWatchListItem }) {
               loading={isWatchFetching}
               type="link"
               icon={<EyeInvisibleOutlined />}
+            />
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                return navigate(`/thread/${thread.id}/update`);
+              }}
+              type="link"
+              icon={<EditOutlined />}
             />
           </span>
         </Flex>

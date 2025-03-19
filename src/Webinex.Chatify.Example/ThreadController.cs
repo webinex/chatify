@@ -27,5 +27,13 @@ public class ThreadController : ControllerBase
         return thread.Id;
     }
 
+    [HttpPut]
+    public async Task UpdateThreadAsync([FromBody] UpdateThreadRequestDto request)
+    {
+        await _chatify.UpdateThreadAsync(new UpdateThreadArgs(request.Id, request.Name));
+    }
+
     public record CreateThreadRequestDto(string Name);
+
+    public record UpdateThreadRequestDto(string Id, string Name);
 }

@@ -55,7 +55,8 @@ internal class ChatifyAspNetCoreConfiguration : IChatifyAspNetCoreConfiguration
             .AddScoped<IEventSubscriber<IEnumerable<ThreadMessageSendEvent>>, ChatifyThreadSignalREventSubscriber<THub>>()
             .AddScoped<IEventSubscriber<IEnumerable<ThreadWatchAddedEvent>>, ChatifyThreadSignalREventSubscriber<THub>>()
             .AddScoped<IEventSubscriber<IEnumerable<ThreadWatchRemovedEvent>>, ChatifyThreadSignalREventSubscriber<THub>>()
-            
+            .AddScoped<IEventSubscriber<IEnumerable<ThreadUpdatedEvent>>, ChatifyThreadSignalREventSubscriber<THub>>()
+
             .AddSingleton<IChatifyHubConnections, ChatifyHubConnections>();
 
         return this;

@@ -459,6 +459,14 @@ const __chatifyApi = __baseApi.injectEndpoints({
               if (index !== -1) threads.splice(index, 1);
             }),
           ),
+          __settings.client.subscribe('chatify://thread-updated', ([threadId, threadName]) =>
+            updateCachedData((threads) => {
+              const thread = threads.find((x) => x.id === threadId);
+              if (!thread) return;
+
+              thread.name = threadName;
+            }),
+          ),
         ).when(cacheEntryRemoved);
       },
     }),
@@ -507,6 +515,14 @@ const __chatifyApi = __baseApi.injectEndpoints({
               id === threadId &&
               updateCachedData((thread) => {
                 thread.watch = false;
+              }),
+          ),
+          __settings.client.subscribe(
+            'chatify://thread-updated',
+            ([threadId, threadName]) =>
+              id === threadId &&
+              updateCachedData((thread) => {
+                thread.name = threadName;
               }),
           ),
         ).when(cacheEntryRemoved);
