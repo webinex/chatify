@@ -1,3 +1,8 @@
+export interface Optional<TValue> {
+  hasValue: boolean;
+  value?: TValue | null;
+}
+
 export interface File {
   name: string;
   bytes: number;
@@ -79,4 +84,22 @@ export interface AddMemberRequest {
 export interface UpdateChatNameRequest {
   id: string;
   name: string;
+}
+
+export interface Period {
+  start: string;
+  end: string;
+}
+
+export interface AutoReply {
+  text: string;
+  period: Period;
+}
+
+export interface UpdateAccountRequest {
+  id: string;
+  autoReply?: Optional<AutoReply> | null;
+  name?: Optional<string> | null;
+  avatar?: Optional<string> | null;
+  active?: Optional<boolean> | null;
 }

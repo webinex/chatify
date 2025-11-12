@@ -10,12 +10,19 @@ internal class AccountRow : ICloneable
     public string Name { get; protected set; } = null!;
     public AccountType Type { get; protected init; }
     public bool Active { get; protected set; }
+    public AutoReply? AutoReply { get; protected set; }
 
     protected AccountRow()
     {
     }
 
-    public AccountRow(string id, string workspaceId, string name, string? avatar, bool active)
+    public AccountRow(
+        string id,
+        string workspaceId,
+        string name,
+        string? avatar,
+        bool active,
+        AutoReply? autoReply)
     {
         Id = id ?? throw new ArgumentNullException(nameof(id));
         WorkspaceId = workspaceId ?? throw new ArgumentNullException(nameof(workspaceId));
@@ -23,6 +30,7 @@ internal class AccountRow : ICloneable
         Avatar = avatar;
         Active = active;
         Type = AccountType.Default;
+        AutoReply = autoReply?.Clone();
     }
 
     public void UpdateName(string name)
@@ -40,6 +48,11 @@ internal class AccountRow : ICloneable
         Active = value;
     }
 
+    public void UpdateAutoReply(AutoReply? autoReply)
+    {
+        AutoReply = autoReply?.Clone();
+    }
+
     public object Clone()
     {
         return new AccountRow
@@ -50,11 +63,12 @@ internal class AccountRow : ICloneable
             WorkspaceId = WorkspaceId,
             Name = Name,
             Type = Type,
+            AutoReply = AutoReply
         };
     }
 
     public Account ToAbstraction()
     {
-        return new Account(Id, WorkspaceId, Avatar, Name, Type, Active);
+        return new Account(Id, WorkspaceId, Avatar, Name, Type, Active, AutoReply);
     }
 }

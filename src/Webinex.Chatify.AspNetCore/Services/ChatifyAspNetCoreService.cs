@@ -16,6 +16,7 @@ public interface IChatifyAspNetCoreService
     Task<CodedResult<AccountDto[]>> GetAccountsAsync();
     Task<CodedResult<MessageDto[]>> GetMessagesAsync(Guid chatId, PagingRule? pagingRule);
     Task<CodedResult> SendAsync(Guid chatId, SendMessageRequestDto request);
+    Task<CodedResult> UpdateAccountAsync(string accountId, UpdateAccountRequestDto request);
 }
 
 internal class ChatifyAspNetCoreService : IChatifyAspNetCoreService
@@ -38,7 +39,7 @@ internal class ChatifyAspNetCoreService : IChatifyAspNetCoreService
         var response = result.Select(chat => new ChatListItemDto(chat,
             new MessageDto(chat.LastMessage.Value!),
             chat.TotalUnreadCount.Value)).ToArray();
-        
+
         return CodedResults.Success(response);
     }
 
@@ -57,7 +58,7 @@ internal class ChatifyAspNetCoreService : IChatifyAspNetCoreService
     {
         var context = await _contextProvider.GetAsync();
         var members = request.Members.Concat(new[] { context.Id }).Distinct().ToArray();
-        
+
         var chat = await _chatify.AddChatAsync(
             new AddChatArgs(
                 request.Name,
@@ -100,7 +101,7 @@ internal class ChatifyAspNetCoreService : IChatifyAspNetCoreService
         await _chatify.ReadAsync(args);
         return CodedResults.Success();
     }
-    
+
     public async Task<CodedResult<AccountDto[]>> GetAccountsAsync()
     {
         var context = await _contextProvider.GetAsync();
@@ -108,7 +109,7 @@ internal class ChatifyAspNetCoreService : IChatifyAspNetCoreService
         var response = result.Select(x => new AccountDto(x)).ToArray();
         return CodedResults.Success(response);
     }
-    
+
     public async Task<CodedResult<MessageDto[]>> GetMessagesAsync(
         Guid chatId,
         PagingRule? pagingRule)
@@ -129,12 +130,18 @@ internal class ChatifyAspNetCoreService : IChatifyAspNetCoreService
         var mapped = result.Select(x => new MessageDto(x)).ToArray();
         return CodedResults.Success(mapped);
     }
-    
+
     public async Task<CodedResult> SendAsync(Guid chatId, SendMessageRequestDto request)
     {
         var context = await _contextProvider.GetAsync();
         var content = new MessageBody(request.Text, request.Files);
         await _chatify.SendMessagesAsync(new[] { new SendMessageArgs(chatId, content, context, request.RequestId) });
+        return CodedResults.Success();
+    }
+
+    public async Task<CodedResult> UpdateAccountAsync(string accountId, UpdateAccountRequestDto request)
+    {
+        await _chatify.UpdateAccountsAsync([new UpdateAccountDataArgs(accountId, request.Name, request.Avatar, request.Active, request.AutoReply)]);
         return CodedResults.Success();
     }
 }

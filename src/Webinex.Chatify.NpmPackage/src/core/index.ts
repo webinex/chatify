@@ -15,3 +15,4 @@ export * from './useAddMemberMutation';
 export * from './useRemoveMemberMutation';
 export * from './useSendMutation';
 export * from './useUpdateChatNameMutation';
+export * from './useUpdateAccountMutation';

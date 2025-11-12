@@ -138,4 +138,9 @@ internal class Chatify : IChatify
     {
         return await _accountService.UpdateAsync(commands);
     }
+
+    public async Task<Account[]> UpdateAccountsAsync(IEnumerable<UpdateAccountDataArgs> commands)
+    {
+        return await _accountService.UpdateAsync(commands);
+    }
 }

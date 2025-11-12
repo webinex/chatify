@@ -113,6 +113,18 @@ export const ACTIONS = {
     state.mutation.updateChatName = { isFetching: false, error };
   },
 
+  updateAccount_fetch: (state: State) => {
+    state.mutation.updateAccount = { isFetching: true };
+  },
+
+  updateAccount_fulfilled: (state: State) => {
+    state.mutation.updateAccount = { isFetching: false, error: undefined };
+  },
+
+  updateAccount_rejected: (state: State, { error }: { error: any }) => {
+    state.mutation.updateAccount = { isFetching: false, error };
+  },
+
   addChat_fetch: (state: State) => {
     state.mutation.addChat = { isFetching: true };
   },

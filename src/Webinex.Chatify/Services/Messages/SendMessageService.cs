@@ -12,7 +12,7 @@ namespace Webinex.Chatify.Services.Messages;
 
 internal interface ISendMessageService
 {
-    Task<Message[]> SendRangeAsync(IEnumerable<SendMessageArgs> argEnumerable);
+    Task<Message[]> SendRangeAsync(IEnumerable<SendMessageArgs> argEnumerable, bool isAutoReply = false);
 }
 
 internal class SendMessageService : ISendMessageService
@@ -28,19 +28,19 @@ internal class SendMessageService : ISendMessageService
         _eventService = eventService;
     }
 
-    public async Task<Message[]> SendRangeAsync(IEnumerable<SendMessageArgs> argEnumerable)
+    public async Task<Message[]> SendRangeAsync(IEnumerable<SendMessageArgs> argEnumerable, bool isAutoReply)
     {
         var args = argEnumerable.ToArray();
         var result = new LinkedList<Message>();
         foreach (var arg in args)
         {
-            result.AddLast(await SendAsync(arg));
+            result.AddLast(await SendAsync(arg, isAutoReply));
         }
 
         return result.ToArray();
     }
 
-    private async Task<Message> SendAsync(SendMessageArgs args)
+    private async Task<Message> SendAsync(SendMessageArgs args, bool isAutoReply = false)
     {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);
         var now = DateTimeOffset.UtcNow;
@@ -85,7 +85,7 @@ internal class SendMessageService : ISendMessageService
             args.Body.Files);
 
         _eventService.Push(new MessageSentEvent(row.Id, row.ChatId, new MessageBody(row.Text, row.Files), row.AuthorId,
-            row.SentAt, args.RequestId));
+            row.SentAt, args.RequestId, isAutoReply));
         await _eventService.FlushAsync();
         return MessageMapper.Map(row, null);
     }

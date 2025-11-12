@@ -62,6 +62,12 @@ public class ChatifyController : ControllerBase
         return new CodedActionResult(await _chatifyAspNetCoreService.GetAccountsAsync());
     }
 
+    [HttpPut("account/{accountId}")]
+    public async Task<IActionResult> UpdateAccountAsync(string accountId, [FromBody] UpdateAccountRequestDto request)
+    {
+        return new CodedActionResult(await _chatifyAspNetCoreService.UpdateAccountAsync(accountId, request));
+    }
+
     [HttpGet("chat/{chatId:guid}/message")]
     public async Task<IActionResult> GetMessagesAsync(
         Guid chatId,

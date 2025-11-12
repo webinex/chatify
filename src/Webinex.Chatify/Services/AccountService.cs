@@ -15,6 +15,7 @@ internal interface IAccountService
 
     Task<Account[]> AddAsync(IEnumerable<AddAccountArgs> commands);
     Task<Account[]> UpdateAsync(IEnumerable<UpdateAccountArgs> commands);
+    Task<Account[]> UpdateAsync(IEnumerable<UpdateAccountDataArgs> commands);
 }
 
 internal class AccountService : IAccountService
@@ -68,7 +69,7 @@ internal class AccountService : IAccountService
 
     public async Task<Account[]> AddAsync(IEnumerable<AddAccountArgs> commands)
     {
-        var accounts = commands.Select(x => new AccountRow(x.Id, x.WorkspaceId, x.Name, x.Avatar, true)).ToArray();
+        var accounts = commands.Select(x => new AccountRow(x.Id, x.WorkspaceId, x.Name, x.Avatar, true, null)).ToArray();
         await _dbContext.Accounts.AddRangeAsync(accounts);
         await _dbContext.SaveChangesAsync();
         return accounts.Select(x => x.ToAbstraction()).ToArray();
@@ -91,5 +92,29 @@ internal class AccountService : IAccountService
 
         await _dbContext.SaveChangesAsync();
         return accounts.Select(x => x.ToAbstraction()).ToArray();
+    }
+
+    public async Task<Account[]> UpdateAsync(IEnumerable<UpdateAccountDataArgs> commands)
+    {
+        commands = [.. commands];
+        var ids = commands.Select(x => x.Id).Distinct().ToArray();
+        var accounts = await _dbContext.Accounts.Where(x => ids.Contains(x.Id)).ToArrayAsync();
+        var accountById = accounts.ToDictionary(x => x.Id);
+
+        foreach (var command in commands)
+        {
+            var account = accountById[command.Id];
+            if (command.Name.HasValue)
+                account.UpdateName(command.Name.Value);
+            if (command.Avatar.HasValue)
+                account.UpdateAvatar(command.Avatar.Value);
+            if (command.Active.HasValue)
+                account.UpdateActive(command.Active.Value);
+            if (command.AutoReply.HasValue)
+                account.UpdateAutoReply(command.AutoReply.Value);
+        }
+
+        await _dbContext.SaveChangesAsync();
+        return [.. accounts.Select(x => x.ToAbstraction())];
     }
 }

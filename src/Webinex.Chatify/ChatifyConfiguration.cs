@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Webinex.Asky;
 using Webinex.Chatify.Abstractions;
+using Webinex.Chatify.Abstractions.Events;
 using Webinex.Chatify.Common;
 using Webinex.Chatify.DataAccess;
 using Webinex.Chatify.Rows;
@@ -55,6 +56,8 @@ internal class ChatifyConfiguration : IChatifyConfiguration
             .AddSingleton<IEntityCache<ChatMembersCacheEntry>, EntityMemoryCache<ChatMembersCacheEntry>>()
             .AddSingleton(new EntityMemoryCacheSettings<ChatMembersCacheEntry>(x => x.ChatId.ToString(),
                 TimeSpan.FromMinutes(15), "chat::members"));
+
+        services.AddScoped<IEventSubscriber<IEnumerable<MessageSentEvent>>, AutoReplyEventSubscriber>();
     }
 
     public IServiceCollection Services { get; }

@@ -6,4 +6,5 @@ public record MessageSentEvent(
     MessageBody Body,
     string AuthorId,
     DateTimeOffset SentAt,
-    string? RequestId);
+    string? RequestId,
+    bool IsAutoReply = false);

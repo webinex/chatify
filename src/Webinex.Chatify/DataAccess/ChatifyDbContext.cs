@@ -31,6 +31,21 @@ internal class ChatifyDbContext : DbContext
             account.HasKey(x => x.Id);
             account.Property(x => x.Id).HasMaxLength(250).IsRequired();
             account.Property(x => x.Name).HasMaxLength(500).IsRequired();
+            account.OwnsOne(x => x.AutoReply, autoReply =>
+            {
+                autoReply.Property(ar => ar.Text)
+                    .HasColumnName("AutoReplyText")
+                    .HasMaxLength(int.MaxValue);
+
+                autoReply.OwnsOne(ar => ar.Period, period =>
+                {
+                    period.Property(p => p.Start)
+                        .HasColumnName("AutoReplyStart");
+
+                    period.Property(p => p.End)
+                        .HasColumnName("AutoReplyEnd");
+                });
+            });
         });
 
         model.Entity<ChatRow>(chat =>

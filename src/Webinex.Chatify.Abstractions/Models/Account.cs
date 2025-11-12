@@ -8,8 +8,9 @@ public class Account
     public string Name { get; }
     public AccountType Type { get; }
     public bool Active { get; }
+    public AutoReply? AutoReply { get; }
 
-    public Account(string id, string workspaceId, string? avatar, string name, AccountType type, bool active)
+    public Account(string id, string workspaceId, string? avatar, string name, AccountType type, bool active, AutoReply? autoReply)
     {
         if (!Enum.IsDefined(typeof(AccountType), type))
             throw new ArgumentException($"Unknown enum value {type} for {nameof(AccountType)}");
@@ -20,5 +21,6 @@ public class Account
         Name = name ?? throw new ArgumentNullException(nameof(name));
         Active = active;
         Type = type;
+        AutoReply = autoReply;
     }
 }

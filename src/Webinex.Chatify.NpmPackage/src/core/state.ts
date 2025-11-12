@@ -44,6 +44,7 @@ export interface State {
     updateChatName: MutationState;
     addChat: MutationState;
     send: MutationState;
+    updateAccount: MutationState;
   };
   queue: {
     read: QueueState<string>;
@@ -75,6 +76,7 @@ export const INITIAL_STATE: State = {
     updateChatName: { isFetching: false, error: undefined },
     addChat: { isFetching: false, error: undefined },
     send: { isFetching: false, error: undefined },
+    updateAccount: { isFetching: false, error: undefined },
   },
   queue: {
     read: {

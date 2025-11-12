@@ -10,6 +10,7 @@ import {
   ReadRequest,
   RemoveMemberRequest,
   SendMessageRequest,
+  UpdateAccountRequest,
   UpdateChatNameRequest,
 } from './models';
 
@@ -139,5 +140,9 @@ export class ChatifyClient {
 
   public addMember = async (request: AddMemberRequest) => {
     await this.axios.post(`chat/${request.chatId}/member`, request);
+  };
+
+  public updateAccount = async (request: UpdateAccountRequest) => {
+    await this.axios.put(`account/${request.id}/auto-reply`, request);
   };
 }
