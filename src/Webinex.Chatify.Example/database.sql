@@ -32,14 +32,17 @@ begin try
 
             create table [chatify].[Accounts]
             (
-                Id          varchar(250)  not null
-                    constraint PK_Accounts
-                        primary key,
-                WorkspaceId varchar(250)  not null,
-                Avatar      nvarchar(500),
-                Name        nvarchar(500) not null,
-                Type        int           not null,
-                Active      bit           not null
+                Id                  varchar(250)    not null
+                            constraint PK_Accounts
+                                primary key,
+                WorkspaceId         varchar(250)    not null,
+                Avatar              nvarchar(500),
+                Name                nvarchar(500)   not null,
+                Type                int             not null,
+                AutoReplyText       nvarchar(max)   null,
+                AutoReplyStart      datetimeoffset  null,
+                AutoReplyEnd        datetimeoffset  null,
+                Active              bit             not null
             )
 
             -- =============================

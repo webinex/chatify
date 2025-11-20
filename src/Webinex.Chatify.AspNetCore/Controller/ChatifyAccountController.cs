@@ -18,4 +18,10 @@ internal class ChatifyAccountController : ControllerBase
     {
         return new CodedActionResult(await _chatifyAspNetCoreService.GetAccountsAsync());
     }
+
+    [HttpPut("account/{accountId}")]
+    public async Task<IActionResult> UpdateAccountAsync(string accountId, [FromBody] UpdateAccountRequestDto request)
+    {
+        return new CodedActionResult(await _chatifyAspNetCoreService.UpdateAccountAsync(accountId, request));
+    }
 }

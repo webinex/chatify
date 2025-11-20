@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$(MSBuildThisFileDirectory)/../Webinex.Chatify.All/Package.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)/../Webinex.Chatify.All/Package.props" />
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -13,8 +13,8 @@
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.5" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
-    <PackageReference Include="Webinex.Asky" Version="1.2.1"/>
-    <PackageReference Include="Webinex.Coded" Version="1.0.0"/>
+    <PackageReference Include="Webinex.Asky" Version="1.2.1" />
+    <PackageReference Include="Webinex.Coded" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>

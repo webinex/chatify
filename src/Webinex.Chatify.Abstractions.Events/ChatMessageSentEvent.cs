@@ -5,4 +5,5 @@ public record ChatMessageSentEvent(
     Guid ChatId,
     MessageBody Body,
     string AuthorId,
-    DateTimeOffset SentAt);
+    DateTimeOffset SentAt,
+    bool IsAutoReply = false);

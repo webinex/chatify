@@ -9,7 +9,7 @@ namespace Webinex.Chatify.Services.Chats.Messages;
 
 internal interface ISendMessageService
 {
-    Task<ChatMessage[]> SendRangeAsync(IEnumerable<SendChatMessageArgs> argEnumerable);
+    Task<ChatMessage[]> SendRangeAsync(IEnumerable<SendChatMessageArgs> argEnumerable, bool isAutoReply = false);
 }
 
 internal class SendMessageService : ISendMessageService
@@ -25,19 +25,19 @@ internal class SendMessageService : ISendMessageService
         _dataConnectionFactory = dataConnectionFactory;
     }
 
-    public async Task<ChatMessage[]> SendRangeAsync(IEnumerable<SendChatMessageArgs> argEnumerable)
+    public async Task<ChatMessage[]> SendRangeAsync(IEnumerable<SendChatMessageArgs> argEnumerable, bool isAutoReply = false)
     {
         var args = argEnumerable.ToArray();
         var result = new LinkedList<ChatMessage>();
         foreach (var arg in args)
         {
-            result.AddLast(await SendAsync(arg));
+            result.AddLast(await SendAsync(arg, isAutoReply));
         }
 
         return result.ToArray();
     }
 
-    private async Task<ChatMessage> SendAsync(SendChatMessageArgs args)
+    private async Task<ChatMessage> SendAsync(SendChatMessageArgs args, bool isAutoReply = false)
     {
         await using var connection = _dataConnectionFactory.Create();
         await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.ReadCommitted);
@@ -49,7 +49,7 @@ internal class SendMessageService : ISendMessageService
         await transaction.CommitAsync();
         
         _eventService.Push(new ChatMessageSentEvent(messageRow.Id, messageRow.ChatId, new MessageBody(messageRow.Text, messageRow.Files), messageRow.AuthorId,
-            messageRow.SentAt));
+            messageRow.SentAt, isAutoReply));
         await _eventService.FlushAsync();
         return ChatMessageMapper.Map(messageRow, null);
     }

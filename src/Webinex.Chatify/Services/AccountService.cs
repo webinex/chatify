@@ -19,6 +19,7 @@ internal interface IAccountService
 
     Task<Account[]> AddAsync(IEnumerable<AddAccountArgs> commands);
     Task<Account[]> UpdateAsync(IEnumerable<UpdateAccountArgs> commands);
+    Task<Account[]> UpdateAsync(IEnumerable<UpdateAccountDataArgs> commands);
 }
 
 internal class AccountService : IAccountService
@@ -80,7 +81,7 @@ internal class AccountService : IAccountService
     public async Task<Account[]> AddAsync(IEnumerable<AddAccountArgs> commands)
     {
         await using var connection = _dataConnectionFactory.Create();
-        var accounts = commands.Select(x => new AccountRow(x.Id, x.WorkspaceId, x.Name, x.Avatar, true)).ToArray();
+        var accounts = commands.Select(x => new AccountRow(x.Id, x.WorkspaceId, x.Name, x.Avatar, true, null)).ToArray();
         await connection.AccountRows.BulkCopyAsync(accounts);
         return accounts.Select(x => x.ToAbstraction()).ToArray();
     }
@@ -101,6 +102,47 @@ internal class AccountService : IAccountService
             account.UpdateName(command.Name);
             account.UpdateAvatar(command.Avatar);
             account.UpdateActive(command.Active);
+        }
+
+        var dataTable = connection.CreateTempTable(
+            accounts,
+            setTable: x =>
+            {
+                x.HasPrimaryKey(a => a.Id);
+                x.Property(a => a.Id).IsNullable(false);
+            });
+
+        await connection.AccountRows
+            .Merge()
+            .Using(dataTable)
+            .OnTargetKey()
+            .UpdateWhenMatched()
+            .MergeAsync();
+        await transaction.CommitAsync();
+        return accounts.Select(x => x.ToAbstraction()).ToArray();
+    }
+
+    public async Task<Account[]> UpdateAsync(IEnumerable<UpdateAccountDataArgs> commands)
+    {
+        await using var connection = _dataConnectionFactory.Create();
+        await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.ReadCommitted);
+
+        commands = commands.ToArray();
+        var ids = commands.Select(x => x.Id).Distinct().ToArray();
+        var accounts = await connection.AccountRows.Where(x => ids.Contains(x.Id)).ToArrayAsync();
+        var accountById = accounts.ToDictionary(x => x.Id);
+
+        foreach (var command in commands)
+        {
+            var account = accountById[command.Id];
+            if (command.Name.HasValue)
+                account.UpdateName(command.Name.Value);
+            if (command.Avatar.HasValue)
+                account.UpdateAvatar(command.Avatar.Value);
+            if (command.Active.HasValue)
+                account.UpdateActive(command.Active.Value);
+            if (command.AutoReply.HasValue)
+                account.UpdateAutoReply(command.AutoReply.Value);
         }
 
         var dataTable = connection.CreateTempTable(

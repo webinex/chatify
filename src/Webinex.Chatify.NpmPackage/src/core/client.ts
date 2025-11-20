@@ -16,6 +16,7 @@ import {
   Thread,
   ThreadMessage,
   ThreadWatchListItem as ThreadListItem,
+  UpdateAccountRequest,
 } from './types';
 
 export interface ChatifySignalRConfig {
@@ -166,6 +167,10 @@ export class ChatifyClient {
   public accounts = async () => {
     const { data } = await this.axios.get<Account[]>('account');
     return data;
+  };
+
+  public updateAccount = async (request: UpdateAccountRequest) => {
+    await this.axios.put(`account/${encodeURIComponent(request.id)}`, request);
   };
 
   public chats = async () => {
