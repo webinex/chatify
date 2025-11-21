@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Webinex.Asky;
 using Webinex.Chatify.Abstractions;
+using Webinex.Chatify.Abstractions.Events;
 using Webinex.Chatify.Common;
 using Webinex.Chatify.DataAccess;
 using Webinex.Chatify.Rows;
@@ -61,6 +62,8 @@ internal class ChatifyConfiguration : IChatifyConfiguration
         services
             .AddScoped<IThreadService, ThreadService>()
             .AddSingleton<IAskyFieldMap<ThreadQueryView>, ThreadQueryViewFieldMap>();
+
+        services.AddScoped<IEventSubscriber<IEnumerable<ChatMessageSentEvent>>, AutoReplyEventSubscriber>();
     }
 
     public IServiceCollection Services { get; }

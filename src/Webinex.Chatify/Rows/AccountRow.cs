@@ -10,12 +10,15 @@ internal class AccountRow : ICloneable
     public string Name { get; protected set; } = null!;
     public AccountType Type { get; protected init; }
     public bool Active { get; protected set; }
+    public string? AutoReplyText { get; protected set; }
+    public DateTimeOffset? AutoReplyStart { get; protected set; }
+    public DateTimeOffset? AutoReplyEnd { get; protected set; }
 
     protected AccountRow()
     {
     }
 
-    public AccountRow(string id, string workspaceId, string name, string? avatar, bool active)
+    public AccountRow(string id, string workspaceId, string name, string? avatar, bool active, AutoReply? autoReply)
     {
         Id = id ?? throw new ArgumentNullException(nameof(id));
         WorkspaceId = workspaceId ?? throw new ArgumentNullException(nameof(workspaceId));
@@ -23,6 +26,9 @@ internal class AccountRow : ICloneable
         Avatar = avatar;
         Active = active;
         Type = AccountType.Default;
+        AutoReplyText = autoReply?.Text;
+        AutoReplyStart = autoReply?.Period.Start;
+        AutoReplyEnd = autoReply?.Period.End;
     }
 
     public void UpdateName(string name)
@@ -40,6 +46,13 @@ internal class AccountRow : ICloneable
         Active = value;
     }
 
+    public void UpdateAutoReply(AutoReply? autoReply)
+    {
+        AutoReplyText = autoReply?.Text;
+        AutoReplyStart = autoReply?.Period.Start;
+        AutoReplyEnd = autoReply?.Period.End;
+    }
+
     public object Clone()
     {
         return new AccountRow
@@ -50,11 +63,18 @@ internal class AccountRow : ICloneable
             WorkspaceId = WorkspaceId,
             Name = Name,
             Type = Type,
+            AutoReplyText = AutoReplyText,
+            AutoReplyStart = AutoReplyStart,
+            AutoReplyEnd = AutoReplyEnd
         };
     }
 
+    private AutoReply? AutoReply => AutoReplyText != null
+        && AutoReplyStart != null
+        && AutoReplyEnd != null ? new AutoReply(new Period<DateTimeOffset>(AutoReplyStart.Value, AutoReplyEnd.Value), AutoReplyText) : null;
+
     public Account ToAbstraction()
     {
-        return new Account(Id, WorkspaceId, Avatar, Name, Type, Active);
+        return new Account(Id, WorkspaceId, Avatar, Name, Type, Active, AutoReply);
     }
 }

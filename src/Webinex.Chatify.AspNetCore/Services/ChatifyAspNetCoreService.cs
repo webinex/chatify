@@ -29,6 +29,7 @@ public interface IChatifyAspNetCoreService
     Task<CodedResult> WatchThreadAsync(string threadId, WatchThreadRequestDto request);
     Task<CodedResult<string>> SendThreadMessageAsync(string threadId, SendThreadMessageRequestDto request);
     Task<CodedResult> ReadThreadMessageAsync(string messageId);
+    Task<CodedResult> UpdateAccountAsync(string accountId, UpdateAccountRequestDto request);
 }
 
 internal class ChatifyAspNetCoreService : IChatifyAspNetCoreService
@@ -233,6 +234,12 @@ internal class ChatifyAspNetCoreService : IChatifyAspNetCoreService
         await _chatify.ReadThreadMessageAsync(new ReadThreadMessageArgs(
             messageId,
             await _contextProvider.GetAsync()));
+        return CodedResults.Success();
+    }
+
+    public async Task<CodedResult> UpdateAccountAsync(string accountId, UpdateAccountRequestDto request)
+    {
+        await _chatify.UpdateAccountsAsync([new UpdateAccountDataArgs(accountId, request.Name, request.Avatar, request.Active, request.AutoReply)]);
         return CodedResults.Success();
     }
 }

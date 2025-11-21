@@ -27,9 +27,13 @@ public interface IChatify
     Task<IReadOnlyCollection<Account>> AccountsAsync(AccountContext? onBehalfOf = null);
     Task ReadAsync(ReadChatMessageArgs chatMessageArgs);
     Task<Account[]> AddAccountsAsync(IEnumerable<AddAccountArgs> commands);
+
+    [Obsolete(
+        "Use UpdateAccountsAsync(IEnumerable<UpdateAccountDataArgs> commands) instead. " +
+        "This method will be removed in the next major release.")]
     Task<Account[]> UpdateAccountsAsync(IEnumerable<UpdateAccountArgs> commands);
-    
-    
+    Task<Account[]> UpdateAccountsAsync(IEnumerable<UpdateAccountDataArgs> commands);
+
     Task<Thread> AddThreadAsync(AddThreadArgs args);
     Task UpdateThreadAsync(UpdateThreadArgs args);
     Task RemoveThreadAsync(string threadId);

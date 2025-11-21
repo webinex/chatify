@@ -1,13 +1,37 @@
+export interface Optional<TValue> {
+  hasValue: boolean;
+  value?: TValue | null;
+}
+
 export interface File {
   name: string;
   bytes: number;
   ref: string;
 }
 
+export interface Period {
+  start: string;
+  end: string;
+}
+
+export interface AutoReply {
+  text: string;
+  period: Period;
+}
+
 export interface Account {
   id: string;
   name: string;
   avatar: string;
+  autoReply: AutoReply | null;
+}
+
+export interface UpdateAccountRequest {
+  id: string;
+  autoReply?: Optional<AutoReply> | null;
+  name?: Optional<string> | null;
+  avatar?: Optional<string> | null;
+  active?: Optional<boolean> | null;
 }
 
 export interface MessageBase {
