@@ -42,7 +42,7 @@ steps:
   - task: NodeTool@0
     displayName: '[FE]: NodeJS'
     inputs:
-      versionSpec: '18.13.x'
+      versionSpec: '20.x'
 
   - script: yarn install --frozen-lockfile
     displayName: '[FE]: Install packages'
