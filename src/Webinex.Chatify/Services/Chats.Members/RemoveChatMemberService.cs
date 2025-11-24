@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using LinqToDB;
 using Webinex.Chatify.Abstractions;
 using Webinex.Chatify.Abstractions.Events;
 using Webinex.Chatify.Common;
@@ -46,10 +47,12 @@ internal class RemoveChatMemberService : IRemoveChatMemberService
         await using var connection = _dataConnectionFactory.Create();
         await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.ReadCommitted);
         
-        var index = await connection.IncrementMetaIndexWithUpdLockAsync(args.ChatId);
-        var messageRow = ChatMessageRow.NewMemberRemoved(args.ChatId, index);
+        var meta = await connection.GetMetaWithUpdLockAsync(args.ChatId);
+        var messageRow = ChatMessageRow.NewMemberRemoved(args.ChatId, meta.LastIndex + 1);
+        meta.Increment(messageRow.Id);
         var readForId = args.OnBehalfOf.IsSystem() ? null : args.OnBehalfOf.Id;
         await connection.SendMessageAsync(messageRow, except: args.DeleteHistory ? new[] { args.AccountId } : null, readForId);
+        await connection.UpdateAsync(meta);
 
         if (args.DeleteHistory)
         {

@@ -2,7 +2,6 @@
 using Webinex.Asky;
 using Webinex.Chatify.Abstractions;
 using Webinex.Chatify.DataAccess;
-using Webinex.Chatify.Rows;
 using Webinex.Chatify.Rows.Chats;
 
 namespace Webinex.Chatify.Services.Chats;

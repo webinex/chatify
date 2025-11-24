@@ -4,12 +4,12 @@ import type { ChatListItemBoxProps } from './ChatListItemBox';
 export const ChatListItemLastMessageAuthor = customize(
   'ChatListItemLastMessageAuthor',
   (props: ChatListItemBoxProps) => {
-    const { message } = props.chat;
+    const { lastMessage } = props.chat;
 
-    if (message.sentBy.id === 'chatify::system') {
+    if (lastMessage.sentBy.id === 'chatify::system') {
       return null;
     }
 
-    return <div className="wxchtf-chat-last-author">{message.sentBy.name}</div>;
+    return <div className="wxchtf-chat-last-author">{lastMessage.sentBy.name}</div>;
   },
 );

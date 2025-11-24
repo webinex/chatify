@@ -5,6 +5,8 @@
 @use './chat.scss';
 @use './input.scss';
 @use './members.scss';
+@use './chat-list.scss';
+@use './conversation.scss';
 
 .wxchtf-message.--my .wxchtf-file-list .wxchtf-file {
   background-color: darken($color: vars.$myMessageBackground, $amount: 3%);

@@ -14,7 +14,7 @@ export const ChatMembersPreview = customize('ChatMembersPreview', () => {
   }
 
   return (
-    <AntdAvatar.Group maxCount={5}>
+    <AntdAvatar.Group max={{ count: 5 }}>
       {chat.members.map((x) => (
         <Tooltip key={x.id} title={x.name}>
           <Avatar account={x} />

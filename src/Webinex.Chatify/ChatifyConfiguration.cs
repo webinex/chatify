@@ -21,6 +21,7 @@ public interface IChatifyConfiguration
 {
     IServiceCollection Services { get; }
     IChatifyConfiguration UseDataConnection(Func<DataOptions, DataOptions> configure);
+    IChatifyConfiguration AddAudit();
 }
 
 internal class ChatifyConfiguration : IChatifyConfiguration
@@ -78,7 +79,13 @@ internal class ChatifyConfiguration : IChatifyConfiguration
         return this;
     }
 
-    public static ChatifyConfiguration GetOrCreate(IServiceCollection services)
+    public IChatifyConfiguration AddAudit()
+    {
+        Services.AddScoped<IChatifyAuditInteractor, ChatifyAuditInteractor>();
+        return this;
+    }
+
+    internal static ChatifyConfiguration GetOrCreate(IServiceCollection services)
     {
         services = services ?? throw new ArgumentNullException(nameof(services));
 

@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import React, { useContext } from 'react';
 import { SystemMessageText } from '../core';
 
-export interface Localizer {
+export interface LocalizerBase {
   isToday: (value: string) => boolean;
   timestamp: (value: string) => string;
   dateTime: (value: string) => string;
@@ -39,7 +39,13 @@ export interface Localizer {
     kb: (value: number) => string;
     mb: (value: number) => string;
   };
+
+  chatList: {
+    topShown: (count: number) => string;
+  };
 }
+
+export interface Localizer extends LocalizerBase {}
 
 export const LocalizerContext = React.createContext<Localizer>(null!);
 
@@ -47,7 +53,7 @@ export function useLocalizer() {
   return useContext(LocalizerContext);
 }
 
-export const defaultLocalizer: Localizer = {
+const base: LocalizerBase = {
   isToday: (value: string) => dayjs(value).isSame(dayjs(), 'day'),
   timestamp: (value: string) => dayjs(value).format('HH:mm'),
   dateTime: (value: string) => dayjs(value).format('DD/MM/YYYY HH:mm'),
@@ -93,4 +99,10 @@ export const defaultLocalizer: Localizer = {
     mb: (value: number) =>
       `${value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })} MB`,
   },
+
+  chatList: {
+    topShown: (count: number) => `Latest active ${count} chat${count !== 1 ? 's' : ''} shown`,
+  },
 };
+
+export const defaultLocalizer: Localizer = base as unknown as Localizer;

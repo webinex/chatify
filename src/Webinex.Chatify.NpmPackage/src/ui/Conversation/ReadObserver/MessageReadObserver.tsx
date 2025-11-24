@@ -20,7 +20,7 @@ const Observer: FC<MessageReadObserverProps> = (props) => {
       new IntersectionObserver(([entry]) => {
         if (entry.isIntersecting && !readRef.current) {
           readRef.current = true;
-          onRead(message.id);
+          onRead?.(message.id);
         }
       }),
 

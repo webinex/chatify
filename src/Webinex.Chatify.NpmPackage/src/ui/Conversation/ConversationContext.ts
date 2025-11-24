@@ -15,11 +15,12 @@ export interface ConversationContextValue extends ConversationValue {
   nextLoading: boolean;
   noReadTracking?: boolean;
 
-  isReading: (id: string) => boolean;
+  isReading?: (id: string) => boolean;
   onNext: () => void;
-  onSend: (message: MessageBody) => void;
-  onRead: (id: string) => void;
+  onSend?: (message: MessageBody) => void;
+  onRead?: (id: string) => void;
   flippo?: Flippo;
+  onClose?: () => void;
 }
 
 export const ConversationContext = React.createContext<ConversationContextValue>(undefined!);

@@ -65,12 +65,9 @@ internal class ChatifyDataConnection : DataConnection
             .DeleteAsync();
     }
 
-    public async Task<int> IncrementMetaIndexWithUpdLockAsync(Guid chatId)
+    public async Task<ChatMetaRow> GetMetaWithUpdLockAsync(Guid chatId)
     {
-        var meta = await ChatMetaRows.AsSqlServer().WithUpdLock().FirstAsync(x => x.ChatId == chatId);
-        meta.Increment();
-        await this.UpdateAsync(meta);
-        return meta.LastIndex;
+        return await ChatMetaRows.AsSqlServer().WithUpdLock().FirstAsync(x => x.ChatId == chatId);
     }
 
     public async Task DeactivateChatActivityAsync(Guid chatId, string accountId)

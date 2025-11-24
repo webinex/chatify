@@ -141,6 +141,11 @@ export interface SendThreadMessageRequest {
   body: MessageBody;
 }
 
+export interface ListSegment<T> {
+  items: T[];
+  total: number;
+}
+
 export type SystemMessageText =
   | 'chatify://chat-created'
   | 'chatify://member-added'

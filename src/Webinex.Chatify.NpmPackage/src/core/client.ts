@@ -160,7 +160,7 @@ export class ChatifyClient {
     return () => this._reconnectSubscribers.filter((x) => x !== subscriber);
   };
 
-  private get axios() {
+  public get axios() {
     return this._config.axios;
   }
 
