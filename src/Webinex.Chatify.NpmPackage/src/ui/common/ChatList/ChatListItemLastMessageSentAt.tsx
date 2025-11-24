@@ -7,7 +7,7 @@ export const ChatListItemLastMessageSentAt = customize(
   (props: ChatListItemBoxProps) => {
     const {
       chat: {
-        message: { sentAt },
+        lastMessage: { sentAt },
       },
     } = props;
 

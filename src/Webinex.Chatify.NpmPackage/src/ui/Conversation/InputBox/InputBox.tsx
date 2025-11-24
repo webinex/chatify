@@ -15,6 +15,10 @@ function useFormState() {
   const { onUpload, files, loading, setFiles, showFileBox, onDeleteFile } = useFlippoInputFileBox();
 
   const onSubmit = useCallback(() => {
+    if (!onSend) {
+      return;
+    }
+
     const textValue = text.trim().length === 0 ? null : text.trim();
 
     if ((!textValue && files.length === 0) || loading) {

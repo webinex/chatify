@@ -33,16 +33,16 @@ internal class AddChatService : IAddChatService
 
         var readForId = args.OnBehalfOf.IsSystem() ? null : args.OnBehalfOf.Id;
         var chatRow = ChatRow.New(args.Name, args.OnBehalfOf.Id);
-        var chatMeta = ChatMetaRow.New(chatRow.Id);
         var messageRow = ChatMessageRow.NewChatCreated(chatRow.Id);
+        var chatMeta = ChatMetaRow.New(chatRow.Id, messageRow.Id);
         var chatMembers = args.Members.Select(x => ChatMemberRow.NewInitial(chatRow, messageRow, x))
             .ToArray();
         var chatActivities = args.Members.Select(x => ChatActivityRow.NewInitial(chatRow, messageRow, x, x == readForId))
             .ToArray();
         
         await connection.InsertAsync(chatRow);
-        await connection.InsertAsync(chatMeta);
         await connection.InsertAsync(messageRow);
+        await connection.InsertAsync(chatMeta);
         await connection.BulkCopyAsync(chatMembers);
         await connection.BulkCopyAsync(chatActivities);
 

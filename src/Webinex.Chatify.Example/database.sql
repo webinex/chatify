@@ -32,17 +32,17 @@ begin try
 
             create table [chatify].[Accounts]
             (
-                Id                  varchar(250)    not null
-                            constraint PK_Accounts
-                                primary key,
-                WorkspaceId         varchar(250)    not null,
-                Avatar              nvarchar(500),
-                Name                nvarchar(500)   not null,
-                Type                int             not null,
-                AutoReplyText       nvarchar(max)   null,
-                AutoReplyStart      datetimeoffset  null,
-                AutoReplyEnd        datetimeoffset  null,
-                Active              bit             not null
+                Id             varchar(250)   not null
+                    constraint PK_Accounts
+                        primary key,
+                WorkspaceId    varchar(250)   not null,
+                Avatar         nvarchar(500),
+                Name           nvarchar(500)  not null,
+                Type           int            not null,
+                AutoReplyText  nvarchar(max)  null,
+                AutoReplyStart datetimeoffset null,
+                AutoReplyEnd   datetimeoffset null,
+                Active         bit            not null
             )
 
             -- =============================
@@ -66,19 +66,6 @@ begin try
                 on chatify.Chats (CreatedById)
 
             -- =============================
-            -- ======== CHAT META ==========
-            -- =============================
-
-            create table [chatify].[ChatMeta]
-            (
-                ChatId    uniqueidentifier not null
-                    constraint FK_ChatMeta_Chats_ChatId
-                        references chatify.Chats
-                    primary key,
-                LastIndex int              not null
-            )
-
-            -- =============================
             -- ====== CHAT MESSAGES ========
             -- =============================
 
@@ -94,6 +81,22 @@ begin try
                         references chatify.Accounts,
                 SentAt   datetimeoffset   not null,
                 Files    nvarchar(max)    null
+            )
+
+            -- =============================
+            -- ======== CHAT META ==========
+            -- =============================
+
+            create table [chatify].[ChatMeta]
+            (
+                ChatId        uniqueidentifier not null
+                    constraint FK_ChatMeta_Chats_ChatId
+                        references chatify.Chats
+                    primary key,
+                LastIndex     int              not null,
+                LastMessageId varchar(65)      not null
+                    constraint FK_ChatMeta_ChatMessages_LastMessageId
+                        references chatify.ChatMessages
             )
 
             -- =============================

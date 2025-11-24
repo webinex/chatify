@@ -1,7 +1,7 @@
 import * as React from 'react';
 import './App.css';
-import '../dist/css/chatify.css';
 import { ChatifyClient, chatifyApi } from '../src';
+import '../src/audit';
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
 import { LoginPage } from './pages/LoginPage';
@@ -14,6 +14,7 @@ import { WatchThreadListPage } from './pages/WatchThreadListPage';
 import { ChatPage } from './pages/ChatPage';
 import { CHATIFY_AXIOS } from './client';
 import { UpdateThreadPage } from './pages/UpdateThreadPage';
+import { AuditPage } from './pages/AuditPage';
 
 function useReduxStore(me: string | null) {
   return React.useMemo(
@@ -48,7 +49,7 @@ function useConfigureChatify(me: string | null) {
     const chatifyClient = new ChatifyClient({
       axios: CHATIFY_AXIOS,
       signalR: {
-        hubUri: process.env['HUB_URI'],
+        hubUri: import.meta.env.VITE_HUB_URI,
         headersFactory: () => Promise.resolve({ 'X-USER-ID': localStorage.getItem('chatify://me')! }),
         accessTokenFactory: () => Promise.resolve(me),
       },
@@ -81,6 +82,7 @@ export function App() {
               <Route path="/thread/add" element={<CreateThreadPage me={me} />} />
               <Route path="/thread/:id" element={<ThreadPage />} />
               <Route path="/thread/:id/update" element={<UpdateThreadPage me={me} />} />
+              <Route path="/audit" element={<AuditPage />} />
               <Route index element={<Navigate to="/chat" />} />
             </Routes>
           </Layout>

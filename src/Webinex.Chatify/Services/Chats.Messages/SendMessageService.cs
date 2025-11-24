@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using LinqToDB;
 using Webinex.Chatify.Abstractions;
 using Webinex.Chatify.Abstractions.Events;
 using Webinex.Chatify.Common;
@@ -42,9 +43,11 @@ internal class SendMessageService : ISendMessageService
         await using var connection = _dataConnectionFactory.Create();
         await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.ReadCommitted);
 
-        var index = await connection.IncrementMetaIndexWithUpdLockAsync(args.ChatId);
-        var messageRow = ChatMessageRow.NewBody(args.ChatId, index, args.OnBehalfOf.Id, args.Body.Text, args.Body.Files);
+        var meta = await connection.GetMetaWithUpdLockAsync(args.ChatId);
+        var messageRow = ChatMessageRow.NewBody(args.ChatId, meta.LastIndex + 1, args.OnBehalfOf.Id, args.Body.Text, args.Body.Files);
+        meta.Increment(messageRow.Id);
         await connection.SendMessageAsync(messageRow, readForId: args.OnBehalfOf.Id);
+        await connection.UpdateAsync(meta);
 
         await transaction.CommitAsync();
         

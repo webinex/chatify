@@ -48,18 +48,20 @@ internal class AddChatMemberService : IAddChatMemberService
         await using var connection = _connectionFactory.Create();
         await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.ReadCommitted);
 
-        var index = await connection.IncrementMetaIndexWithUpdLockAsync(args.ChatId);
+        var meta = await connection.GetMetaWithUpdLockAsync(args.ChatId);
         await connection.DeleteMembershipAsync(args.ChatId, args.AccountId);
 
-        var messageRow = ChatMessageRow.NewMemberAdded(args.ChatId, index);
+        var messageRow = ChatMessageRow.NewMemberAdded(args.ChatId, meta.LastIndex + 1);
         await connection.InsertAsync(messageRow);
+        meta.Increment(messageRow.Id);
+        await connection.UpdateAsync(meta);
 
         var memberRow = ChatMemberRow.NewAdded(args.ChatId, args.AccountId, args.OnBehalfOf.Id,
             ChatMessageId.New(args.ChatId, 0).ToString());
         await connection.InsertAsync(memberRow);
 
         var newActivityRow = new ChatActivityRow(args.ChatId, args.AccountId, AccountContext.System.Id,
-            messageRow.Id, true, ChatMessageId.New(args.ChatId, index - 1).ToString());
+            messageRow.Id, true, ChatMessageId.New(args.ChatId, meta.LastIndex - 1).ToString());
         await connection.InsertOrReplaceAsync(newActivityRow);
 
         var readForId = !args.OnBehalfOf.IsSystem() ? args.OnBehalfOf.Id : null;
@@ -79,10 +81,12 @@ internal class AddChatMemberService : IAddChatMemberService
         await using var connection = _connectionFactory.Create();
         await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.ReadCommitted);
 
-        var index = await connection.IncrementMetaIndexWithUpdLockAsync(args.ChatId);
+        var meta = await connection.GetMetaWithUpdLockAsync(args.ChatId);
         var readForId = !args.OnBehalfOf.IsSystem() ? args.OnBehalfOf.Id : null;
-        var messageRow = ChatMessageRow.NewMemberAdded(args.ChatId, index);
+        var messageRow = ChatMessageRow.NewMemberAdded(args.ChatId, meta.LastIndex + 1);
+        meta.Increment(messageRow.Id);
         await connection.SendMessageAsync(messageRow, readForId: readForId);
+        await connection.UpdateAsync(meta);
 
         await connection.InsertAsync(ChatMemberRow.NewAdded(args.ChatId, args.AccountId, args.OnBehalfOf.Id,
             messageRow.Id));

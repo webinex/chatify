@@ -30,7 +30,19 @@ export interface ConversationCustomizeValue
 }
 
 export const Conversation = customize('Conversation', (props: ConversationProps) => {
-  const { value, hasMore, messages, nextLoading, onNext, onRead, onSend, isReading, noReadTracking } = props;
+  const {
+    value,
+    hasMore,
+    messages,
+    nextLoading,
+    onNext,
+    onRead,
+    onSend,
+    isReading,
+    noReadTracking,
+    onClose,
+  } = props;
+
   const { id, active, name, lastReadMessageId } = value;
 
   const context = useMemo<ConversationContextValue>(
@@ -47,6 +59,7 @@ export const Conversation = customize('Conversation', (props: ConversationProps)
       onSend,
       isReading,
       noReadTracking,
+      onClose,
     }),
     [
       id,
@@ -61,6 +74,7 @@ export const Conversation = customize('Conversation', (props: ConversationProps)
       lastReadMessageId,
       isReading,
       noReadTracking,
+      onClose,
     ],
   );
 

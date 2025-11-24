@@ -17,7 +17,7 @@ export interface DebounceConfig<T> {
 export class Debounce<T> {
   private _enqueued: DebounceInternalValue<T>[] = [];
   private _processing: DebounceInternalValue<T>[] = [];
-  private _timeoutByGroup: Record<string, NodeJS.Timeout> = {};
+  private _timeoutByGroup: Record<string, number> = {};
   private _subscribers: ((value: Debounce<T>) => any)[] = [];
 
   constructor(public config: DebounceConfig<T>) {}

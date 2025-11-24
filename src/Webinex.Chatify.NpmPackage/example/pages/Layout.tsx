@@ -47,6 +47,7 @@ export function Layout(props: LayoutProps) {
             )}
           </div>
           <div className="nav">
+            <NavLink to="/audit">Audit</NavLink>
             <NavLink to="/thread/add">+ Add Thread</NavLink>
             <NavLink to="/thread/watch">Threads ({unreadThreadMessageCount ?? 0})</NavLink>
             <NavLink to="/chat">Chat ({unreadChatMessageCount})</NavLink>

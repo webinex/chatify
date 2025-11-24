@@ -2,7 +2,7 @@ import { CSSProperties, FC, useEffect, useMemo, useRef } from 'react';
 import { Localizer, LocalizerContext, defaultLocalizer } from '../localizer';
 import { CreateChatPanelCustomizeValue } from './Create';
 import { ChatGroupBody, ChatGroupFooter, ChatGroupHeader, ChatGroupLayoutCustomizeValue } from './Layout';
-import { ChatListCustomizeValue } from './List';
+import { ChatListPanelCustomizeValue } from './List';
 import { ChatGroupContext, useChatGroupContext } from './ChatGroupContext';
 import { chatifyApi } from '../../core';
 import { CustomizeContext } from '../customize';
@@ -11,7 +11,7 @@ import { ChatViewCustomizeValue } from '../Chat';
 export interface ChatGroupCustomizeValue
   extends ChatViewCustomizeValue,
     CreateChatPanelCustomizeValue,
-    ChatListCustomizeValue,
+    ChatListPanelCustomizeValue,
     ChatGroupLayoutCustomizeValue {}
 
 export interface ChatifyProps {

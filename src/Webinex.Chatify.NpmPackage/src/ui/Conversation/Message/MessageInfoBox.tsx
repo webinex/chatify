@@ -12,7 +12,7 @@ export const MessageInfoBox = customize('MessageInfoBox', (props: MessageBoxProp
   const my = sentBy.id === me;
   const localizer = useLocalizer();
   const isRead = lastReadMessageId != null && id.localeCompare(lastReadMessageId) <= 0;
-  const reading = !isRead && isReading(id);
+  const reading = !isRead && isReading?.(id);
 
   return (
     <div className="wxchtf-message-info-box">

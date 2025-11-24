@@ -5,6 +5,7 @@ import { MessageSkeleton } from './MessageSkeleton';
 export * from './Avatar';
 export * from './Icon';
 export * from './MessageSkeleton';
+export * from './ChatList';
 
 export interface CommonCustomizeValue {
   Avatar?: typeof Avatar.Component | null;
