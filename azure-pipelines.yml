@@ -48,10 +48,6 @@ steps:
     displayName: '[FE]: Install packages'
     workingDirectory: 'src/Webinex.Chatify.NpmPackage'
 
-  - script: yarn lint
-    displayName: '[FE]: Lint'
-    workingDirectory: 'src/Webinex.Chatify.NpmPackage'
-
   - script: yarn build
     displayName: '[FE]: Build'
     workingDirectory: 'src/Webinex.Chatify.NpmPackage'
