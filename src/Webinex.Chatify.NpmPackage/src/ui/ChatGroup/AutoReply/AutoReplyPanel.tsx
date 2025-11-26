@@ -90,7 +90,6 @@ export const AutoReplyPanel = customize('AutoReplyPanel', () => {
           {localizer.autoReply.clearBtn()}
         </Button>
       </div>
-
       <AutoReplyForm value={value} busy={submitting ?? false} onSubmit={onSubmit} />
     </div>
   );
