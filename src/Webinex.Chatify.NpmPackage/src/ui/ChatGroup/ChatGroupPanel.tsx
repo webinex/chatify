@@ -7,9 +7,11 @@ import { ChatGroupContext, useChatGroupContext } from './ChatGroupContext';
 import { chatifyApi } from '../../core';
 import { CustomizeContext } from '../customize';
 import { ChatViewCustomizeValue } from '../Chat';
+import { AutoReplyCustomizeValue } from './AutoReply';
 
 export interface ChatGroupCustomizeValue
   extends ChatViewCustomizeValue,
+    AutoReplyCustomizeValue,
     CreateChatPanelCustomizeValue,
     ChatListPanelCustomizeValue,
     ChatGroupLayoutCustomizeValue {}
