@@ -1,7 +1,7 @@
 import React, { PropsWithChildren, useContext, useMemo, useState } from 'react';
 
 export interface ChatGroupContext {
-  view: 'chat' | 'new-chat' | null;
+  view: 'chat' | 'new-chat' | 'auto-reply' | null;
   chatId: string | null;
   showMembers: boolean;
 
@@ -9,6 +9,7 @@ export interface ChatGroupContext {
   openChat(chatId: string): void;
   toggleNewChat(): void;
   toggleMembers(): void;
+  toggleAutoReply(): void;
 }
 
 const ChatGroupReactContext = React.createContext<ChatGroupContext>(null!);
@@ -40,6 +41,16 @@ export function ChatGroupContext(props: PropsWithChildren<{}>) {
             return { ...prev, view: 'chat' };
           } else {
             return { ...prev, view: 'new-chat' };
+          }
+        }),
+      toggleAutoReply: () =>
+        setState((prev) => {
+          if (prev.view === 'auto-reply' && prev.chatId) {
+            return { ...prev, view: 'chat' };
+          } else if (prev.view === 'auto-reply' && !prev.chatId) {
+            return { ...prev, view: 'new-chat' };
+          } else {
+            return { ...prev, view: 'auto-reply' };
           }
         }),
     }),
