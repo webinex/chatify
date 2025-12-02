@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { ChatPanel, ChatPanelCustomizeValue } from '../../src';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Flippo } from '@webinex/flippo';
 import { FLIPPO_AXIOS } from '../client';
 

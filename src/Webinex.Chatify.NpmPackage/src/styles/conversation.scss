@@ -1,0 +1,200 @@
+@use './variables.scss' as vars;
+@use './mixins.scss' as mixins;
+
+.wxchtf-conversation {
+  flex: auto;
+  display: flex;
+  flex-flow: row nowrap;
+  min-width: 0;
+
+  .wxchtf-conversation-main {
+    flex: 1;
+    display: flex;
+    flex-flow: column nowrap;
+    min-width: 0;
+
+    .wxchtf-conversation-header {
+      padding: 15px 20px;
+      line-height: 24px;
+      z-index: 2;
+      box-shadow: 0px 2px 4px 0px rgba(88, 99, 107, 0.04), 0px 1px 9px -1px rgba(88, 99, 107, 0.04),
+        0px 1px 2px 0px rgba(88, 99, 107, 0.06);
+
+      .wxchtf-conversation-name {
+        font-weight: 600;
+        font-size: 16px;
+        flex: none;
+
+        &.--editable {
+          cursor: pointer;
+        }
+      }
+
+      .wxchtf-conversation-actions {
+        display: inline-flex;
+      }
+
+      .wxchtf-chat-members {
+        display: inline-flex;
+        gap: 6px;
+      }
+    }
+
+    .wxchtf-conversation-body {
+      flex: 1 1 auto;
+      height: 100px;
+      overflow-y: auto;
+      background: white;
+      padding: 2rem 1rem;
+      padding-right: 1rem;
+      display: flex;
+      flex-flow: column-reverse nowrap;
+      align-items: center;
+
+      @include mixins.scrollbar();
+
+      .wxchtf-message,
+      .wxchtf-sending-message,
+      .wxchtf-system-message,
+      .wxchtf-message-skeleton {
+        margin-bottom: 8px;
+        max-width: vars.$messageBoxWidth;
+        width: 100%;
+
+        &:first-child {
+          margin-bottom: 0;
+        }
+      }
+
+      .wxchtf-message,
+      .wxchtf-sending-message {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: flex-start;
+
+        & > div {
+          min-width: 0;
+        }
+
+        &:not(.--my) {
+          .wxchtf-message-content,
+          .wxchtf-sending-message-content {
+            border-bottom-left-radius: 0;
+          }
+        }
+
+        &.--my {
+          direction: rtl;
+          justify-content: flex-start;
+
+          .wxchtf-message-author {
+            display: none;
+          }
+
+          .wxchtf-message-content,
+          .wxchtf-sending-message-content {
+            direction: ltr;
+            border-bottom-right-radius: 0;
+            background-color: vars.$myMessageBackground;
+          }
+
+          .wxchtf-message-info-box {
+            text-align: right;
+          }
+        }
+
+        .wxchtf-message-author {
+          margin-right: 15px;
+          flex: none;
+
+          .ant-avatar {
+            @include mixins.avatarSize(vars.$avatarSize);
+          }
+        }
+
+        .wxchtf-message-info-box,
+        .wxchtf-sending-message-info-box {
+          text-align: left;
+          margin-bottom: 3px;
+
+          .wxchtf-message-author-name,
+          .wxchtf-message-sent-at,
+          .wxchtf-message-read-box,
+          .wxchtf-sending-message-sending-box {
+            display: inline-block;
+            font-size: 0.85em;
+            opacity: 0.5;
+          }
+
+          .wxchtf-message-sent-at,
+          .wxchtf-message-read-box,
+          .wxchtf-sending-message-sending-box {
+            margin-left: 5px;
+          }
+        }
+
+        .wxchtf-message-content,
+        .wxchtf-sending-message-content {
+          width: fit-content;
+          min-width: 300px;
+          max-width: 70%;
+          padding: 12px 19px;
+          background: white;
+          background-color: vars.$messageBackground;
+          display: block;
+          white-space: pre-wrap;
+          overflow-wrap: break-word;
+          border-radius: 24px;
+
+          .wxchtf-message-text {
+            line-height: 21px;
+          }
+        }
+      }
+
+      .wxchtf-system-message {
+        font-style: italic;
+        position: relative;
+        text-align: center;
+        color: #0e0f1799;
+
+        .wxchtf-text,
+        .wxchtf-timestamp {
+          position: relative;
+          z-index: 1;
+          padding-inline: 8px;
+          display: inline-block;
+          font-size: 0.85em;
+          background-color: white;
+        }
+
+        .wxchtf-timestamp {
+          padding-left: 10px;
+        }
+      }
+
+      .wxchtf-message-skeleton {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: flex-end;
+
+        .wxchtf-avatar {
+          margin-right: 15px;
+        }
+
+        .wxchtf-avatar .ant-skeleton-avatar {
+          width: vars.$avatarSize;
+          height: vars.$avatarSize;
+          line-height: vars.$avatarSize;
+        }
+
+        .wxchtf-content {
+          width: 300px;
+          height: 100px;
+          border-radius: vars.$messageBorderRadius;
+          border-bottom-left-radius: 0;
+        }
+      }
+    }
+  }
+}

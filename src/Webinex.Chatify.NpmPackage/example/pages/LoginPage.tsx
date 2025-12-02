@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { Avatar, Select } from 'antd';
 import { Account } from '../../src';
 
@@ -9,9 +9,9 @@ export interface LoginPageProps {
 export function LoginPage(props: LoginPageProps) {
   const { onLoggedIn } = props;
 
-  const [accounts, setAccounts] = React.useState<Account[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetch('/api/account')
       .then((x) => x.json())
       .then((x) => setAccounts(x));

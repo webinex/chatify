@@ -1,4 +1,3 @@
-import React from 'react';
 import { Chatify, ChatGroupCustomizeValue, ChatHeaderActions, useConversation } from '../../src';
 import { Button } from 'antd';
 import { Flippo } from '@webinex/flippo';

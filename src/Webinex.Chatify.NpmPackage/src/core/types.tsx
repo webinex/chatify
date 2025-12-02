@@ -111,6 +111,10 @@ export function chatId(messageId: string) {
   return messageId.slice(0, 36);
 }
 
+export function messageSequencePart(id: string) {
+  return id.slice(37);
+}
+
 export interface ThreadWatchListItem {
   id: string;
   name: string;
@@ -139,6 +143,11 @@ export interface ThreadMessage extends MessageBase {
 export interface SendThreadMessageRequest {
   threadId: string;
   body: MessageBody;
+}
+
+export interface ListSegment<T> {
+  items: T[];
+  total: number;
 }
 
 export type SystemMessageText =

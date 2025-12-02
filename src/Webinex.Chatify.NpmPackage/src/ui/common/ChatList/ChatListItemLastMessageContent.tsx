@@ -7,14 +7,14 @@ import type { ChatListItemBoxProps } from './ChatListItemBox';
 export const ChatListItemLastMessageContent = customize<FC<ChatListItemBoxProps>>(
   'ChatListItemLastMessageContent',
   (props) => {
-    const { message } = props.chat;
+    const { lastMessage } = props.chat;
     const localizer = useLocalizer();
 
     return (
       <div className="wxchtf-chat-last-message">
-        {message.sentBy.id === 'chatify::system'
-          ? message.text && formatSystemMessage(localizer, message.text)
-          : message.text}
+        {lastMessage.sentBy.id === 'chatify::system'
+          ? lastMessage.text && formatSystemMessage(localizer, lastMessage.text)
+          : lastMessage.text}
       </div>
     );
   },

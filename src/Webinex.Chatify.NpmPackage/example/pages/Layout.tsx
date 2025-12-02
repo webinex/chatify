@@ -47,11 +47,12 @@ export function Layout(props: LayoutProps) {
             )}
           </div>
           <div className="nav">
+            <NavLink to="/audit">Audit</NavLink>
             <NavLink to="/thread/add">+ Add Thread</NavLink>
             <NavLink to="/thread/watch">Threads ({unreadThreadMessageCount ?? 0})</NavLink>
             <NavLink to="/chat">Chat ({unreadChatMessageCount})</NavLink>
           </div>
-          <Button type="link" onClick={onLogout}>
+          <Button type="text" className="btn-logout" onClick={onLogout}>
             Logout
           </Button>
         </header>

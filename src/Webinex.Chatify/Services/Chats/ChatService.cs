@@ -70,11 +70,14 @@ internal class ChatService : IChatService
         await using var connection = _dataConnectionFactory.Create();
         await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.ReadCommitted);
 
-        var index = await connection.IncrementMetaIndexWithUpdLockAsync(args.Id);
+        var metaRow = await connection.GetMetaWithUpdLockAsync(args.Id);
         await connection.RenameChatAsync(args.Id, args.Name);
-        var messageRow = ChatMessageRow.NewChatRenamed(args.Id, index, args.Name);
+        var messageRow = ChatMessageRow.NewChatRenamed(args.Id, metaRow.LastIndex + 1, args.Name);
+        metaRow.Increment(messageRow.Id);
+        
         var readForId = args.OnBehalfOf.IsSystem() ? null : args.OnBehalfOf.Id;
         await connection.SendMessageAsync(messageRow, readForId: readForId);
+        await connection.UpdateAsync(metaRow);
 
         await transaction.CommitAsync();
 

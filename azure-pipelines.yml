@@ -42,14 +42,10 @@ steps:
   - task: NodeTool@0
     displayName: '[FE]: NodeJS'
     inputs:
-      versionSpec: '18.13.x'
+      versionSpec: '20.x'
 
   - script: yarn install --frozen-lockfile
     displayName: '[FE]: Install packages'
-    workingDirectory: 'src/Webinex.Chatify.NpmPackage'
-
-  - script: yarn lint
-    displayName: '[FE]: Lint'
     workingDirectory: 'src/Webinex.Chatify.NpmPackage'
 
   - script: yarn build

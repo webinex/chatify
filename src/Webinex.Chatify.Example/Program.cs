@@ -2,6 +2,7 @@ using LinqToDB;
 using Microsoft.Data.SqlClient;
 using Webinex.Chatify;
 using Webinex.Chatify.AspNetCore;
+using Webinex.Chatify.AspNetCore.Endpoints;
 using Webinex.Chatify.Example;
 using Webinex.Flippo;
 using Webinex.Flippo.AspNetCore;
@@ -21,12 +22,17 @@ builder.Services
             .WithExposedHeaders("x-coded-failure")));
 
 builder.Services
+    .AddSwaggerGen()
+    .AddEndpointsApiExplorer();
+
+builder.Services
     .AddHttpContextAccessor()
     .AddSignalR()
     .Services
     .AddScoped<IChatifyAspNetCoreContextProvider, ChatifyAspNetCoreContextProvider>()
     .AddChatify(x => x
-        .UseDataConnection(sql => sql.UseSqlServer(builder.Configuration.GetConnectionString("Db")!)));
+        .UseDataConnection(sql => sql.UseSqlServer(builder.Configuration.GetConnectionString("Db")!))
+        .AddAudit());
 
 builder.Services
     .AddControllers()
@@ -77,7 +83,11 @@ await using (var sql = new SqlConnection(builder.Configuration.GetConnectionStri
 app.UseCors();
 app.UseAuthorization();
 
+app.UseSwagger();
+app.UseSwaggerUI();
+
 app.MapControllers();
+app.MapChatifyAudit();
 app.MapHub<ExampleHub>("/api/chatify/hub");
 
 app.Run();

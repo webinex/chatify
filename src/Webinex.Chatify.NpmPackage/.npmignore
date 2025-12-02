@@ -1,9 +1,10 @@
-.parcel-cache
 .vscode
 example
 package.add.json
-rollup.config.mjs
+vite.config.mts
 eslintrc.json
 .prettierrc.yml
 yarn-error.log
 yarn.lock
+env.*
+index.html
