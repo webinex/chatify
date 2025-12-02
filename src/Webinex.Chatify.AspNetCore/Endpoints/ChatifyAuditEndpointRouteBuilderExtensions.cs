@@ -40,10 +40,14 @@ public static class ChatifyAuditEndpointRouteBuilderExtensions
             [FromServices] IOptions<JsonOptions> jsonOption,
             [FromQuery] string query) =>
         {
+            if (string.IsNullOrWhiteSpace(query))
+                return Results.BadRequest("Query parameter is required.");
+            
             var qObject = JsonSerializer.Deserialize<AuditChatMessageListSegmentQuery>(query,
                 jsonOption.Value.JsonSerializerOptions);
             qObject = qObject ?? throw new InvalidOperationException();
-            return await interactor.ChatMessageListSegmentAsync(qObject);
+            var result = await interactor.ChatMessageListSegmentAsync(qObject);
+            return Results.Ok(result);
         });
 
         return endpoints;

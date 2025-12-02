@@ -2,4 +2,4 @@
 
 namespace Webinex.Chatify.Abstractions;
 
-public record AuditChatMessageListSegmentQuery(Guid ChatId, PagingRule PagingRule, bool IncludeTotal = false);
+public record AuditChatMessageListSegmentQuery(Guid ChatId, PagingRule? PagingRule = null, bool IncludeTotal = false);

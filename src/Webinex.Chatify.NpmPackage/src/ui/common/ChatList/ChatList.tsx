@@ -4,6 +4,7 @@ import { ChatListItemBox } from './ChatListItemBox';
 import { customize } from '../../customize';
 import { ChatListValue } from './ChatListValue';
 import { useLocalizer } from '../../localizer';
+import { messageSequencePart } from '../../../core';
 
 export interface ChatListProps {
   className?: string;
@@ -35,13 +36,16 @@ function useOnSelect(props: ChatListProps) {
 }
 
 function useMenuItems(props: ChatListProps) {
+  //28b2a1a6-c052-4761-ad2d-95ce36d59f06-000000001
   const { items, noRead, top } = props;
   const localizer = useLocalizer();
 
   return useMemo<MenuProps['items']>(() => {
     const result = items
       ?.slice()
-      .sort((a, b) => -a.lastMessage.id.substring(47).localeCompare(b.lastMessage.id.substring(47)))
+      .sort(
+        (a, b) => -messageSequencePart(a.lastMessage.id).localeCompare(messageSequencePart(b.lastMessage.id)),
+      )
       .map((x) => ({ key: x.id, label: <ChatListItemBox chat={x} noRead={noRead} /> }));
 
     if (top != null) {

@@ -69,6 +69,19 @@ header .nav {
   gap: 20px;
 }
 
+header .nav a {
+  color: #1677ff;
+  text-decoration: none;
+}
+
+header .btn-logout {
+  margin-inline-start: 20px;
+}
+
+header .nav a:hover {
+  color: #69b1ff;
+}
+
 header .user-info {
   height: 50px;
   line-height: 50px;

@@ -97,7 +97,7 @@ export const auditApi = chatifyApi.injectEndpoints({
       infiniteQueryOptions: {
         initialPageParam: { skip: 0, take: 20 },
         getNextPageParam: (lastPage, _, lastPageParam) =>
-          lastPage.total >= lastPageParam.skip + lastPageParam.take
+          lastPage.total > lastPageParam.skip + lastPageParam.take
             ? {
                 skip: lastPageParam.skip + lastPageParam.take,
                 take: lastPageParam.take,

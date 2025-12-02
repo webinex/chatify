@@ -111,6 +111,10 @@ export function chatId(messageId: string) {
   return messageId.slice(0, 36);
 }
 
+export function messageSequencePart(id: string) {
+  return id.slice(37);
+}
+
 export interface ThreadWatchListItem {
   id: string;
   name: string;
