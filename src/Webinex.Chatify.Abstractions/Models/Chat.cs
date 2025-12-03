@@ -3,6 +3,7 @@
 public class Chat
 {
     public Guid Id { get; }
+    public string WorkspaceId { get; }
     public string Name { get; }
     public DateTimeOffset CreatedAt { get; }
     public string CreatedById { get; }
@@ -14,6 +15,7 @@ public class Chat
 
     public Chat(
         Guid id,
+        string workspaceId,
         string name,
         DateTimeOffset createdAt,
         string createdById,
@@ -30,6 +32,7 @@ public class Chat
         Active = active;
         LastMessage = lastMessage;
         TotalUnreadCount = totalUnreadCount;
+        WorkspaceId = workspaceId;
     }
 
     [Flags]

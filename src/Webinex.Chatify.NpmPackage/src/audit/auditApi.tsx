@@ -10,6 +10,7 @@ export interface GetAuditChatListQueryArgs {
 
 export interface AuditChatResponse {
   id: string;
+  workspaceId: string;
   name: string;
   createdAt: string;
   createdById: string;
@@ -27,6 +28,7 @@ export interface AuditChatMessage {
 
 export interface AuditChatListItem {
   id: string;
+  workspaceId: string;
   name: string;
   createdAt: string;
   createdById: string;
@@ -35,6 +37,7 @@ export interface AuditChatListItem {
 
 export interface AuditChat {
   id: string;
+  workspaceId: string;
   name: string;
   createdAt: string;
   createdById: string;

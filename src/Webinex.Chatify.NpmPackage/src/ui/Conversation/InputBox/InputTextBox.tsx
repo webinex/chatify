@@ -1,6 +1,6 @@
 import { Input } from 'antd';
 import { customize } from '../../customize';
-import isHotkey from 'is-hotkey';
+import { isHotkey } from 'is-hotkey';
 import { RefObject, memo, useCallback } from 'react';
 import { useLocalizer } from '../../localizer';
 import { TextAreaProps } from 'antd/es/input';

@@ -54,6 +54,7 @@ begin try
                 Id          uniqueidentifier not null
                     constraint PK_Chats
                         primary key,
+                WorkspaceId varchar(250)     not null,
                 Name        nvarchar(500)    not null,
                 CreatedAt   datetimeoffset   not null,
                 CreatedById varchar(250)     not null

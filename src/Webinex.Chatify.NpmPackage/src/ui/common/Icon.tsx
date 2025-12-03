@@ -1,18 +1,20 @@
 import { FC } from 'react';
 import { customize } from '../customize';
-import SendOutlined from '@ant-design/icons/SendOutlined';
-import PaperClipOutlined from '@ant-design/icons/PaperClipOutlined';
-import UserAddOutlined from '@ant-design/icons/UserAddOutlined';
-import UsergroupAddOutlined from '@ant-design/icons/UsergroupAddOutlined';
-import UserDeleteOutlined from '@ant-design/icons/UserDeleteOutlined';
-import UsergroupDeleteOutlined from '@ant-design/icons/UsergroupDeleteOutlined';
-import TeamOutlined from '@ant-design/icons/TeamOutlined';
-import EditOutlined from '@ant-design/icons/EditOutlined';
-import CloseOutlined from '@ant-design/icons/CloseOutlined';
-import EyeInvisibleOutlined from '@ant-design/icons/EyeInvisibleOutlined';
-import EyeOutlined from '@ant-design/icons/EyeOutlined';
-import DeleteOutlined from '@ant-design/icons/DeleteOutlined';
-import DownloadOutlined from '@ant-design/icons/DownloadOutlined';
+import {
+  SendOutlined,
+  PaperClipOutlined,
+  UserAddOutlined,
+  UsergroupAddOutlined,
+  UserDeleteOutlined,
+  UsergroupDeleteOutlined,
+  TeamOutlined,
+  EditOutlined,
+  CloseOutlined,
+  EyeInvisibleOutlined,
+  EyeOutlined,
+  DeleteOutlined,
+  DownloadOutlined,
+} from '@ant-design/icons';
 
 export type IconType = keyof typeof ICONS;
 

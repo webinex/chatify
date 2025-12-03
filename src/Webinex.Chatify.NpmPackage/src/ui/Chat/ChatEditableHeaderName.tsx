@@ -2,7 +2,7 @@ import { Input, Tooltip } from 'antd';
 import { chatifyApi } from '../../core';
 import { customize } from '../customize';
 import { useEffect, useState } from 'react';
-import isHotkey from 'is-hotkey';
+import { isHotkey } from 'is-hotkey';
 import { useConversation } from '../Conversation';
 
 const isEscape = isHotkey('escape');

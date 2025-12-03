@@ -11,7 +11,7 @@ internal class ChatMessageRow
     public string? Text { get; protected init; }
     public string AuthorId { get; protected init; } = null!;
     public DateTimeOffset SentAt { get; protected init; }
-    public IReadOnlyCollection<File> Files { get; protected init; } = Array.Empty<File>();
+    public IReadOnlyCollection<File> Files { get; protected init; } = [];
     public AccountRow Author { get; protected init; } = null!;
 
     internal ChatMessageRow(
