@@ -2,7 +2,7 @@
   "name": "@webinex/chatify",
   "description": "Webinex Chatify",
   "private": false,
-  "version": "2.0.0-alpha9",
+  "version": "2.0.0-alpha10",
   "author": "Webinex Dev",
   "license": "Apache-2.0",
   "type": "module",

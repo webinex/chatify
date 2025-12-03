@@ -1,7 +1,7 @@
 ﻿<Project>
     <PropertyGroup>
         <Title>Webinex Chatify</Title>
-        <PackageVersion>2.0.0-alpha9</PackageVersion>
+        <PackageVersion>2.0.0-alpha10</PackageVersion>
         <Authors>Webinex Dev</Authors>
         <NoWarn>$(NoWarn);CS1591</NoWarn>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
