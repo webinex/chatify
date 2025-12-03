@@ -2,20 +2,20 @@
   "name": "@webinex/chatify",
   "description": "Webinex Chatify",
   "private": false,
-  "version": "2.0.0-build202511241945",
+  "version": "2.0.0-alpha9",
   "author": "Webinex Dev",
   "license": "Apache-2.0",
   "type": "module",
-  "main": "dist/index.mjs",
-  "module": "dist/index.mjs",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
   "types": "dist/types/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
+      "import": "./dist/index.js",
       "types": "./dist/types/index.d.ts"
     },
     "./audit": {
-      "import": "./dist/audit.mjs",
+      "import": "./dist/audit.js",
       "types": "./dist/types/audit/index.d.ts"
     }
   },

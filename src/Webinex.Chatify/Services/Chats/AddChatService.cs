@@ -32,7 +32,7 @@ internal class AddChatService : IAddChatService
         await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.ReadCommitted);
 
         var readForId = args.OnBehalfOf.IsSystem() ? null : args.OnBehalfOf.Id;
-        var chatRow = ChatRow.New(args.Name, args.OnBehalfOf.Id);
+        var chatRow = ChatRow.New(args.WorkspaceId ?? args.OnBehalfOf.WorkspaceId, args.Name, args.OnBehalfOf.Id);
         var messageRow = ChatMessageRow.NewChatCreated(chatRow.Id);
         var chatMeta = ChatMetaRow.New(chatRow.Id, messageRow.Id);
         var chatMembers = args.Members.Select(x => ChatMemberRow.NewInitial(chatRow, messageRow, x))

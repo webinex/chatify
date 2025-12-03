@@ -23,6 +23,9 @@ internal class ChatifyAuditInteractor : IChatifyAuditInteractor
         await using var connection = _dataConnectionFactory.Create();
         var queryable = connection.ChatRows.AsQueryable();
 
+        if (query.WorkspaceId != null)
+            queryable = queryable.Where(x => x.WorkspaceId == query.WorkspaceId);
+
         if (!string.IsNullOrWhiteSpace(query.SearchString))
             queryable = queryable.Where(x => x.Name.Contains(query.SearchString));
 
@@ -67,7 +70,7 @@ internal class ChatifyAuditInteractor : IChatifyAuditInteractor
 
     private AuditChat MapChat(ChatRow chatRow, ChatMessageRow? lastMessageRow = null, AccountRow? accountRow = null)
     {
-        return new AuditChat(chatRow.Id, chatRow.Name, chatRow.CreatedAt, chatRow.CreatedById,
+        return new AuditChat(chatRow.Id, chatRow.WorkspaceId, chatRow.Name, chatRow.CreatedAt, chatRow.CreatedById,
             lastMessageRow != null ? MapMessage(lastMessageRow, accountRow!) : null);
     }
 

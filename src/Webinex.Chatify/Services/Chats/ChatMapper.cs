@@ -35,6 +35,7 @@ internal static class ChatMapper
 
         return new Chat(
             id: chat.Id,
+            workspaceId: chat.WorkspaceId,
             name: chat.Name,
             createdAt: chat.CreatedAt,
             createdById: chat.CreatedById,
