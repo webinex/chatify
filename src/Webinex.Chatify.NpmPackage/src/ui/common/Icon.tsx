@@ -14,6 +14,7 @@ import {
   EyeOutlined,
   DeleteOutlined,
   DownloadOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
 
 export type IconType = keyof typeof ICONS;
@@ -37,6 +38,7 @@ export const ICONS = {
   unwatch: EyeInvisibleOutlined,
   'delete-file': DeleteOutlined,
   'open-file': DownloadOutlined,
+  settings: SettingOutlined,
 };
 
 export const Icon = customize<FC<IconProps>>('Icon', (props) => {
