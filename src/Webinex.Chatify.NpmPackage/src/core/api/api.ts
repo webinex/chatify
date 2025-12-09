@@ -56,6 +56,15 @@ const __chatifyApi = __baseApi.injectEndpoints({
       providesTags: ['account'],
     }),
 
+    getAccount: builder.query<Account | null, { id: string }>({
+      queryFn: async ({ id }) => {
+        const accounts = await __settings.client.accounts();
+        const account = accounts.find((x) => x.id === id) ?? null;
+        return { data: account };
+      },
+      providesTags: ['account'],
+    }),
+
     updateAccount: builder.mutation<void, UpdateAccountRequest>({
       queryFn: async (request) => {
         await __settings.client.updateAccount(request);

@@ -18,7 +18,7 @@ export interface AutoReplyFormProps {
 }
 
 export const AUTO_REPLY_FORM_INITIAL_VALUE: AutoReplyFormValue = {
-  period: null!,
+  period: [] as unknown as [Dayjs, Dayjs],
   text: '',
 };
 

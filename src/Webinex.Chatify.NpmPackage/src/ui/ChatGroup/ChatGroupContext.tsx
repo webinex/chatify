@@ -48,7 +48,7 @@ export function ChatGroupContext(props: PropsWithChildren<{}>) {
           if (prev.view === 'auto-reply' && prev.chatId) {
             return { ...prev, view: 'chat' };
           } else if (prev.view === 'auto-reply' && !prev.chatId) {
-            return { ...prev, view: 'new-chat' };
+            return { ...prev, view: null };
           } else {
             return { ...prev, view: 'auto-reply' };
           }

@@ -45,7 +45,7 @@ export interface LocalizerBase {
   };
 
   autoReply: {
-    buttonTitle: () => React.ReactNode;
+    buttonTitle: () => string;
     title: () => React.ReactNode;
     period: {
       label: () => React.ReactNode;

@@ -22,13 +22,11 @@ function mapToFormValue(autoReply?: AutoReply | null): AutoReplyFormValue {
 
 function useValue() {
   const meId = chatifyApi.settings.me();
-  const { data: accounts } = chatifyApi.useGetAccountListQuery();
+  const { data: me } = chatifyApi.useGetAccountQuery({ id: meId });
 
   const value = useMemo<AutoReplyFormValue>(() => {
-    const me = accounts?.find((x) => x.id === meId);
-
     return mapToFormValue(me?.autoReply);
-  }, [accounts, meId]);
+  }, [me]);
 
   return value;
 }
@@ -79,7 +77,7 @@ export const AutoReplyPanel = customize('AutoReplyPanel', () => {
   return (
     <div className="wxchtf-auto-reply-panel">
       <Button
-        onClick={() => toggleAutoReply()}
+        onClick={toggleAutoReply}
         className="wxchtf-auto-reply-panel-close"
         type="link"
         icon={<Icon type="close" />}
