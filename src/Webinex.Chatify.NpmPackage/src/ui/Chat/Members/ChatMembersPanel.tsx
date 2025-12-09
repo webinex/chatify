@@ -32,7 +32,7 @@ function useRemove(chatId: string, accountId: string, deleteHistory: boolean) {
 const ChatMemberListItem = customize('ChatMemberListItem', (props: ChatMemberListItemProps) => {
   const { chatId } = props;
   const { data: chat } = chatifyApi.useGetChatQuery({ id: chatId });
-  const { data: accounts } = chatifyApi.useGetAccountListQuery();
+  const { data: accounts } = chatifyApi.useGetAccountListQuery({});
   const account = accounts!.find((x) => x.id === props.id)!;
   const isMember = chat!.members.some((x) => x.id === account.id);
   const [onAddWithoutHistory] = useAdd(chatId, account.id, false);
@@ -82,7 +82,7 @@ const ChatMemberListItem = customize('ChatMemberListItem', (props: ChatMemberLis
 export const ChatMembersPanel = customize('ChatMembersPanel', () => {
   const { id } = useChatContext();
   const { data: chat } = chatifyApi.useGetChatQuery({ id });
-  const { data: accounts } = chatifyApi.useGetAccountListQuery();
+  const { data: accounts } = chatifyApi.useGetAccountListQuery({});
   const ordered = useMemo(
     () =>
       accounts

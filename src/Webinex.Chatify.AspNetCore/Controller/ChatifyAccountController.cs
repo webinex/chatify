@@ -14,9 +14,15 @@ internal class ChatifyAccountController : ControllerBase
     }
 
     [HttpGet("account")]
-    public async Task<IActionResult> GetAccountsAsync()
+    public async Task<IActionResult> GetAccountsAsync([FromQuery] IEnumerable<string>? ids = null)
     {
-        return new CodedActionResult(await _chatifyAspNetCoreService.GetAccountsAsync());
+        return new CodedActionResult(await _chatifyAspNetCoreService.GetAccountsAsync(ids: ids));
+    }
+
+    [HttpGet("account/me")]
+    public async Task<IActionResult> GetCurrentUserAccountAsync()
+    {
+        return new CodedActionResult(await _chatifyAspNetCoreService.GetCurrentUserAccountAsync());
     }
 
     [HttpPut("account/{accountId}")]

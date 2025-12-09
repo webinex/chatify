@@ -24,7 +24,7 @@ public interface IChatify
     Task<IReadOnlyDictionary<string, Account>> AccountByIdAsync(IEnumerable<string> ids, bool tryCache = false,
         bool required = true);
 
-    Task<IReadOnlyCollection<Account>> AccountsAsync(AccountContext? onBehalfOf = null);
+    Task<IReadOnlyCollection<Account>> AccountsAsync(AccountContext? onBehalfOf = null, IEnumerable<string>? ids = null);
     Task ReadAsync(ReadChatMessageArgs chatMessageArgs);
     Task<Account[]> AddAccountsAsync(IEnumerable<AddAccountArgs> commands);
 
