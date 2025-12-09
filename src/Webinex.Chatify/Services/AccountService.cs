@@ -10,7 +10,7 @@ namespace Webinex.Chatify.Services;
 
 internal interface IAccountService
 {
-    Task<IReadOnlyCollection<Account>> GetAllAsync(AccountContext? onBehalfOf = null);
+    Task<IReadOnlyCollection<Account>> GetAllAsync(AccountContext? onBehalfOf = null, IEnumerable<string>? ids = null);
 
     Task<IReadOnlyDictionary<string, Account>> ByIdAsync(
         IEnumerable<string> ids,
@@ -33,7 +33,7 @@ internal class AccountService : IAccountService
         _dataConnectionFactory = dataConnectionFactory;
     }
 
-    public async Task<IReadOnlyCollection<Account>> GetAllAsync(AccountContext? onBehalfOf = null)
+    public async Task<IReadOnlyCollection<Account>> GetAllAsync(AccountContext? onBehalfOf = null, IEnumerable<string>? ids = null)
     {
         await using var connection = _dataConnectionFactory.Create();
         var queryable = connection.AccountRows.AsQueryable();
@@ -41,6 +41,11 @@ internal class AccountService : IAccountService
         queryable = onBehalfOf != null
             ? queryable.Where(x => x.WorkspaceId == onBehalfOf.WorkspaceId)
             : queryable.Where(x => x.Id != AccountContext.System.Id);
+
+        if (ids != null)
+        {
+            queryable = queryable.Where(x => ids.Contains(x.Id));
+        }
 
         var result = await queryable.ToArrayAsync();
         return result.Select(x => x.ToAbstraction()).ToArray();

@@ -121,9 +121,9 @@ internal class Chatify : IChatify
         return _accountService.ByIdAsync(ids, tryCache, required);
     }
 
-    public Task<IReadOnlyCollection<Account>> AccountsAsync(AccountContext? onBehalfOf = null)
+    public Task<IReadOnlyCollection<Account>> AccountsAsync(AccountContext? onBehalfOf = null, IEnumerable<string>? ids = null)
     {
-        return _accountService.GetAllAsync(onBehalfOf);
+        return _accountService.GetAllAsync(onBehalfOf, ids);
     }
 
     public async Task ReadAsync(ReadChatMessageArgs chatMessageArgs)

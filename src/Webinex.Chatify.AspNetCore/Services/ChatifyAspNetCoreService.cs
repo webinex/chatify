@@ -15,7 +15,8 @@ public interface IChatifyAspNetCoreService
     Task<CodedResult> DeleteChatMemberAsync(Guid chatId, RemoveChatMemberRequestDto request);
     Task<CodedResult> UpdateChatNameAsync(Guid chatId, UpdateChatNameRequest request);
     Task<CodedResult> ReadAsync(ReadChatMessageRequestDto request);
-    Task<CodedResult<AccountDto[]>> GetAccountsAsync();
+    Task<CodedResult<AccountDto[]>> GetAccountsAsync(IEnumerable<string>? ids = null);
+    Task<CodedResult<AccountDto>> GetCurrentUserAccountAsync();
     Task<CodedResult<ChatMessageDto[]>> GetMessagesAsync(Guid chatId, PagingRule? pagingRule);
     Task<CodedResult> SendAsync(Guid chatId, SendChatMessageRequestDto request);
     Task<CodedResult<IReadOnlyCollection<ThreadListItemDto>>> GetWatchThreadsAsync(bool? archive);
@@ -114,12 +115,19 @@ internal class ChatifyAspNetCoreService : IChatifyAspNetCoreService
         return CodedResults.Success();
     }
 
-    public async Task<CodedResult<AccountDto[]>> GetAccountsAsync()
+    public async Task<CodedResult<AccountDto[]>> GetAccountsAsync(IEnumerable<string>? ids = null)
     {
         var context = await _contextProvider.GetAsync();
-        var result = await _chatify.AccountsAsync(onBehalfOf: context);
+        var result = await _chatify.AccountsAsync(onBehalfOf: context, ids: ids);
         var response = result.Select(x => new AccountDto(x)).ToArray();
         return CodedResults.Success(response);
+    }
+
+    public async Task<CodedResult<AccountDto>> GetCurrentUserAccountAsync()
+    {
+        var context = await _contextProvider.GetAsync();
+        var account = await _chatify.AccountByIdAsync(context.Id);
+        return CodedResults.Success(new AccountDto(account));
     }
 
     public async Task<CodedResult<ChatMessageDto[]>> GetMessagesAsync(

@@ -42,7 +42,7 @@ export const AuditSearch = customize('AuditSearch', (props: AuditSearchProps) =>
   const { className, onSearch } = props;
   const [searchValue, setSearchValue] = useState('');
   const [values, setValues] = useState<Value[]>([]);
-  const { data: accounts, isLoading } = chatifyApi.useGetAccountListQuery();
+  const { data: accounts, isLoading } = chatifyApi.useGetAccountListQuery({});
   const options = useOptions(accounts, searchValue);
   const localizer = useLocalizer();
 

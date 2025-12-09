@@ -164,8 +164,19 @@ export class ChatifyClient {
     return this._config.axios;
   }
 
-  public accounts = async () => {
-    const { data } = await this.axios.get<Account[]>('account');
+  public accounts = async (args: { ids?: string[] }) => {
+    const searchParams = new URLSearchParams();
+
+    args?.ids?.forEach((id) => {
+      searchParams.append('ids', encodeURIComponent(id));
+    });
+
+    const { data } = await this.axios.get<Account[]>(`account?${searchParams.toString()}`);
+    return data;
+  };
+
+  public currentUserAccount = async () => {
+    const { data } = await this.axios.get<Account>('account/me');
     return data;
   };
 
