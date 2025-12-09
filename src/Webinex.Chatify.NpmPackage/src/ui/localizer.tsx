@@ -43,6 +43,22 @@ export interface LocalizerBase {
   chatList: {
     topShown: (count: number) => string;
   };
+
+  autoReply: {
+    buttonTitle: () => string;
+    title: () => React.ReactNode;
+    period: {
+      label: () => React.ReactNode;
+      required: () => string;
+      format: () => string;
+    };
+    text: {
+      label: () => React.ReactNode;
+      required: () => string;
+    };
+    submitBtn: () => React.ReactNode;
+    clearBtn: () => React.ReactNode;
+  };
 }
 
 export interface Localizer extends LocalizerBase {}
@@ -102,6 +118,19 @@ const base: LocalizerBase = {
 
   chatList: {
     topShown: (count: number) => `Latest active ${count} chat${count !== 1 ? 's' : ''} shown`,
+  },
+
+  autoReply: {
+    buttonTitle: () => 'Auto-reply',
+    title: () => 'Auto-reply',
+    period: {
+      label: () => 'Period',
+      required: () => 'Please select start and end date',
+      format: () => 'DD/MM/YYYY',
+    },
+    text: { label: () => 'Message', required: () => 'Please enter message' },
+    submitBtn: () => 'Submit',
+    clearBtn: () => 'Clear',
   },
 };
 
