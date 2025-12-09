@@ -7,13 +7,15 @@ import { Icon } from '../../common/Icon';
 export const AutoReplyButton = customize('AutoReplyButton', () => {
   const { toggleAutoReply } = useChatGroupContext();
   const localizer = useLocalizer();
+  const titleText = localizer.autoReply.buttonTitle();
 
   return (
     <Button
       className="wxchtf-add-btn-settings"
       onClick={toggleAutoReply}
       icon={<Icon type="settings" />}
-      aria-label={String(localizer.autoReply.buttonTitle())}
+      title={titleText}
+      aria-label={titleText}
     />
   );
 });
