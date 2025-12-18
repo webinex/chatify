@@ -16,7 +16,7 @@ interface CheckboxListProps {
 
 function CheckboxList(props: CheckboxListProps) {
   const { value, onChange } = props;
-  const { data: accounts, isFetching } = chatifyApi.useGetAccountListQuery();
+  const { data: accounts, isFetching } = chatifyApi.useGetAccountListQuery({});
   const me = chatifyApi.settings.me();
   const dataSource = useMemo(() => accounts?.filter((x) => x.id !== me) ?? [], [accounts, me]);
 
