@@ -21,8 +21,7 @@ function mapToFormValue(autoReply?: AutoReply | null): AutoReplyFormValue {
 }
 
 function useValue() {
-  const meId = chatifyApi.settings.me();
-  const { data: me } = chatifyApi.useGetAccountQuery({ id: meId });
+  const { data: me } = chatifyApi.useGeCurrentUserAccountQuery();
 
   const value = useMemo<AutoReplyFormValue>(() => {
     return mapToFormValue(me?.autoReply);
