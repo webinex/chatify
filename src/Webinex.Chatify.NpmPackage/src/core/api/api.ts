@@ -12,6 +12,7 @@ import {
   Thread,
   ThreadMessage,
   ThreadWatchListItem,
+  UpdateAccountRequest,
   calcThreadListUnreadCount,
   chatId,
   parseThreadMessageId,
@@ -53,6 +54,19 @@ const __chatifyApi = __baseApi.injectEndpoints({
     getAccountList: builder.query<Account[], { ids?: string[] }>({
       queryFn: async (args) => ({ data: await __settings.client.accounts(args) }),
       providesTags: ['account'],
+    }),
+
+    geCurrentUserAccount: builder.query<Account | null, void>({
+      queryFn: async () => ({ data: await __settings.client.currentUserAccount() }),
+      providesTags: ['account'],
+    }),
+
+    updateAccount: builder.mutation<void, UpdateAccountRequest>({
+      queryFn: async (request) => {
+        await __settings.client.updateAccount(request);
+        return { data: null! };
+      },
+      invalidatesTags: ['account'],
     }),
 
     // ====================================================

@@ -83,17 +83,50 @@
     padding-inline: 0.5rem;
     margin-bottom: 1rem;
 
-    .wxchtf-add-btn {
+    .wxchtf-add-btn,
+    .wxchtf-add-btn-settings {
       border: none;
       background-color: #e4f7f7;
       height: 50px;
-      padding: 0;
       line-height: 50px;
-      min-width: 150px;
-      border-radius: 50px;
       font-weight: 600;
       opacity: 0.9;
       box-shadow: none;
+    }
+
+    > .wxchtf-add-btn {
+      padding: 0 24px;
+      min-width: 150px;
+      border-radius: 50px;
+    }
+
+    > .wxchtf-add-btn-settings {
+      padding: 0 16px;
+      min-width: 50px;
+      border-radius: 50px;
+    }
+
+    > .wxchtf-add-btn-group {
+      display: inline-flex;
+
+      .wxchtf-add-btn-wrapper {
+        width: auto;
+        padding-inline: 0;
+        margin-bottom: 0;
+      }
+
+      .wxchtf-add-btn {
+        padding: 0 18px;
+        min-width: 120px;
+        border-radius: 50px 0 0 50px;
+      }
+
+      .wxchtf-add-btn-settings {
+        padding: 0 14px;
+        min-width: 44px;
+        border-radius: 0 50px 50px 0;
+        border-left: 1px solid rgba(0, 0, 0, 0.06);
+      }
     }
   }
 }
@@ -108,7 +141,8 @@
   z-index: 2;
   min-width: 0;
 
-  .wxchtf-create-chat-panel {
+  .wxchtf-create-chat-panel,
+  .wxchtf-auto-reply-panel {
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;
@@ -116,7 +150,8 @@
     height: 100%;
     position: relative;
 
-    .wxchtf-create-chat-panel-close {
+    .wxchtf-create-chat-panel-close,
+    .wxchtf-auto-reply-panel-close {
       position: absolute;
       right: 25px;
       top: 25px;
@@ -126,7 +161,31 @@
       padding: 2rem;
       max-width: 700px;
       width: 100%;
+    }
+  }
 
+  .wxchtf-auto-reply-panel {
+    .wxchtf-auto-reply-panel-header {
+      width: 100%;
+      max-width: 700px;
+      padding: 0 2rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      h3 {
+        margin: 0;
+      }
+
+      .wxchtf-auto-reply-panel-clear {
+        padding: 0;
+      }
+    }
+  }
+
+  .wxchtf-create-chat-panel {
+    form {
       .wxchtf-create-chat-member-input-list {
         max-height: 15rem;
         overflow-y: auto;

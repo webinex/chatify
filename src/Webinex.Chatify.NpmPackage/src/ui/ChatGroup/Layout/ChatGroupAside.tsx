@@ -1,11 +1,11 @@
 import { customize } from '../../customize';
 import { ChatListPanel } from '../List';
-import { CreateChatButton } from '../Create/CreateChatButton';
+import { ChatGroupActions } from './ChatGroupActions';
 
 export const ChatGroupAside = customize('ChatGroupAside', () => {
   return (
     <div className="wxchtf-aside">
-      <CreateChatButton />
+      <ChatGroupActions />
       <ChatListPanel />
     </div>
   );
