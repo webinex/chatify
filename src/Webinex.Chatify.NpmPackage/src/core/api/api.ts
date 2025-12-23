@@ -1,4 +1,4 @@
-import { DEFAULT_MESSAGE_LIST_TAKE, __baseApi, __settings } from './baseApi';
+import { ChatifyApiSettings, DEFAULT_MESSAGE_LIST_TAKE, __baseApi, __settings } from './baseApi';
 import { useSelector } from 'react-redux';
 import {
   Account,
@@ -662,7 +662,13 @@ export function useUnreadThreadMessageCount() {
   return [count, state] as const;
 }
 
-export const chatifyApi = Object.assign(__chatifyApi, {
+type ChatifyApi = typeof __chatifyApi & {
+  settings: ChatifyApiSettings;
+  useChatListItem: typeof useChatListItem;
+  useUnreadThreadMessageCount: typeof useUnreadThreadMessageCount;
+};
+
+export const chatifyApi: ChatifyApi = Object.assign(__chatifyApi, {
   settings: __settings,
   useChatListItem,
   useUnreadThreadMessageCount,
