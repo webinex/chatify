@@ -19,6 +19,7 @@ public interface IChatifyAspNetCoreService
     Task<CodedResult<AccountDto>> GetCurrentUserAccountAsync();
     Task<CodedResult<ChatMessageDto[]>> GetMessagesAsync(Guid chatId, PagingRule? pagingRule);
     Task<CodedResult> SendAsync(Guid chatId, SendChatMessageRequestDto request);
+    Task<CodedResult> DeleteChatMessageAsync(Guid chatId, string messageId);
     Task<CodedResult<IReadOnlyCollection<ThreadListItemDto>>> GetWatchThreadsAsync(bool? archive);
     Task<CodedResult<ThreadDto?>> GetThreadAsync(string id);
 
@@ -157,6 +158,13 @@ internal class ChatifyAspNetCoreService : IChatifyAspNetCoreService
         var content = new MessageBody(request.Text, request.Files);
         await _chatify.SendMessagesAsync(new[]
             { new SendChatMessageArgs(chatId, content, context) });
+        return CodedResults.Success();
+    }
+
+    public async Task<CodedResult> DeleteChatMessageAsync(Guid chatId, string messageId)
+    {
+        var context = await _contextProvider.GetAsync();
+        await _chatify.RemoveMessagesAsync([new RemoveChatMessageArgs(chatId, messageId, context)]);
         return CodedResults.Success();
     }
 

@@ -1,3 +1,4 @@
+import { MessageActions } from './MessageActions';
 import { MessageAuthor } from './MessageAuthor';
 import { MessageBox } from './MessageBox';
 import { MessageContent } from './MessageContent';
@@ -15,6 +16,7 @@ export * from './MessageRow';
 export * from './MessageText';
 export * from './MessageFileList';
 export * from './MessageFile';
+export * from './MessageActions';
 
 export interface MessageCustomizeValue {
   MessageAuthor?: typeof MessageAuthor.Component | null;
@@ -25,4 +27,5 @@ export interface MessageCustomizeValue {
   MessageText?: typeof MessageText.Component | null;
   MessageFileList?: typeof MessageFileList.Component | null;
   MessageFile?: typeof MessageFile.Component | null;
+  MessageActions?: typeof MessageActions.Component | null;
 }

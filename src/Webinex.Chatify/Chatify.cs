@@ -54,6 +54,15 @@ internal class Chatify : IChatify
         return await _chatMessageService.SendRangeAsync(commands);
     }
 
+    public async Task RemoveMessagesAsync(IEnumerable<RemoveChatMessageArgs> commands)
+    {
+        commands = commands.ToArray();
+        if (!commands.Any()) return;
+
+        await _authorizationPolicy.AuthorizeRemoveChatMessageAsync(commands.ToArray());
+        await _chatMessageService.RemoveRangeAsync(commands);
+    }
+
     public async Task AddChatMembersAsync(IEnumerable<AddChatMemberArgs> commands)
     {
         commands = commands.ToArray();

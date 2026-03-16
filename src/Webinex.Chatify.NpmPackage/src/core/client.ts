@@ -17,6 +17,7 @@ import {
   ThreadMessage,
   ThreadWatchListItem as ThreadListItem,
   UpdateAccountRequest,
+  RemoveChatMessageRequest,
 } from './types';
 
 export interface ChatifySignalRConfig {
@@ -42,6 +43,7 @@ export const CHATIFY_SIGNALR_METHODS = [
   'chatify://chat-member-added',
   'chatify://chat-member-removed',
   'chatify://chat-name-changed',
+  'chatify://chat-message-removed',
 
   'chatify://thread-created',
   'chatify://thread-message-new',
@@ -73,6 +75,12 @@ export type ChatifySignalRArgsByMethod = {
     read: boolean,
   ];
   'chatify://chat-name-changed': [chatId: string, newName: string, message: ChatMessage, read: boolean];
+  'chatify://chat-message-removed': [
+    chatId: string,
+    removedMessageId: string,
+    authorId: string,
+    lastMessage: ChatMessage | null,
+  ];
 
   'chatify://thread-message-new': [threadId: string, message: ThreadMessage, readForId: string | null];
   'chatify://thread-message-read': [threadId: string, messageId: string];
@@ -211,6 +219,11 @@ export class ChatifyClient {
   public sendChatMessage = async (request: SendChatMessageRequest) => {
     const { chatId, ...rest } = request;
     await this.axios.post(`chat/${encodeURIComponent(chatId)}/message`, rest);
+  };
+
+  public removeChatMessage = async (request: RemoveChatMessageRequest) => {
+    const { chatId, messageId } = request;
+    await this.axios.delete(`chat/${encodeURIComponent(chatId)}/message/${encodeURIComponent(messageId)}`);
   };
 
   public readChatMessage = async (request: ReadChatMessageRequest) => {

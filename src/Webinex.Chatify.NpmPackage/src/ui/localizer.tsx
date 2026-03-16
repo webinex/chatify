@@ -11,6 +11,7 @@ export interface LocalizerBase {
     read: () => React.ReactNode;
     reading: () => React.ReactNode;
     sending: () => React.ReactNode;
+    removed: () => React.ReactNode;
   };
   addChat: {
     title: () => React.ReactNode;
@@ -77,6 +78,7 @@ const base: LocalizerBase = {
     read: () => 'Read',
     reading: () => 'Reading...',
     sending: () => 'Sending...',
+    removed: () => 'This message has been deleted',
   },
   addChat: {
     title: () => 'Add chat',

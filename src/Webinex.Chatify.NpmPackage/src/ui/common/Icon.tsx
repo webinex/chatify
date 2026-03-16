@@ -37,6 +37,7 @@ export const ICONS = {
   watch: EyeOutlined,
   unwatch: EyeInvisibleOutlined,
   'delete-file': DeleteOutlined,
+  'delete-message': DeleteOutlined,
   'open-file': DownloadOutlined,
   settings: SettingOutlined,
 };

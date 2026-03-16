@@ -53,6 +53,16 @@
 
       @include mixins.scrollbar();
 
+      .wxchtf-message:not(.--my) .wxchtf-message-actions {
+        display: none;
+      }
+
+      .wxchtf-message.--removed .wxchtf-message-actions {
+        .wxchtf-remove-message {
+          display: none;
+        }
+      }
+
       .wxchtf-message,
       .wxchtf-sending-message,
       .wxchtf-system-message,
@@ -96,6 +106,11 @@
             direction: ltr;
             border-bottom-right-radius: 0;
             background-color: vars.$myMessageBackground;
+
+            .wxchtf-message-removed {
+              font-style: italic;
+              opacity: 0.6;
+            }
           }
 
           .wxchtf-message-info-box {

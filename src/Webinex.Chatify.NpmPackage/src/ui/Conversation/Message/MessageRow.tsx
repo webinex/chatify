@@ -5,6 +5,7 @@ import { MessageContent } from './MessageContent';
 import { MessageBoxProps } from './MessageBox';
 import { MessageInfoBox } from './MessageInfoBox';
 import { chatifyApi } from '../../../core';
+import { MessageActions } from './MessageActions';
 
 export interface MessageRowProps extends MessageBoxProps {
   containerRef?: Ref<HTMLDivElement>;
@@ -17,11 +18,15 @@ export const MessageRow = customize('MessageRow', (props: MessageRowProps) => {
   const my = sentBy.id === me;
 
   return (
-    <div ref={containerRef} className={'wxchtf-message' + (my ? ' --my' : '')}>
+    <div
+      ref={containerRef}
+      className={'wxchtf-message' + (my ? ' --my' : '') + (message.removed ? ' --removed' : '')}
+    >
       <MessageAuthor {...props} />
       <div>
         <MessageInfoBox {...props} />
         <MessageContent {...props} />
+        <MessageActions {...props} />
       </div>
     </div>
   );

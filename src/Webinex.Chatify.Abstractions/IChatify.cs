@@ -7,6 +7,7 @@ public interface IChatify
     Task<Chat> AddChatAsync(AddChatArgs args);
     Task UpdateChatNameAsync(UpdateChatNameArgs args);
     Task<ChatMessage[]> SendMessagesAsync(IEnumerable<SendChatMessageArgs> commands);
+    Task RemoveMessagesAsync(IEnumerable<RemoveChatMessageArgs> commands);
     Task AddChatMembersAsync(IEnumerable<AddChatMemberArgs> commands);
     Task RemoveChatMembersAsync(IEnumerable<RemoveChatMemberArgs> commands);
     Task<Chat[]> QueryAsync(ChatQuery query);

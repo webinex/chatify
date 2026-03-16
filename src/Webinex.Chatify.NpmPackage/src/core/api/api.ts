@@ -7,6 +7,7 @@ import {
   ChatListItem,
   ChatMessage,
   RemoveChatMemberRequest,
+  RemoveChatMessageRequest,
   SendChatMessageRequest,
   SendThreadMessageRequest,
   Thread,
@@ -117,6 +118,15 @@ const __chatifyApi = __baseApi.injectEndpoints({
               }),
           ),
           __settings.client.subscribe(
+            'chatify://chat-message-removed',
+            ([chatId, removedMessageId, , lastMessage]) =>
+              id === chatId &&
+              updateCachedData((chat) => {
+                if (removedMessageId == chat.lastReadMessageId && lastMessage)
+                  chat.lastReadMessageId = lastMessage.id;
+              }),
+          ),
+          __settings.client.subscribe(
             'chatify://chat-message-read',
             ([events]) =>
               events.find((x) => x.chatId === id) &&
@@ -182,6 +192,28 @@ const __chatifyApi = __baseApi.injectEndpoints({
                 chat.totalUnreadCount++;
               }
             }),
+          ),
+          __settings.client.subscribe(
+            'chatify://chat-message-removed',
+            ([chatId, removedMessageId, authorId, lastMessage]) =>
+              updateCachedData((chatList) => {
+                const chat = chatList.find((x) => x.id === chatId);
+
+                if (!chat) {
+                  return;
+                }
+
+                if (chat.message.id !== removedMessageId) return;
+
+                if (lastMessage) {
+                  chat.message = lastMessage;
+                  chat.lastReadMessageId == lastMessage.id;
+                }
+
+                if (authorId !== __settings.me()) {
+                  chat.totalUnreadCount--;
+                }
+              }),
           ),
           __settings.client.subscribe('chatify://chat-message-read', ([events]) =>
             updateCachedData((chatList) => {
@@ -336,6 +368,25 @@ const __chatifyApi = __baseApi.injectEndpoints({
               );
           }),
 
+          __settings.client.subscribe(
+            'chatify://chat-message-removed',
+            ([eventChatId, removedMessageId, authorId]) => {
+              eventChatId === chatId &&
+                dispatch(
+                  chatifyApi.util.updateQueryData('getChatMessageList', { chatId }, (draft) => {
+                    const index = draft.messages.findIndex((m) => m.id === removedMessageId);
+                    if (index === -1) return;
+
+                    if (authorId === __settings.me()) {
+                      draft.messages[index].removed = true;
+                    } else {
+                      draft.messages.splice(index, 1);
+                    }
+                  }),
+                );
+            },
+          ),
+
           __settings.client.subscribe('chatify://chat-member-removed', ([eventChatId, , , message]) => {
             eventChatId === chatId &&
               dispatch(
@@ -393,6 +444,14 @@ const __chatifyApi = __baseApi.injectEndpoints({
           text,
           files,
         });
+
+        return { data: null! };
+      },
+    }),
+
+    removeChatMessage: builder.mutation<void, RemoveChatMessageRequest>({
+      queryFn: async (args) => {
+        await __settings.client.removeChatMessage(args);
 
         return { data: null! };
       },

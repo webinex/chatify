@@ -40,6 +40,7 @@ export interface MessageBase {
   files: File[];
   sentAt: string;
   sentBy: Account;
+  removed?: boolean | null;
 }
 
 export interface ChatMessage extends MessageBase {
@@ -67,6 +68,11 @@ export interface SendChatMessageRequest {
   chatId: string;
   text: string | null;
   files: File[];
+}
+
+export interface RemoveChatMessageRequest {
+  chatId: string;
+  messageId: string;
 }
 
 export interface MessageBody {

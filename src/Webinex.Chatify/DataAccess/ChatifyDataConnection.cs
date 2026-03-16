@@ -1,8 +1,8 @@
-﻿using System.Text.Json;
-using LinqToDB;
+﻿using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.SqlServer;
 using LinqToDB.Mapping;
+using System.Text.Json;
 using Webinex.Chatify.Rows;
 using Webinex.Chatify.Rows.Chats;
 using Webinex.Chatify.Rows.Threads;
@@ -31,10 +31,41 @@ internal class ChatifyDataConnection : DataConnection
         return chatMessage;
     }
 
+    public async Task DeleteChatMessageAsync(Guid chatId, string messageId)
+    {
+        await MessageRows.Where(x => x.ChatId == chatId && x.Id == messageId)
+            .DeleteAsync();
+    }
+
+    public async Task<ChatMessageRow?> GetPreviousMessageAsync(Guid chatId, string beforeMessageId)
+    {
+        var beforeSentAt = await MessageRows
+            .Where(x => x.ChatId == chatId && x.Id == beforeMessageId)
+            .Select(x => x.SentAt)
+            .FirstAsync();
+
+        return await GetLastMessageAsync(chatId, beforeSentAt);
+    }
+
+    public async Task<ChatMessageRow?> GetLastMessageAsync(Guid chatId, DateTimeOffset? beforeSentAt = null)
+    {
+        var query = MessageRows
+            .Where(x => x.ChatId == chatId);
+
+        if (beforeSentAt.HasValue)
+        {
+            query = query.Where(x => x.SentAt < beforeSentAt.Value);
+        }
+
+        return await query
+            .OrderByDescending(x => x.SentAt)
+            .FirstOrDefaultAsync();
+    }
+
     public async Task NotifyMembersAsync(string messageId, string authorId, IEnumerable<string>? except = null, string? readForId = null)
     {
         var id = ChatMessageId.Parse(messageId);
-        
+
         var activityQueryable = ChatActivityRows
             .Where(x => x.ChatId == id.ChatId && x.Active);
 
@@ -63,6 +94,27 @@ internal class ChatifyDataConnection : DataConnection
     {
         await MemberRows.Where(x => x.ChatId == chatId && x.AccountId == accountId)
             .DeleteAsync();
+    }
+
+    public async Task DeleteRemovedMessageReferencesAsync(Guid chatId, string removedMessageId, string lastMessageId, string lastMessageFromId)
+    {
+        var activity = ChatActivityRows.Where(x => x.ChatId == chatId);
+
+        await activity
+            .Where(x => x.LastMessageId == removedMessageId)
+            .Set(x => x.LastMessageId, lastMessageId)
+            .Set(x => x.LastMessageFromId, lastMessageFromId)
+            .UpdateAsync();
+
+        await activity
+            .Where(x => x.LastReadMessageId == removedMessageId)
+            .Set(x => x.LastReadMessageId, lastMessageId)
+            .UpdateAsync();
+
+        await MemberRows
+            .Where(x => x.ChatId == chatId && x.LastMessageId == removedMessageId)
+            .Set(x => x.LastMessageId, lastMessageId)
+            .UpdateAsync();
     }
 
     public async Task<ChatMetaRow> GetMetaWithUpdLockAsync(Guid chatId)
@@ -101,7 +153,7 @@ internal class ChatifyDataConnection : DataConnection
         if (count != 1)
             throw new InvalidOperationException();
     }
-    
+
     public ChatifyDataConnection(DataOptions<ChatifyDataConnection> options) : base(options.Options)
     {
     }
@@ -161,12 +213,12 @@ internal class ChatifyDataConnection : DataConnection
             .HasConversion(files => files.Count > 0 ? JsonSerializer.Serialize(files, JsonSerializerOptions.Default) : null,
                 json => json == null ? Array.Empty<File>() : JsonSerializer.Deserialize<IReadOnlyCollection<File>>(json, JsonSerializerOptions.Default)!,
                 handlesNulls: true);
-        
+
         model.Entity<ThreadWatchRow>()
             .HasSchemaName("chatify")
             .HasTableName("ThreadWatches")
             .HasPrimaryKey(x => new { x.ThreadId, x.AccountId });
-        
+
         model.Entity<ThreadMetaRow>()
             .HasSchemaName("chatify")
             .HasTableName("ThreadMeta")

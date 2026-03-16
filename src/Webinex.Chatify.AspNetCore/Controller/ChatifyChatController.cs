@@ -72,4 +72,10 @@ internal class ChatifyChatController : ControllerBase
         var result = await _chatifyAspNetCoreService.SendAsync(chatId, request);
         return new CodedActionResult(result);
     }
+
+    [HttpDelete("chat/{chatId:guid}/message/{messageId}")]
+    public async Task<IActionResult> DeleteMessageAsync(Guid chatId, string messageId)
+    {
+        return new CodedActionResult(await _chatifyAspNetCoreService.DeleteChatMessageAsync(chatId, messageId));
+    }
 }

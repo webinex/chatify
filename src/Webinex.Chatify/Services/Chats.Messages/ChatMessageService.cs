@@ -6,6 +6,7 @@ using Webinex.Chatify.Abstractions.Events;
 using Webinex.Chatify.Common;
 using Webinex.Chatify.DataAccess;
 using Webinex.Chatify.Rows.Chats;
+using Webinex.Chatify.Services.Chats.Members;
 
 namespace Webinex.Chatify.Services.Chats.Messages;
 
@@ -14,6 +15,8 @@ internal interface IChatMessageService
     Task ReadAsync(ReadChatMessageArgs chatMessageArgs);
     Task<ChatMessage[]> QueryAsync(ChatMessageQuery query);
     Task<ChatMessage[]> SendRangeAsync(IEnumerable<SendChatMessageArgs> args);
+    Task<IReadOnlyDictionary<string, string>> AuthorIdByMessageIdAsync(IEnumerable<string> messageIds);
+    Task RemoveRangeAsync(IEnumerable<RemoveChatMessageArgs> args);
 }
 
 internal class ChatMessageService : IChatMessageService
@@ -22,17 +25,20 @@ internal class ChatMessageService : IChatMessageService
     private readonly ISendMessageService _sendMessageService;
     private readonly IChatMessageQueryService _chatMessageQueryService;
     private readonly IChatifyDataConnectionFactory _dataConnectionFactory;
+    private readonly IRemoveChatMessageService _removeChatMessageService;
 
     public ChatMessageService(
         IEventService eventService,
         ISendMessageService sendMessageService,
         IChatMessageQueryService chatMessageQueryService,
-        IChatifyDataConnectionFactory dataConnectionFactory)
+        IChatifyDataConnectionFactory dataConnectionFactory,
+        IRemoveChatMessageService removeChatMessageService)
     {
         _eventService = eventService;
         _sendMessageService = sendMessageService;
         _chatMessageQueryService = chatMessageQueryService;
         _dataConnectionFactory = dataConnectionFactory;
+        _removeChatMessageService = removeChatMessageService;
     }
 
     public async Task ReadAsync(ReadChatMessageArgs chatMessageArgs)
@@ -81,5 +87,15 @@ internal class ChatMessageService : IChatMessageService
     public async Task<ChatMessage[]> SendRangeAsync(IEnumerable<SendChatMessageArgs> args)
     {
         return await _sendMessageService.SendRangeAsync(args);
+    }
+
+    public async Task<IReadOnlyDictionary<string, string>> AuthorIdByMessageIdAsync(IEnumerable<string> messageIds)
+    {
+        return await _chatMessageQueryService.AuthorIdByMessageIdAsync(messageIds);
+    }
+
+    public async Task RemoveRangeAsync(IEnumerable<RemoveChatMessageArgs> args)
+    {
+        await _removeChatMessageService.RemoveRangeAsync(args);
     }
 }

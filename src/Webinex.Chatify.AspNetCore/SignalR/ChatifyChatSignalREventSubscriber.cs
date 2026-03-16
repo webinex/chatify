@@ -11,6 +11,7 @@ internal class ChatifyChatSignalREventSubscriber<THub>
         IEventSubscriber<IEnumerable<ChatMessageReadEvent>>,
         IEventSubscriber<IEnumerable<ChatMemberAddedEvent>>,
         IEventSubscriber<IEnumerable<ChatMemberRemovedEvent>>,
+        IEventSubscriber<IEnumerable<ChatMessageRemovedEvent>>,
         IEventSubscriber<IEnumerable<ChatNameChangedEvent>> where THub : ChatifyHub
 {
     private readonly IHubContext<THub> _hub;
@@ -147,9 +148,33 @@ internal class ChatifyChatSignalREventSubscriber<THub>
                 var message = new ChatMessageDto(x.ChatMessage.Id, x.ChatMessage.ChatId, x.ChatMessage.Body.Text, x.ChatMessage.SentAt,
                     x.ChatMessage.Body.Files, AccountDto.System());
 
+
                 await _hub.Clients.User(member).SendCoreAsync(
                     "chatify://chat-member-removed",
                     [x.ChatId, x.AccountId, x.DeleteHistory, message, member == x.ReadForId]);
+            }
+        }
+    }
+
+    public async Task InvokeAsync(IEnumerable<ChatMessageRemovedEvent> events)
+    {
+        events = events.ToArray();
+        var chatMembersByChatId = await _chatify.ActiveChatMemberIdByChatIdAsync(events.Select(x => x.ChatId));
+        var accountById = await _chatify.AccountByIdAsync(events.SelectMany(x => chatMembersByChatId[x.ChatId]));
+
+        foreach (var sentEvent in events)
+        {
+            var lastMessage = sentEvent.LastMessage;
+
+            var message = lastMessage != null ? new ChatMessageDto(lastMessage.Id, lastMessage.ChatId, lastMessage.Body.Text, lastMessage.SentAt,
+                  lastMessage.Body.Files, sentBy: lastMessage.AuthorId == AccountContext.System.Id
+                        ? AccountDto.System()
+                        : new AccountDto(accountById[lastMessage.AuthorId])) : null;
+
+            foreach (var recipient in chatMembersByChatId[sentEvent.ChatId])
+            {
+                await _hub.Clients.User(recipient).SendCoreAsync(
+                    "chatify://chat-message-removed", [sentEvent.ChatId, sentEvent.MessageId, sentEvent.AuthorId, message]);
             }
         }
     }

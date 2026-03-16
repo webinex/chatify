@@ -49,6 +49,7 @@ internal class ChatifyAspNetCoreConfiguration : IChatifyAspNetCoreConfiguration
             .AddScoped<IEventSubscriber<IEnumerable<ChatMemberAddedEvent>>, ChatifyChatSignalREventSubscriber<THub>>()
             .AddScoped<IEventSubscriber<IEnumerable<ChatMemberRemovedEvent>>, ChatifyChatSignalREventSubscriber<THub>>()
             .AddScoped<IEventSubscriber<IEnumerable<ChatNameChangedEvent>>, ChatifyChatSignalREventSubscriber<THub>>()
+            .AddScoped<IEventSubscriber<IEnumerable<ChatMessageRemovedEvent>>, ChatifyChatSignalREventSubscriber<THub>>()
             
             .AddScoped<IEventSubscriber<IEnumerable<ThreadCreatedEvent>>, ChatifyThreadSignalREventSubscriber<THub>>()
             .AddScoped<IEventSubscriber<IEnumerable<ThreadMessageReadEvent>>, ChatifyThreadSignalREventSubscriber<THub>>()

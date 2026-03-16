@@ -9,6 +9,7 @@ namespace Webinex.Chatify.Services.Chats.Messages;
 internal interface IChatMessageQueryService
 {
     Task<ChatMessage[]> QueryAsync(ChatMessageQuery query);
+    Task<IReadOnlyDictionary<string, string>> AuthorIdByMessageIdAsync(IEnumerable<string> messageIds);
 }
 
 internal class ChatMessageQueryService : IChatMessageQueryService
@@ -22,6 +23,16 @@ internal class ChatMessageQueryService : IChatMessageQueryService
     {
         _dataConnectionFactory = dataConnectionFactory;
         _messageRowFieldMap = messageRowFieldMap;
+    }
+
+    public async Task<IReadOnlyDictionary<string, string>> AuthorIdByMessageIdAsync(IEnumerable<string> messageIds)
+    {
+        await using var connection = _dataConnectionFactory.Create();
+
+        return await connection.MessageRows
+            .Where(x => messageIds.Contains(x.Id))
+            .Select(x => new { x.Id, x.AuthorId })
+            .ToDictionaryAsync(x => x.Id, x => x.AuthorId);
     }
 
     public async Task<ChatMessage[]> QueryAsync(ChatMessageQuery query)

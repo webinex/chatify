@@ -51,7 +51,8 @@ internal class ChatifyConfiguration : IChatifyConfiguration
             .AddScoped<IChatMemberService, ChatMemberService>()
             .AddScoped<IGetChatMemberService, GetChatMemberService>()
             .AddScoped<IAddChatMemberService, AddChatMemberService>()
-            .AddScoped<IRemoveChatMemberService, RemoveChatMemberService>();
+            .AddScoped<IRemoveChatMemberService, RemoveChatMemberService>()
+            .AddScoped<IRemoveChatMessageService, RemoveChatMessageService>();
 
         services
             .AddSingleton<IEntityCache<AccountRow>, EntityMemoryCache<AccountRow>>()

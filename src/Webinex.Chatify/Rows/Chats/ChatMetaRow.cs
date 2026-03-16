@@ -16,6 +16,12 @@ internal class ChatMetaRow
         LastMessageId = messageId ?? throw new ArgumentNullException(nameof(messageId));
     }
 
+    public void Decrement(string messageId)
+    {
+        LastIndex--;
+        LastMessageId = messageId ?? throw new ArgumentNullException(nameof(messageId));
+    }
+
     public static ChatMetaRow New(Guid chatId, string lastMessageId, int index = 0)
     {
         return new ChatMetaRow
