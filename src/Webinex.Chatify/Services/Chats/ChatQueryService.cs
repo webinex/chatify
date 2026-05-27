@@ -1,4 +1,5 @@
 ﻿using LinqToDB;
+using LinqToDB.Async;
 using Webinex.Asky;
 using Webinex.Chatify.Abstractions;
 using Webinex.Chatify.DataAccess;

@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using LinqToDB;
+using LinqToDB.Async;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.SqlServer;
 using Webinex.Asky;
@@ -202,7 +203,8 @@ internal class ThreadService : IThreadService
                 x => x.LastReadMessageId == null || x.LastReadMessageId.CompareTo(args.MessageId) < 0
                     ? args.MessageId
                     : x.LastReadMessageId)
-            .UpdateWithOutputAsync((deleted, @new) => new { PreviousLastReadMessageId = deleted.LastReadMessageId });
+            .UpdateWithOutputAsync((deleted, @new) => new { PreviousLastReadMessageId = deleted.LastReadMessageId })
+            .ToArrayAsync();
 
         var previousLastReadMessageId = dbResult.Single().PreviousLastReadMessageId;
         var previousReadIndex = previousLastReadMessageId != null

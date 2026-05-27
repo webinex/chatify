@@ -53,15 +53,6 @@ builder.Services.AddFlippo(x =>
 
 var app = builder.Build();
 
-if (builder.Configuration.GetValue<bool>("WebAppHost"))
-{
-    app.UseDefaultFiles();
-    app.UseStaticFiles();
-    app.MapWhen(
-        x => !x.Request.Path.StartsWithSegments("/api"),
-        x => x.UseSpa(_ => { }));
-}
-
 await using (var databaseSqlScriptStream = typeof(Program).Assembly
                  .GetManifestResourceStream("Webinex.Chatify.Example.database.sql"))
 
