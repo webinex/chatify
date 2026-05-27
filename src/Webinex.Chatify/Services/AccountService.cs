@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using LinqToDB;
+using LinqToDB.Async;
 using LinqToDB.Data;
 using Webinex.Chatify.Abstractions;
 using Webinex.Chatify.DataAccess;
