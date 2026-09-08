@@ -27,7 +27,7 @@ export interface LocalizerBase {
   };
 
   input: {
-    placeholder: () => string;
+    placeholder: (type: 'compact' | 'default') => string;
   };
 
   settings: {
@@ -58,6 +58,10 @@ export interface LocalizerBase {
     };
     submitBtn: () => React.ReactNode;
     clearBtn: () => React.ReactNode;
+  };
+
+  members: {
+    title: (chatName: string) => React.ReactNode;
   };
 }
 
@@ -100,7 +104,10 @@ const base: LocalizerBase = {
   },
 
   input: {
-    placeholder: () => 'Start typing... (Press Enter to send, and Shift+Enter to start a new line)',
+    placeholder: (type) =>
+      type === 'default'
+        ? 'Start typing... (Press Enter to send, and Shift+Enter to start a new line)'
+        : 'Type a message...',
   },
 
   settings: {
@@ -118,6 +125,10 @@ const base: LocalizerBase = {
 
   chatList: {
     topShown: (count: number) => `Latest active ${count} chat${count !== 1 ? 's' : ''} shown`,
+  },
+
+  members: {
+    title: (chatName: string) => `Members of ${chatName}`,
   },
 
   autoReply: {

@@ -4,7 +4,7 @@ import { customize } from '../customize';
 import { useConversation } from '../Conversation';
 
 export const ChatHeaderActions = customize('ChatHeaderActions', () => {
-  const { active } = useConversation();
+  const { active, compact } = useConversation();
 
   if (!active) {
     return null;
@@ -12,7 +12,7 @@ export const ChatHeaderActions = customize('ChatHeaderActions', () => {
 
   return (
     <div className="wxchtf-chat-members">
-      <ChatMembersPreview />
+      {!compact && <ChatMembersPreview />}
       <ChatMembersButton />
     </div>
   );

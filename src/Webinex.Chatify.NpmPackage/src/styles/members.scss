@@ -1,3 +1,12 @@
+@use './mixins.scss' as mixins;
+
+.wxchtf-chatify.--compact {
+  .wxchtf-chat-members-panel {
+    width: 100%;
+    box-shadow: none;
+  }
+}
+
 .wxchtf-chatify {
   .wxchtf-chat-members-panel {
     min-width: 300px;
@@ -7,6 +16,14 @@
       .wxchtf-chat-members-list-item {
         padding-inline: 1rem;
         border-block-end: none;
+      }
+    }
+
+    .wxchtf-chat-members-panel-header {
+      @include mixins.header();
+
+      .wxchtf-chat-members-panel-title {
+        @include mixins.title();
       }
     }
   }

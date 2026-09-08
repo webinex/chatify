@@ -2,6 +2,7 @@ import React, { PropsWithChildren, useContext, useMemo, useState } from 'react';
 
 export interface ChatContext {
   id: string;
+  compact: boolean;
   showMembers: boolean;
   onShowMembers: (value: boolean) => void;
 }
@@ -13,8 +14,8 @@ export function useChatContext() {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export function ChatContext(props: PropsWithChildren<{ id: string }>) {
-  const { id, children } = props;
+export function ChatContext(props: PropsWithChildren<{ id: string; compact: boolean }>) {
+  const { id, children, compact } = props;
   const [showMembers, onShowMembers] = useState(false);
 
   const value = useMemo<ChatContext>(
@@ -22,8 +23,9 @@ export function ChatContext(props: PropsWithChildren<{ id: string }>) {
       id,
       showMembers,
       onShowMembers,
+      compact,
     }),
-    [id, showMembers],
+    [id, showMembers, compact],
   );
 
   return <ChatReactContext.Provider value={value}>{children}</ChatReactContext.Provider>;

@@ -53,6 +53,7 @@ function usePanelState(props: ThreadPanelProps) {
       onRead,
       onSend,
       noReadTracking: !watch,
+      compact: false,
       isReading: (id: string) =>
         readQueue!.some(
           (unit) => parseThreadMessageId(unit.value)[0] === parseThreadMessageId(id)[0] && id <= unit.value,

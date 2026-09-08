@@ -14,6 +14,7 @@ import type { Flippo } from '@webinex/flippo';
 
 export interface ConversationProps extends Omit<ConversationContextValue, keyof ConversationValue> {
   value: ConversationValue;
+  onBackClick?: () => void;
 }
 
 export interface ConversationCustomizeValue
@@ -41,6 +42,8 @@ export const Conversation = customize('Conversation', (props: ConversationProps)
     isReading,
     noReadTracking,
     onClose,
+    compact,
+    onBackClick,
   } = props;
 
   const { id, active, name, lastReadMessageId } = value;
@@ -60,6 +63,7 @@ export const Conversation = customize('Conversation', (props: ConversationProps)
       isReading,
       noReadTracking,
       onClose,
+      compact,
     }),
     [
       id,
@@ -82,7 +86,7 @@ export const Conversation = customize('Conversation', (props: ConversationProps)
     <ConversationContext.Provider value={context}>
       <div className="wxchtf-conversation">
         <div className="wxchtf-conversation-main">
-          <ConversationHeader />
+          <ConversationHeader onBackClick={onBackClick} />
           <ConversationBody />
           {active && <InputBox />}
         </div>

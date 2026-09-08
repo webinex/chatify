@@ -36,7 +36,6 @@ function useOnSelect(props: ChatListProps) {
 }
 
 function useMenuItems(props: ChatListProps) {
-  //28b2a1a6-c052-4761-ad2d-95ce36d59f06-000000001
   const { items, noRead, top } = props;
   const localizer = useLocalizer();
 

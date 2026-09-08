@@ -131,6 +131,13 @@
   }
 }
 
+.wxchtf-chat-group.--compact {
+  .wxchtf-main {
+    border-top-left-radius: vars.$radius;
+    border-bottom-left-radius: vars.$radius;
+  }
+}
+
 .wxchtf-main {
   flex: auto;
   display: flex;
