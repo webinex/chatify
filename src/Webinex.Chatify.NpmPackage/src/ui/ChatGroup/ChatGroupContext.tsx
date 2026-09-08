@@ -4,6 +4,7 @@ export interface ChatGroupContext {
   view: 'chat' | 'new-chat' | 'auto-reply' | null;
   chatId: string | null;
   showMembers: boolean;
+  compact: boolean;
 
   none(): void;
   openChat(chatId: string): void;
@@ -19,8 +20,8 @@ export function useChatGroupContext() {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export function ChatGroupContext(props: PropsWithChildren<{}>) {
-  const { children } = props;
+export function ChatGroupContext(props: PropsWithChildren<{ compact: boolean }>) {
+  const { children, compact } = props;
   const [state, setState] = useState<Pick<ChatGroupContext, 'view' | 'chatId' | 'showMembers'>>({
     chatId: null,
     view: null,
@@ -30,6 +31,7 @@ export function ChatGroupContext(props: PropsWithChildren<{}>) {
   const value = useMemo<ChatGroupContext>(
     () => ({
       ...state,
+      compact,
       openChat: (chatId: string) => setState((prev) => ({ ...prev, view: 'chat', chatId })),
       none: () => setState((prev) => ({ ...prev, view: null, chatId: null })),
       toggleMembers: () => setState((prev) => ({ ...prev, showMembers: !prev.showMembers })),
@@ -54,7 +56,7 @@ export function ChatGroupContext(props: PropsWithChildren<{}>) {
           }
         }),
     }),
-    [state],
+    [state, compact],
   );
 
   return <ChatGroupReactContext.Provider value={value}>{children}</ChatGroupReactContext.Provider>;

@@ -12,8 +12,10 @@ import { ChatHeaderActions } from './ChatHeaderActions';
 import { ChatMembersCustomizeValue, ChatMembersPanel } from './Members';
 import { ChatContext, useChatContext } from './ChatContext';
 
-export interface ChatProps {
+export interface ChatViewProps {
   value: ChatValue;
+  compact?: boolean;
+  onBackClick?: () => void;
 }
 
 export interface ChatValue extends ConversationValue {}
@@ -29,8 +31,9 @@ export const DEFAULT_CHAT_VIEW_CUSTOMIZE_VALUE: ConversationCustomizeValue = {
   ConversationActions: () => <ChatHeaderActions />,
 };
 
-function useConversation(props: ChatProps) {
-  const { value: chat } = props;
+function useConversation(props: Pick<ChatViewProps, 'value' | 'onBackClick'>) {
+  const { value: chat, onBackClick } = props;
+  const { compact } = useChatContext();
   const { id, name, active, lastReadMessageId } = chat;
 
   const { data: messageList } = chatifyApi.useGetChatMessageListQuery({ chatId: id });
@@ -61,6 +64,8 @@ function useConversation(props: ChatProps) {
       onRead,
       onSend,
       isReading: (id: string) => readQueue!.some((x) => chatId(x.value) === chatId(id) && id <= x.value),
+      compact: compact ?? false,
+      onBackClick,
     };
 
     return result;
@@ -76,14 +81,16 @@ function useConversation(props: ChatProps) {
     hasMore,
     lastReadMessageId,
     readQueue,
+    compact,
+    onBackClick,
   ]);
 
   return conversation;
 }
 
-function Content(props: ChatProps) {
+function Content(props: Pick<ChatViewProps, 'value' | 'onBackClick'>) {
   const conversation = useConversation(props);
-  const { showMembers } = useChatContext();
+  const { compact, showMembers } = useChatContext();
 
   if (!conversation) {
     return null;
@@ -91,14 +98,14 @@ function Content(props: ChatProps) {
 
   return (
     <div className="wxchtf-chat">
-      <Conversation {...conversation} />
+      {(!compact || !showMembers) && <Conversation {...conversation} />}
       {showMembers && <ChatMembersPanel />}
     </div>
   );
 }
 
-export const ChatView = customize('ChatView', (props: ChatProps) => {
-  const { value } = props;
+export const ChatView = customize('ChatView', (props: ChatViewProps) => {
+  const { value, compact, onBackClick } = props;
   const customized = useCustomizeContext();
   const customize: ChatViewCustomizeValue = useMemo(
     () => ({ ...(customized ?? {}), ...DEFAULT_CHAT_VIEW_CUSTOMIZE_VALUE }),
@@ -107,8 +114,8 @@ export const ChatView = customize('ChatView', (props: ChatProps) => {
 
   return (
     <CustomizeContext.Provider value={customize}>
-      <ChatContext id={value.id}>
-        <Content value={value} />
+      <ChatContext id={value.id} compact={compact ?? false}>
+        <Content value={value} onBackClick={onBackClick} />
       </ChatContext>
     </CustomizeContext.Provider>
   );

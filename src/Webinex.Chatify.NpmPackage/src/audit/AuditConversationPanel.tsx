@@ -42,6 +42,7 @@ export const AuditConversationPanel = customize(
         messages={messages}
         noReadTracking
         onClose={onClose}
+        compact={false}
       />
     );
   },

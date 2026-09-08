@@ -1,6 +1,14 @@
 @use './variables.scss' as vars;
 @use './mixins.scss' as mixins;
 
+.wxchtf-chat-group.--compact {
+  .wxchtf-aside {
+    width: 100%;
+    border-top-right-radius: vars.$radius;
+    border-bottom-right-radius: vars.$radius;
+  }
+}
+
 .wxchtf-aside {
   flex: none;
   display: flex;

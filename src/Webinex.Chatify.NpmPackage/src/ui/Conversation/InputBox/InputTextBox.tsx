@@ -4,6 +4,7 @@ import { isHotkey } from 'is-hotkey';
 import { RefObject, memo, useCallback } from 'react';
 import { useLocalizer } from '../../localizer';
 import { TextAreaProps } from 'antd/es/input';
+import { useConversation } from '../ConversationContext';
 
 export interface TextInputBoxProps {
   value: string;
@@ -23,6 +24,7 @@ export const InputTextBox = customize(
   memo((props: TextInputBoxProps) => {
     const { value, onChange, onSend, disabled, inputRef } = props;
     const localizer = useLocalizer();
+    const { compact } = useConversation();
 
     const onInputChange = useCallback(
       (e: React.ChangeEvent<HTMLTextAreaElement>) => onChange(e.target.value),
@@ -52,7 +54,7 @@ export const InputTextBox = customize(
           onChange={onInputChange}
           autoSize={AUTO_SIZE}
           className="wxchtf-text-input-textarea"
-          placeholder={localizer.input.placeholder()}
+          placeholder={localizer.input.placeholder(compact ? 'compact' : 'default')}
           onKeyDown={onKeyDown}
         />
       </div>

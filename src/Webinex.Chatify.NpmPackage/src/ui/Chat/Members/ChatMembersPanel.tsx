@@ -1,10 +1,12 @@
-import { Button, List, Space, Tooltip } from 'antd';
+import { Button, Col, List, Row, Space, Tooltip } from 'antd';
 import { chatifyApi } from '../../../core';
 import { customize } from '../../customize';
 import { useCallback, useMemo } from 'react';
 import { Icon } from '../../common/Icon';
 import { Avatar } from '../../common/Avatar';
 import { useChatContext } from '../ChatContext';
+import { LeftOutlined } from '@ant-design/icons';
+import { useLocalizer } from '@/ui/localizer';
 
 interface ChatMemberListItemProps {
   id: string;
@@ -80,9 +82,11 @@ const ChatMemberListItem = customize('ChatMemberListItem', (props: ChatMemberLis
 });
 
 export const ChatMembersPanel = customize('ChatMembersPanel', () => {
-  const { id } = useChatContext();
+  const { id, compact, onShowMembers } = useChatContext();
+  const localizer = useLocalizer();
   const { data: chat } = chatifyApi.useGetChatQuery({ id });
   const { data: accounts } = chatifyApi.useGetAccountListQuery({});
+
   const ordered = useMemo(
     () =>
       accounts
@@ -102,6 +106,18 @@ export const ChatMembersPanel = customize('ChatMembersPanel', () => {
 
   return (
     <div className="wxchtf-chat-members-panel">
+      {compact && (
+        <div className="wxchtf-chat-members-panel-header">
+          <Row wrap={false} align="middle" gutter={10}>
+            <Col flex="none">
+              <Button type="text" icon={<LeftOutlined />} onClick={() => onShowMembers(false)} />
+            </Col>
+            <Col>
+              <span className="wxchtf-chat-members-panel-title">{localizer.members.title(chat.name)}</span>
+            </Col>
+          </Row>
+        </div>
+      )}
       <List
         className="wxchtf-chat-members-list"
         dataSource={ordered}

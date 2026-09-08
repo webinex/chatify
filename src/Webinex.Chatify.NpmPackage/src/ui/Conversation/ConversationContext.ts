@@ -14,6 +14,7 @@ export interface ConversationContextValue extends ConversationValue {
   hasMore?: boolean;
   nextLoading: boolean;
   noReadTracking?: boolean;
+  compact: boolean;
 
   isReading?: (id: string) => boolean;
   onNext: () => void;

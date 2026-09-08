@@ -2,10 +2,11 @@ import { Chatify, ChatGroupCustomizeValue, ChatHeaderActions, useConversation } 
 import { Button } from 'antd';
 import { Flippo } from '@webinex/flippo';
 import { FLIPPO_AXIOS } from '../client';
+import { ExportOutlined } from '@ant-design/icons';
 
 const CUSTOMIZE: ChatGroupCustomizeValue = {
   ChatHeaderActions: () => {
-    const { id, name } = useConversation();
+    const { id, name, compact } = useConversation();
 
     const onOpenInNewWindow = () => {
       window.open(
@@ -17,9 +18,12 @@ const CUSTOMIZE: ChatGroupCustomizeValue = {
 
     return (
       <div style={{ display: 'inline-flex', alignItems: 'center', gap: 20 }}>
-        <Button type="link" onClick={onOpenInNewWindow}>
-          Open in new window
-        </Button>
+        <Button
+          type="link"
+          onClick={onOpenInNewWindow}
+          icon={compact && <ExportOutlined />}
+          children={compact ? undefined : 'Open in new window'}
+        />
         <ChatHeaderActions.Component />
       </div>
     );
